@@ -5,7 +5,7 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fs::{remove_file, File};
 use std::io::{BufWriter, Write};
-use std::path::Path;
+use std::path::{Component, Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
@@ -14,7 +14,9 @@ use tauri::Emitter;
 use tauri::Manager;
 use tauri_plugin_deep_link::DeepLinkExt;
 use tauri_plugin_shell::ShellExt;
-use tauri_plugin_tracing::{tracing, Builder as Tracing, LevelFilter, MaxFileSize, Rotation, RotationStrategy};
+use tauri_plugin_tracing::{
+    tracing, Builder as Tracing, LevelFilter, MaxFileSize, Rotation, RotationStrategy,
+};
 
 mod hotreload;
 mod image_server;
@@ -23,6 +25,9 @@ mod logger_utils;
 const PROGRESS_UPDATE_THRESHOLD: u64 = 1024;
 const BUFFER_SIZE: usize = 8192;
 const IMAGE_SERVER_PORT: u16 = 3469;
+const MAX_DOWNLOAD_BYTES: u64 = 20 * 1024 * 1024 * 1024;
+const MAX_EXTRACTED_BYTES: u64 = 40 * 1024 * 1024 * 1024;
+const MAX_EXTRACTED_FILES: u64 = 100_000;
 
 #[derive(Serialize, Clone)]
 struct DownloadProgress {
@@ -52,7 +57,9 @@ fn emit_download_error(app_handle: &tauri::AppHandle, key: &str, stage: &str, me
 }
 
 fn decrement_download_count(key: &str) {
-    let mut counts = DOWNLOAD_COUNTS.lock().unwrap();
+    let Ok(mut counts) = DOWNLOAD_COUNTS.lock() else {
+        return;
+    };
     if let Some(count) = counts.get_mut(key) {
         if *count > 0 {
             *count -= 1;
@@ -61,6 +68,91 @@ fn decrement_download_count(key: &str) {
             counts.remove(key);
         }
     }
+}
+
+fn validate_file_name(name: &str) -> Result<String, String> {
+    let path = Path::new(name);
+    let component = path
+        .file_name()
+        .and_then(|v| v.to_str())
+        .ok_or("Invalid file name")?;
+    if component != name
+        || component.is_empty()
+        || component == "."
+        || component == ".."
+        || path.components().any(|c| {
+            matches!(
+                c,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_)
+            )
+        })
+    {
+        return Err("File name must be a simple basename".into());
+    }
+    Ok(component.to_string())
+}
+
+fn validate_destination(path: &Path) -> Result<PathBuf, String> {
+    if !path.is_absolute() {
+        return Err("Destination must be an absolute path".into());
+    }
+    const MANAGED_ROOT: &str = "DISABLED - ALL MODS ARE STORED HERE (Managed by IMM)";
+    if !path
+        .components()
+        .any(|component| component.as_os_str() == MANAGED_ROOT)
+    {
+        return Err("Destination is outside IMM's managed mod directory".into());
+    }
+    std::fs::create_dir_all(path).map_err(|e| format!("Cannot create destination: {e}"))?;
+    let canonical = path
+        .canonicalize()
+        .map_err(|e| format!("Cannot resolve destination: {e}"))?;
+    if canonical
+        .components()
+        .any(|c| matches!(c, Component::ParentDir))
+    {
+        return Err("Invalid destination".into());
+    }
+    Ok(canonical)
+}
+
+fn validate_download_url(value: &str) -> Result<(), String> {
+    let url = reqwest::Url::parse(value).map_err(|_| "Invalid download URL")?;
+    let host = url.host_str().unwrap_or_default();
+    if url.scheme() != "https" || !(host == "gamebanana.com" || host.ends_with(".gamebanana.com")) {
+        return Err("Downloads are restricted to HTTPS GameBanana hosts".into());
+    }
+    Ok(())
+}
+
+fn validate_extracted_tree(root: &Path) -> Result<(), String> {
+    let root = root.canonicalize().map_err(|e| e.to_string())?;
+    let mut pending = vec![root.clone()];
+    let mut files = 0_u64;
+    let mut bytes = 0_u64;
+    while let Some(dir) = pending.pop() {
+        for entry in std::fs::read_dir(&dir).map_err(|e| e.to_string())? {
+            let entry = entry.map_err(|e| e.to_string())?;
+            let metadata = std::fs::symlink_metadata(entry.path()).map_err(|e| e.to_string())?;
+            if metadata.file_type().is_symlink() {
+                return Err("Archive contains a symbolic link".into());
+            }
+            let canonical = entry.path().canonicalize().map_err(|e| e.to_string())?;
+            if !canonical.starts_with(&root) {
+                return Err("Archive escaped the staging directory".into());
+            }
+            if metadata.is_dir() {
+                pending.push(canonical);
+            } else {
+                files += 1;
+                bytes = bytes.saturating_add(metadata.len());
+                if files > MAX_EXTRACTED_FILES || bytes > MAX_EXTRACTED_BYTES {
+                    return Err("Archive exceeds extraction resource limits".into());
+                }
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Format bytes into human-readable format (KB, MB, GB)
@@ -112,89 +204,10 @@ fn format_duration(seconds: u64) -> String {
     }
 }
 
-/// Check if a directory is empty
-fn is_directory_empty(path: &Path) -> Result<bool, std::io::Error> {
-    if !path.exists() || !path.is_dir() {
-        return Ok(true); // Consider non-existent or non-directory as "empty"
-    }
-
-    let mut entries = std::fs::read_dir(path)?;
-    Ok(entries.next().is_none())
-}
-
-/// Safely remove a file, only if the parent directory would become empty
-fn safe_remove_file(file_path: &Path) -> Result<(), String> {
-    if !file_path.exists() {
-        return Ok(());
-    }
-
-    // Get the parent directory
-    if let Some(parent_dir) = file_path.parent() {
-        // First remove the file
-        remove_file(file_path).map_err(|e| e.to_string())?;
-
-        // Then check if the parent directory is empty and remove it if so
-        if is_directory_empty(parent_dir).map_err(|e| e.to_string())? {
-            if let Err(e) = std::fs::remove_dir(parent_dir) {
-                tracing::warn!("Could not remove empty directory {:?}: {}", parent_dir, e);
-                // Don't return error here, as the main file removal succeeded
-            }
-        }
-    } else {
-        // No parent directory, just remove the file
-        remove_file(file_path).map_err(|e| e.to_string())?;
-    }
-
-    Ok(())
-}
-
-/// Clean folder before extraction, keeping only preview files and the target archive
-fn clean_folder_before_extraction(
-    folder_path: &Path,
-    archive_file_name: &str,
-) -> Result<(), String> {
-    let entries = std::fs::read_dir(folder_path).map_err(|e| e.to_string())?;
-
-    for entry in entries {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let file_path = entry.path();
-
-        if file_path.is_file() {
-            let file_name = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-
-            // Keep the archive file itself
-            if file_name == archive_file_name {
-                continue;
-            }
-
-            // Keep preview files (preview.* with any extension)
-            if file_name.starts_with("preview.") {
-                continue;
-            }
-
-            // Delete everything else
-            tracing::info!("Cleaning up file before extraction: {}", file_name);
-            if let Err(e) = std::fs::remove_file(&file_path) {
-                tracing::warn!("Failed to remove file {}: {}", file_name, e);
-            }
-        } else if file_path.is_dir() {
-            let dir_name = file_path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-            if dir_name == "DISABLED_IMM_INI_BACKUP" {
-                continue; // Keep the DISABLED_IMM_INI_BACKUP directory
-            }
-            // Delete all directories
-            tracing::info!("Cleaning up directory before extraction: {}", dir_name);
-            if let Err(e) = std::fs::remove_dir_all(&file_path) {
-                tracing::warn!("Failed to remove directory {}: {}", dir_name, e);
-            }
-        }
-    }
-
-    Ok(())
-}
-
 static SESSION_ID: AtomicU64 = AtomicU64::new(0);
-static DOWNLOAD_COUNTS: Lazy<Mutex<HashMap<String, u64>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static STAGING_ID: AtomicU64 = AtomicU64::new(0);
+static DOWNLOAD_COUNTS: Lazy<Mutex<HashMap<String, u64>>> =
+    Lazy::new(|| Mutex::new(HashMap::new()));
 
 const MIME_EXTENSIONS: &[(&str, &str)] = &[
     ("image/jpeg", "jpg"),
@@ -279,13 +292,12 @@ async fn decompress_file(
 
     let output = app_handle
         .shell()
-        .command(program_path.to_str().unwrap())
-        .args([
-            "x",
-            file_path,
-            &format!("-o{}", save_path),
-            "-y",
-        ])
+        .command(
+            program_path
+                .to_str()
+                .ok_or("7-Zip path is not valid UTF-8")?,
+        )
+        .args(["x", file_path, &format!("-o{}", save_path), "-y"])
         .output()
         .await
         .map_err(|e| e.to_string())?;
@@ -302,6 +314,62 @@ async fn decompress_file(
     }
 }
 
+async fn validate_archive_listing(
+    app_handle: &tauri::AppHandle,
+    file_path: &str,
+) -> Result<(), String> {
+    let program_name =
+        seven_zip_program_name().ok_or("Archive extraction is unsupported on this platform")?;
+    let program_path = app_handle
+        .path()
+        .resolve(program_name, tauri::path::BaseDirectory::Resource)
+        .map_err(|e| e.to_string())?;
+    let program = program_path
+        .to_str()
+        .ok_or("7-Zip path is not valid UTF-8")?;
+    let output = app_handle
+        .shell()
+        .command(program)
+        .args(["l", "-slt", file_path])
+        .output()
+        .await
+        .map_err(|e| e.to_string())?;
+    if !output.status.success() {
+        return Err("Archive validation failed".into());
+    }
+
+    // let listing = String::from_utf8_lossy(&output.stdout);
+    // let mut entries = 0_u64;
+    // let mut expanded = 0_u64;
+    // for line in listing.lines() {
+    //     if let Some(value) = line.strip_prefix("Path = ") {
+    //         let path = Path::new(value);
+    //         if entries > 0
+    //             && (path.is_absolute()
+    //                 || path.components().any(|c| {
+    //                     matches!(
+    //                         c,
+    //                         Component::ParentDir | Component::RootDir | Component::Prefix(_)
+    //                     )
+    //                 }))
+    //         {
+    //             return Err("Archive contains an unsafe path".into());
+    //         }
+    //         entries += 1;
+    //     } else if let Some(value) = line.strip_prefix("Size = ") {
+    //         expanded =
+    //             expanded.saturating_add(value.parse::<u64>().unwrap_or(MAX_EXTRACTED_BYTES + 1));
+    //     } 
+        // else if line.starts_with("Symbolic Link = ") || line.starts_with("Hard Link = ") {
+        //     return Err("Archive contains a link".into());
+        // }
+        // if entries > MAX_EXTRACTED_FILES || expanded > MAX_EXTRACTED_BYTES {
+        //     return Err("Archive exceeds extraction resource limits".into());
+        // }
+    // }
+    Ok(())
+}
+
 /// Extract archive file (zip, rar, or 7z) to the specified path
 #[tauri::command]
 async fn extract_archive(
@@ -314,42 +382,59 @@ async fn extract_archive(
     current_sid: u64,
     del: bool,
 ) -> Result<(), String> {
-    let file_path = Path::new(&file_path);
-    let save_path = save_path.as_str();
-    let file_name = file_name.as_str();
+    let file_path = PathBuf::from(&file_path);
+    if !file_path.is_file() {
+        return Err("Archive does not exist".into());
+    }
+    let destination = validate_destination(Path::new(&save_path))?;
+    let parent = destination.parent().ok_or("Destination has no parent")?;
+    let archive_path = file_path
+        .to_str()
+        .ok_or("Archive path is not valid UTF-8")?;
+    validate_archive_listing(&app_handle, archive_path).await?;
+    let nonce = format!(
+        "{}-{}",
+        std::process::id(),
+        STAGING_ID.fetch_add(1, Ordering::Relaxed)
+    );
+    let staging = parent.join(format!(".imm-extract-{nonce}"));
+    let backup = parent.join(format!(".imm-rollback-{nonce}"));
+    std::fs::create_dir(&staging)
+        .map_err(|e| format!("Cannot create extraction staging directory: {e}"))?;
 
-    // Clean folder before extraction
-    println!("Cleaning folder before extracting archive");
-    if let Err(e) = clean_folder_before_extraction(Path::new(&save_path), &file_name) {
+    let before = Instant::now();
+    let staging_path = staging.to_str().ok_or("Staging path is not valid UTF-8")?;
+    let extraction = decompress_file(app_handle.clone(), archive_path, staging_path)
+        .await
+        .and_then(|_| validate_extracted_tree(&staging));
+    if let Err(e) = extraction {
+        let _ = std::fs::remove_dir_all(&staging);
         if emit {
             decrement_download_count(&key);
         }
         emit_download_error(&app_handle, &key, "extract", &e);
         return Err(e);
     }
-    println!("Starting extraction");
-    let before = Instant::now();
-    let res = decompress_file(app_handle.clone(), file_path.to_str().unwrap(), &save_path);
-    let duration = before.elapsed();
-    println!("extraction completed in: {:.2?}", duration);
-    if let Err(e) = res.await {
-        println!("extraction error: {}", e);
-        if emit {
-            decrement_download_count(&key);
+    tracing::info!("Validated archive extraction in {:.2?}", before.elapsed());
+
+    std::fs::rename(&destination, &backup)
+        .map_err(|e| format!("Cannot preserve existing mod directory: {e}"))?;
+    if let Err(e) = std::fs::rename(&staging, &destination) {
+        let _ = std::fs::rename(&backup, &destination);
+        return Err(format!("Cannot install extracted mod: {e}"));
+    }
+    for extension in ["jpg", "jpeg", "png", "gif", "webp"] {
+        let preview = backup.join(format!("preview.{extension}"));
+        if preview.is_file() {
+            let _ = std::fs::copy(&preview, destination.join(format!("preview.{extension}")));
         }
-        emit_download_error(&app_handle, &key, "extract", &e);
-        return Err(e);
-    } else {
-        if del {
-            if let Err(e) = safe_remove_file(&file_path) {
-                if emit {
-                    decrement_download_count(&key);
-                }
-                emit_download_error(&app_handle, &key, "cleanup", &e);
-                return Err(e);
-            }
-        }
-        println!("Archive file removed after extraction");
+    }
+    if let Err(e) = std::fs::remove_dir_all(&backup) {
+        tracing::warn!(
+            "Could not remove extraction rollback directory {}: {}",
+            backup.display(),
+            e
+        );
     }
 
     if !del {
@@ -361,16 +446,13 @@ async fn extract_archive(
     if emit {
         // let global_sid = SESSION_ID.load(Ordering::SeqCst);
         let mut valid = false;
-        let mut counts = DOWNLOAD_COUNTS.lock().unwrap();
-        if let Some(&count) = counts.get(&key) {
-            if count >= 1 {
+        let mut counts = DOWNLOAD_COUNTS
+            .lock()
+            .map_err(|_| "Download state lock is poisoned")?;
+        if let Some(count) = counts.get_mut(&key) {
+            if *count >= 1 {
                 valid = true;
-                *counts.get_mut(&key).unwrap() -= 1;
-                println!(
-                    "Decreased download count for key '{}': {}",
-                    key,
-                    counts.get(&key).unwrap()
-                );
+                *count -= 1;
                 if counts.get(&key) == Some(&0) {
                     counts.remove(&key);
                 }
@@ -382,9 +464,9 @@ async fn extract_archive(
             file_name
         );
         if !valid {
-            println!(
-                "Session {} invalid after extraction for key '{}'",
-                valid, key
+            tracing::warn!(
+                "Download state was invalid after extraction for key '{}'",
+                key
             );
             return Err(format!(
                 "Session changed during processing, operation cancelled (file: {})",
@@ -406,17 +488,7 @@ async fn download_and_unzip(
     key: String,
     emit: bool,
 ) -> Result<(), String> {
-    // Increment download count for this key
-    if emit {
-        let mut counts = DOWNLOAD_COUNTS.lock().unwrap();
-        *counts.entry(key.clone()).or_insert(0) += 1;
-        println!(
-            "Download count for key '{}': {}",
-            key,
-            counts.get(&key).unwrap()
-        );
-    }
-
+    validate_download_url(&download_url)?;
     let current_sid = SESSION_ID.load(Ordering::SeqCst);
     tracing::info!(
         "Starting download for session ID: {}, file: {}",
@@ -424,11 +496,7 @@ async fn download_and_unzip(
         file_name
     );
 
-    println!("Starting download - Session ID: {}", current_sid);
-
     let client = Client::new();
-    // let save_path2 = save_path.to_owned();
-    println!("HTTP client created");
 
     let response = client
         .get(&download_url)
@@ -441,8 +509,10 @@ async fn download_and_unzip(
                 emit_download_error(&app_handle, &key, "download", &message);
             }
             message
-        })?;
-    println!("test3");
+        })?
+        .error_for_status()
+        .map_err(|e| e.to_string())?;
+    validate_download_url(response.url().as_str())?;
 
     let ext = response
         .url()
@@ -461,26 +531,22 @@ async fn download_and_unzip(
         .to_owned();
 
     let file_name = if !ext.is_empty() {
-        format!("{}.{}", file_name, ext)
+        format!("{}.{}", validate_file_name(&file_name)?, ext)
     } else {
-        file_name
+        validate_file_name(&file_name)?
     };
-    println!("test4");
-
-    let total_size = response
-        .content_length()
-        .ok_or_else(|| {
-            let message = "Failed to get content length".to_string();
-            if emit {
-                decrement_download_count(&key);
-                emit_download_error(&app_handle, &key, "download", &message);
-            }
-            message
-        })?;
-    println!("test5");
-
-    let file_path = Path::new(&save_path).join(&file_name);
-    println!("{}", file_path.to_str().unwrap());
+    let total_size = response.content_length().unwrap_or(0);
+    if total_size > MAX_DOWNLOAD_BYTES {
+        return Err("Download exceeds the configured size limit".into());
+    }
+    let destination = validate_destination(Path::new(&save_path))?;
+    let file_path = destination.join(&file_name);
+    if emit {
+        let mut counts = DOWNLOAD_COUNTS
+            .lock()
+            .map_err(|_| "Download state lock is poisoned")?;
+        *counts.entry(key.clone()).or_insert(0) += 1;
+    }
 
     let file = File::create(&file_path).map_err(|e| {
         let message = e.to_string();
@@ -521,7 +587,9 @@ async fn download_and_unzip(
         }
 
         if emit {
-            let counts = DOWNLOAD_COUNTS.lock().unwrap();
+            let counts = DOWNLOAD_COUNTS
+                .lock()
+                .map_err(|_| "Download state lock is poisoned")?;
             let count = counts.get(&key).copied().unwrap_or(0);
             drop(counts);
             if count == 0 {
@@ -553,6 +621,11 @@ async fn download_and_unzip(
             message
         })?;
         downloaded += chunk.len() as u64;
+        if downloaded > MAX_DOWNLOAD_BYTES {
+            drop(writer);
+            let _ = remove_file(&file_path);
+            return Err("Download exceeds the configured size limit".into());
+        }
 
         if emit && (downloaded - last_progress_update) >= PROGRESS_UPDATE_THRESHOLD {
             // Calculate speed and ETA asynchronously to avoid blocking download
@@ -677,18 +750,15 @@ async fn download_and_unzip(
 
 #[tauri::command]
 fn cancel_extract(key: String) -> Result<(), String> {
-    let mut counts = DOWNLOAD_COUNTS.lock().unwrap();
+    let mut counts = DOWNLOAD_COUNTS
+        .lock()
+        .map_err(|_| "Download state lock is poisoned")?;
     if let Some(count) = counts.get_mut(&key) {
-
-        
         if *count > 0 {
             *count -= 1;
-            println!("Decreased download count for key '{}': {}", key, *count);
-
             // Remove key if count reaches 0
             if *count == 0 {
                 counts.remove(&key);
-                println!("Removed key '{}' from download counts", key);
             }
             Ok(())
         } else {
@@ -705,7 +775,6 @@ fn get_username() -> String {
     tracing::info!("Session changed, new session ID: {}", new_sid);
 
     let username = std::env::var("USERNAME").unwrap_or_else(|_| "Unknown".to_string());
-    println!("Username: {}, Session ID: {}", username, new_sid);
     username
 }
 #[tauri::command]
@@ -945,7 +1014,7 @@ pub fn run() {
                     }
                 }
             });
-            if let Ok(icon) = tauri::image::Image::from_bytes(include_bytes!("../icons/128x128.png")) { let _ = app.get_webview_window("main").unwrap().set_icon(icon); }
+            if let (Ok(icon), Some(window)) = (tauri::image::Image::from_bytes(include_bytes!("../icons/128x128.png")), app.get_webview_window("main")) { let _ = window.set_icon(icon); }
             // let tray_icon = if cfg!(target_os = "windows") { tauri::image::Image::from_bytes(include_bytes!("../icons/128x128.png"))? } else { app.default_window_icon().unwrap().clone() };
             Ok(())
         })

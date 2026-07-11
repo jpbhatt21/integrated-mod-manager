@@ -29,7 +29,7 @@
 			}
 		],
 		"security": {
-			"csp": null,
+			"csp": "default-src 'self' asset: tauri:; script-src 'self' 'wasm-unsafe-eval' ipc: http://tauri.localhost; style-src 'self' 'unsafe-inline'; img-src 'self' asset: https: http://127.0.0.1:3469 http://localhost:3469 data: blob:; connect-src 'self' ipc: https://gamebanana.com https://api.gamebanana.com https://files.gamebanana.com https://health.wwmm.bhatt.jp http://127.0.0.1:3469 http://localhost:3469; font-src 'self' data:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
 			"assetProtocol": {
 				"enable": true,
 				"scope": [

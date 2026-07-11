@@ -3,10 +3,10 @@ use std::ffi::OsString;
 #[cfg(windows)]
 use std::os::windows::ffi::OsStringExt;
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri_plugin_tracing::tracing;
 use std::sync::RwLock;
 #[cfg(windows)]
 use std::time::Duration;
+use tauri_plugin_tracing::tracing;
 #[cfg(windows)]
 use winapi::um::{
     handleapi::CloseHandle,
@@ -116,35 +116,36 @@ fn get_install_command(packages: &[&str]) -> String {
     };
     let os_release = std::fs::read_to_string(os_release_path).unwrap_or_default();
 
-    let id = os_release.lines()
+    let id = os_release
+        .lines()
         .find(|l| l.starts_with("ID="))
         .map(|l| l.trim_start_matches("ID=").trim_matches('"'))
         .unwrap_or("");
 
-    let id_like = os_release.lines()
+    let id_like = os_release
+        .lines()
         .find(|l| l.starts_with("ID_LIKE="))
         .map(|l| l.trim_start_matches("ID_LIKE=").trim_matches('"'))
         .unwrap_or("");
     let pkgs = packages.join(" ");
 
     match id {
-        "arch" | "manjaro" | "endeavouros" | "cachyos" =>
-            format!("sudo pacman -S {pkgs}"),
-        "ubuntu" | "debian" | "linuxmint" | "pop" =>
-            format!("sudo apt install {pkgs}"),
-        "fedora" | "nobara" =>
-            format!("sudo dnf install {pkgs}"),
-        "opensuse-tumbleweed" | "opensuse-leap" =>
-            format!("sudo zypper install {pkgs}"),
-        "gentoo" =>
-            format!("sudo emerge {pkgs}"),
-        "void" =>
-            format!("sudo xbps-install {pkgs}"),
+        "arch" | "manjaro" | "endeavouros" | "cachyos" => format!("sudo pacman -S {pkgs}"),
+        "ubuntu" | "debian" | "linuxmint" | "pop" => format!("sudo apt install {pkgs}"),
+        "fedora" | "nobara" => format!("sudo dnf install {pkgs}"),
+        "opensuse-tumbleweed" | "opensuse-leap" => format!("sudo zypper install {pkgs}"),
+        "gentoo" => format!("sudo emerge {pkgs}"),
+        "void" => format!("sudo xbps-install {pkgs}"),
         _ => {
-            if id_like.contains("arch") { format!("sudo pacman -S {pkgs}") }
-            else if id_like.contains("debian") || id_like.contains("ubuntu") { format!("sudo apt install {pkgs}") }
-            else if id_like.contains("fedora") { format!("sudo dnf install {pkgs}") }
-            else { format!("Please install: {pkgs}") }
+            if id_like.contains("arch") {
+                format!("sudo pacman -S {pkgs}")
+            } else if id_like.contains("debian") || id_like.contains("ubuntu") {
+                format!("sudo apt install {pkgs}")
+            } else if id_like.contains("fedora") {
+                format!("sudo dnf install {pkgs}")
+            } else {
+                format!("Please install: {pkgs}")
+            }
         }
     }
 }
@@ -624,7 +625,9 @@ mod linux_utils {
             .output()
             .map_err(|e| e.to_string())?;
 
-        let current_window_id = String::from_utf8_lossy(&current_window.stdout).trim().to_string();
+        let current_window_id = String::from_utf8_lossy(&current_window.stdout)
+            .trim()
+            .to_string();
 
         let window_target = {
             let win = WINDOW_TARGET.read().unwrap();
@@ -694,8 +697,11 @@ mod linux_utils {
     }
 
     fn ensure_ydotoold() {
-        let running = hotreload_command("pgrep").arg("ydotoold").output()
-            .map(|o| o.status.success()).unwrap_or(false);
+        let running = hotreload_command("pgrep")
+            .arg("ydotoold")
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false);
 
         if !running {
             hotreload_command("ydotoold").spawn().ok();
@@ -712,9 +718,7 @@ mod linux_utils {
                 continue;
             }
 
-            let output = hotreload_command("xdotool")
-                .arg("getactivewindow")
-                .output();
+            let output = hotreload_command("xdotool").arg("getactivewindow").output();
 
             let active_win_id = if let Ok(output) = output {
                 String::from_utf8_lossy(&output.stdout).trim().to_string()
@@ -723,7 +727,11 @@ mod linux_utils {
             };
 
             let window_title = if !active_win_id.is_empty() {
-                if let Ok(out2) = hotreload_command("xdotool").arg("getwindowname").arg(&active_win_id).output() {
+                if let Ok(out2) = hotreload_command("xdotool")
+                    .arg("getwindowname")
+                    .arg(&active_win_id)
+                    .output()
+                {
                     String::from_utf8_lossy(&out2.stdout).trim().to_string()
                 } else {
                     String::new()
@@ -735,20 +743,25 @@ mod linux_utils {
             let title_lower = window_title.to_lowercase();
             init_window_target();
 
-            let (is_game, is_imm_mode, window_target_str) = if let Ok(window_target) = WINDOW_TARGET.read() {
-                let wt = window_target.to_lowercase();
-                (
-                    !wt.is_empty() && title_lower.contains(&wt),
-                    wt == MOD_MANAGER_TITLE.to_lowercase(),
-                    wt.clone()
-                )
-            } else {
-                (false, false, String::new())
-            };
+            let (is_game, is_imm_mode, window_target_str) =
+                if let Ok(window_target) = WINDOW_TARGET.read() {
+                    let wt = window_target.to_lowercase();
+                    (
+                        !wt.is_empty() && title_lower.contains(&wt),
+                        wt == MOD_MANAGER_TITLE.to_lowercase(),
+                        wt.clone(),
+                    )
+                } else {
+                    (false, false, String::new())
+                };
 
             if is_game != last_game_state {
                 if is_game {
-                    tracing::info!("[IMM-Hotreload] Window match acquired! Title: '{}' (Targetting: '{}')", window_title, window_target_str);
+                    tracing::info!(
+                        "[IMM-Hotreload] Window match acquired! Title: '{}' (Targetting: '{}')",
+                        window_title,
+                        window_target_str
+                    );
                 } else {
                     tracing::info!("[IMM-Hotreload] Window match lost - current window: '{}' (Targetting: '{}')", window_title, window_target_str);
                 }
@@ -759,7 +772,11 @@ mod linux_utils {
 
             if should_trigger && CHANGE.load(Ordering::SeqCst) {
                 CHANGE.store(false, Ordering::SeqCst);
-                tracing::info!("[IMM-Hotreload] Executing Hotreload! is_game={}, is_imm_mode={}", is_game, is_imm_mode);
+                tracing::info!(
+                    "[IMM-Hotreload] Executing Hotreload! is_game={}, is_imm_mode={}",
+                    is_game,
+                    is_imm_mode
+                );
                 let wt_str = window_target_str.clone();
 
                 tokio::spawn(async move {
@@ -770,9 +787,16 @@ mod linux_utils {
 
                         let mut game_win_id = None;
                         for game in &[WW_TITLE, ZZ_TITLE, GI_TITLE, SR_TITLE, EF_TITLE] {
-                            if let Ok(res) = hotreload_command("xdotool").arg("search").arg("--name").arg(game).output() {
+                            if let Ok(res) = hotreload_command("xdotool")
+                                .arg("search")
+                                .arg("--name")
+                                .arg(game)
+                                .output()
+                            {
                                 if res.status.success() && !res.stdout.is_empty() {
-                                    if let Some(id) = String::from_utf8_lossy(&res.stdout).lines().next() {
+                                    if let Some(id) =
+                                        String::from_utf8_lossy(&res.stdout).lines().next()
+                                    {
                                         game_win_id = Some(id.trim().to_string());
                                         break;
                                     }
@@ -781,7 +805,11 @@ mod linux_utils {
                         }
 
                         if let Some(gid) = game_win_id {
-                            let _ = hotreload_command("xdotool").arg("windowactivate").arg("--sync").arg(&gid).status();
+                            let _ = hotreload_command("xdotool")
+                                .arg("windowactivate")
+                                .arg("--sync")
+                                .arg(&gid)
+                                .status();
                             std::thread::sleep(Duration::from_millis(100));
                             if let Err(e) = send_f10_key() {
                                 tracing::error!("[IMM-Hotreload] Failed to send F10 key: {}", e);
@@ -797,7 +825,10 @@ mod linux_utils {
                                 .status();
 
                             if let Err(e) = alt_tab_status {
-                                tracing::error!("[IMM-Hotreload] Failed to Alt+Tab back to IMM: {:?}", e);
+                                tracing::error!(
+                                    "[IMM-Hotreload] Failed to Alt+Tab back to IMM: {:?}",
+                                    e
+                                );
                             } else {
                                 tracing::info!("[IMM-Hotreload] Successfully bounced focus to game, injected F10, and Alt+Tabbed back!");
                             }

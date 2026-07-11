@@ -157,6 +157,11 @@
           "name": "ext/7z.exe"
         },
         {
+          "cmd": "$RESOURCES/ext/7z.exe",
+          "args": ["l", "-slt", { "validator": ".*" }],
+          "name": "ext/7z-list.exe"
+        },
+        {
           "cmd": "$RESOURCES/ext/7zz",
           "args": [
             "x",
@@ -171,6 +176,11 @@
           "name": "ext/7zz"
         },
         {
+          "cmd": "$RESOURCES/ext/7zz",
+          "args": ["l", "-slt", { "validator": ".*" }],
+          "name": "ext/7zz-list"
+        },
+        {
           "cmd": "$RESOURCES/ext/7zz-aarch64",
           "args": [
             "x",
@@ -183,6 +193,11 @@
             "-y"
           ],
           "name": "ext/7zz-aarch64"
+        },
+        {
+          "cmd": "$RESOURCES/ext/7zz-aarch64",
+          "args": ["l", "-slt", { "validator": ".*" }],
+          "name": "ext/7zz-aarch64-list"
         }
       ]
     },
