@@ -33,6 +33,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
 import JSONEditor from "@/_Main/components/JSONEditor";
 import { encodeToVK, formatKeysToDisplay, sortHotkeys, vkToDisplay } from "@/utils/hotkeyUtils";
+import { trackUserAction } from "@/utils/userStats";
 let prevItemPath = "";
 const pageLimit = 20;
 let lastKeyList: string = "";
@@ -246,6 +247,24 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 			if (item?.enabled) {
 				await refreshMod(item.path);
 			}
+			const preferenceChanges = queuedDataChanges.filter((change) => change.type === "pref").length;
+			const hotkeyChanges = queuedIniChanges.filter(
+				(change) => updatedFiles.has(change.file) && Object.hasOwn(change.value, "hk")
+			).length;
+			const defaultChanges = queuedIniChanges.filter(
+				(change) => updatedFiles.has(change.file) && Object.hasOwn(change.value, "def")
+			).length;
+			await Promise.all([
+				preferenceChanges
+					? trackUserAction({ action: "mod_preferences_changed", mod: item.path, count: preferenceChanges })
+					: Promise.resolve(),
+				hotkeyChanges
+					? trackUserAction({ action: "mod_hotkeys_changed", mod: item.path, count: hotkeyChanges })
+					: Promise.resolve(),
+				defaultChanges
+					? trackUserAction({ action: "mod_defaults_changed", mod: item.path, count: defaultChanges })
+					: Promise.resolve(),
+			]);
 			setDataChanges({});
 			setIniChanges({});
 		} finally {

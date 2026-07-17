@@ -119,6 +119,7 @@ export interface DownloadItem {
 	error?: string;
 	path?: string;
 	updatedAt?: number;
+	operation?: "install" | "update";
 }
 export interface DownloadList {
 	queue: DownloadItem[];

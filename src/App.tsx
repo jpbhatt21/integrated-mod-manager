@@ -47,6 +47,7 @@ import {
 } from "./components/ui/alert-dialog";
 import { OPTIMIZE_TARGET } from "./utils/consts";
 import { scaleHandler } from "./utils/ResizeHandles";
+import { initializeUserStats } from "./utils/userStats";
 // import { Button } from "./components/ui/button";
 const animateProps = {
 	initial: { opacity: 0, filter: "blur(6px)" },
@@ -81,6 +82,7 @@ function App() {
 	const [_, setShowModeSwitch] = useState(false);
 	const [previousOnline, setPreviousOnline] = useState(online);
 	const initializedRef = useRef(false);
+	const statsInitializedRef = useRef(false);
 	const [optimized, setOptimized] = useAtom(OPTIMIZED);
 	const [data, setData] = useAtom(DATA);
 
@@ -143,6 +145,11 @@ function App() {
 		initializeThemes();
 		main();
 	}, []);
+	useEffect(() => {
+		if (!initDone || !game || statsInitializedRef.current) return;
+		statsInitializedRef.current = true;
+		void initializeUserStats();
+	}, [game, initDone]);
 	useEffect(() => {
 		if (err) {
 			throw new Error(err);

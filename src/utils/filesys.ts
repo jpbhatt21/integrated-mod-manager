@@ -44,6 +44,7 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { error, info, warn } from "@/lib/logger";
 import { addToExtracts } from "@/_LeftSidebar/components/Downloads";
 import { isVersionOlderThan } from "./semver";
+import { trackUserAction } from "./userStats";
 export async function setGame(game: string) {
 	try {
 		const config = await readTextFile(`config.json`);
@@ -1569,7 +1570,7 @@ export async function cleanCancelledDownload(path: string) {
 }
 export async function changeModName(path: string, newPath: string, add = false) {
 	try {
-		const enabled = add || (await toggleMod(path, false));
+		const enabled = add || (await toggleMod(path, false, false, "system"));
 		await mkdir(join(src, managedSRC, ...newPath.split(/[/\\]/).slice(0, -1)), { recursive: true });
 		await rename(add ? join(src, path) : join(src, managedSRC, path), join(src, managedSRC, newPath));
 		store.set(DATA, (prev) => {
@@ -1587,7 +1588,8 @@ export async function changeModName(path: string, newPath: string, add = false) 
 		saveConfigs();
 		console.log("Mod name changed from", path, "to", newPath);
 		await updatePrefsIniFromData(newPath, path);
-		if (enabled) await toggleMod(newPath, true);
+		if (enabled) await toggleMod(newPath, true, false, "system");
+		await trackUserAction({ action: "mod_renamed", mod: newPath, details: { previousPath: path } });
 		return newPath;
 	} catch (err) {
 		error("[IMM] Error changing mod name:", err);
@@ -1630,6 +1632,7 @@ export async function deleteMod(path: string) {
 	try {
 		await remove(modSrc, { recursive: true });
 		addToast({ type: "success", message: textData._Toasts.Deleted });
+		await trackUserAction({ action: "mod_deleted", mod: path });
 	} catch (err) {
 		error("[IMM] Error removing mod source:", err);
 		addToast({ type: "error", message: textData._Toasts.ErrOcc });
@@ -1796,7 +1799,12 @@ export async function updateIniVars(relPath: string, keyVals: Record<string, { d
 export function openFile(relPath: string) {
 	openPath(toFs(join(modRoot, relPath)));
 }
-export async function toggleMod(path: string, enabled: boolean, forced = false): Promise<boolean> {
+export async function toggleMod(
+	path: string,
+	enabled: boolean,
+	forced = false,
+	source: "manual" | "preset" | "system" = "manual"
+): Promise<boolean> {
 	info("[IMM] Togglingx mod:", path, "Enabled:", enabled);
 	try {
 		const modSrc = join(src, managedSRC, path);
@@ -1832,6 +1840,13 @@ export async function toggleMod(path: string, enabled: boolean, forced = false):
 		return false;
 	}
 	console.log(`Success Mod ${enabled ? "enabled" : "disabled"}:`, path);
+	if (!forced && source !== "system") {
+		await trackUserAction({
+			action: enabled ? "mod_enabled" : "mod_disabled",
+			mod: path,
+			details: { source },
+		});
+	}
 	return true;
 }
 export async function savePreviewImageFromData(relPath: string, type: string, data: any) {
@@ -1900,7 +1915,7 @@ export async function savePreviewImage(path: string) {
 export async function applyPreset(data: string[], name = "") {
 	try {
 		const entries = (await readDirRecr(join(tgt, managedTGT), "", 2)).flatMap((x) => x.children || []);
-		const disablePromises: Promise<boolean>[] = entries.map((entry) => toggleMod(entry.path, false));
+		const disablePromises: Promise<boolean>[] = entries.map((entry) => toggleMod(entry.path, false, false, "preset"));
 		await Promise.all(disablePromises);
 		await remove(join(tgt, managedTGT), { recursive: true });
 		await mkdir(join(tgt, managedTGT), { recursive: true });
@@ -1911,7 +1926,7 @@ export async function applyPreset(data: string[], name = "") {
 			const batch = data.slice(i, i + batchSize);
 			await Promise.all(
 				batch.map((mod) =>
-					toggleMod(mod, true).catch((err = "unknown") => {
+					toggleMod(mod, true, false, "preset").catch((err = "unknown") => {
 						error(`[IMM] Error toggling mod ${mod}:`, err);
 					})
 				)
@@ -1919,6 +1934,11 @@ export async function applyPreset(data: string[], name = "") {
 		}
 		if (name) {
 			addToast({ type: "success", message: textData._Toasts.PresetApplied });
+			await trackUserAction({
+				action: "preset_applied",
+				preset: name,
+				details: { enabledMods: data.length },
+			});
 		}
 	} catch (err) {
 		error("[IMM] Error applying preset:", err);
@@ -1970,6 +1990,11 @@ export async function installFromArchives(archives: string[]) {
 			info("[IMM] Archive extracted:", archive);
 			// await validateModDownload(dest, true);
 			success++;
+			await trackUserAction({
+				action: "mod_installed",
+				mod: join(UNCATEGORIZED, finalName),
+				details: { source: "archive" },
+			});
 		} catch (err) {
 			error("[IMM] Error extracting archive:", err);
 			addToast({ type: "error", message: textData._Toasts.ErrInstall.replace("<item/>", name) });

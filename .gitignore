@@ -29,6 +29,7 @@ flatpak-tmp/
 *.sln
 *.sw?
 src-tauri/config*.json
+src-tauri/userStats.json
 src-tauri/backups*
 src/tempText.json
 latestcopy.json

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { SidebarContent, SidebarGroup, SidebarGroupLabel } from "@/components/ui/sidebar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { applyPreset, refreshModList, saveConfigs } from "@/utils/filesys";
+import { trackUserAction } from "@/utils/userStats";
 import { CURRENT_PRESET, FILTER, LEFT_SIDEBAR_OPEN, MOD_LIST, PRESETS, TEXT_DATA } from "@/utils/vars";
 import { Separator } from "@radix-ui/react-separator";
 import { useAtom, useAtomValue } from "jotai";
@@ -20,6 +21,7 @@ function LeftLocal() {
 	const [modList, setModList] = useAtom(MOD_LIST);
 	const updatePreset = (index: number, name: string, shouldSave = false, shouldDelete = false) => {
 		const tempPresets = [...presets];
+		const previousName = tempPresets[index]?.name || "";
 		let wasCreated = false;
 		if (index === tempPresets.length) {
 			tempPresets.push({ name, data: [], hotkey: "" });
@@ -60,6 +62,23 @@ function LeftLocal() {
 		}
 
 		saveConfigs();
+		if (shouldDelete) {
+			void trackUserAction({ action: "preset_deleted", preset: previousName || name });
+		} else if (wasCreated) {
+			void trackUserAction({
+				action: "preset_created",
+				preset: name,
+				details: { enabledMods: tempPresets[index].data.length },
+			});
+		} else if (previousName !== name) {
+			void trackUserAction({ action: "preset_renamed", preset: name, details: { previousName } });
+		} else if (shouldSave) {
+			void trackUserAction({
+				action: "preset_updated",
+				preset: name,
+				details: { enabledMods: tempPresets[index].data.length },
+			});
+		}
 	};
 	const filterParams = [
 		{

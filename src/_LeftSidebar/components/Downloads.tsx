@@ -20,6 +20,7 @@ import {
 import { DownloadItem, ModData, ModDataObj } from "@/utils/types";
 import { UNCATEGORIZED } from "@/utils/consts";
 import { info } from "@/lib/logger";
+import { trackUserAction } from "@/utils/userStats";
 
 type DownloadQueueItem = DownloadItem & {
 	dlPath?: string;
@@ -46,7 +47,7 @@ function Downloads() {
 	const textData = useAtomValue(TEXT_DATA);
 	const [downloads, setDownloads] = useAtom(DOWNLOAD_LIST);
 	const categories = useAtomValue(CATEGORIES);
-	const [_, setData] = useAtom(DATA);
+	const [data, setData] = useAtom(DATA);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const leftSidebarOpen = useAtomValue(LEFT_SIDEBAR_OPEN);
 	const maxConcurrentDownloads = Math.max(1, useAtomValue(SETTINGS).global.maxConcurrentDownloads || 1);
@@ -121,16 +122,18 @@ function Downloads() {
 					? item.category
 					: UNCATEGORIZED;
 		const name = sanitizeFileName(item.name);
+		const modPath = category + "\\" + name;
 		const dlPath = (await createModDownloadDir(category, name)) as string;
 		return {
 			...item,
 			status: "downloading",
 			name,
-			path: category + "\\" + name,
+			path: modPath,
 			category,
 			updatedAt: item.updated * 1000,
 			dlPath,
 			key: `${name}_${item.file}_${item.fname}_${item.updated}`,
+			operation: data[modPath] ? "update" : "install",
 		};
 	};
 
@@ -259,6 +262,13 @@ function Downloads() {
 				});
 				modList(await refreshModList());
 				saveConfigs();
+				if (finishedElement.path) {
+					await trackUserAction({
+						action: finishedElement.operation === "update" ? "mod_updated" : "mod_installed",
+						mod: finishedElement.path,
+						details: { source: "online" },
+					});
+				}
 			}
 			setDownloads((prev) => ({
 				...prev,

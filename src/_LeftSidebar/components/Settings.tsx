@@ -11,6 +11,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { GAME_NAMES, LANG_LIST } from "@/utils/consts";
 import { saveConfigs, setConfig } from "@/utils/filesys";
 import { encodeHotkeyForStorage, formatKeysToDisplay, sortHotkeys } from "@/utils/hotkeyUtils";
+import { trackUserAction } from "@/utils/userStats";
+import UserStatsDialog from "./UserStatsDialog";
 import { join, setHotreload } from "@/utils/hotreload";
 import { toFs } from "@/utils/pathsep";
 import { getCwd, setPrePostLaunch, setWindowType } from "@/utils/init";
@@ -769,11 +771,15 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 									onBlur={(e) => {
 										keysdown = [];
 										keys = [];
+										const nextHotkey = encodeHotkeyForStorage(e.currentTarget.value);
 										setPresets((prev) => {
-											prev[index].hotkey = encodeHotkeyForStorage(e.currentTarget.value);
+											prev[index].hotkey = nextHotkey;
 											return [...prev];
 										});
 										saveConfigs();
+										if (nextHotkey !== (preset.hotkey || "")) {
+											void trackUserAction({ action: "preset_hotkey_changed", preset: preset.name });
+										}
 									}}
 									className="caret-transparent w-full text-center select-none"
 									type="text"
@@ -794,6 +800,9 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 			icon: Settings2Icon,
 			content: (
 				<>
+					<SettingRow label={textData.Others.stats}>
+						<UserStatsDialog game={settings.global.game} textData={textData} />
+					</SettingRow>
 					<SettingRow label={textData._LeftSideBar._components._Settings.ImportExport}>
 						{/* <Button
 							className="w-full"
