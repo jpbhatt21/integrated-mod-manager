@@ -65,7 +65,7 @@ function LeftLocal() {
 		{
 			key: "src",
 			sub: "",
-			label: textData._RightSideBar._RightLocal.Source,
+			label: textData.Source,
 		},
 		{
 			key: "upd",
@@ -75,12 +75,12 @@ function LeftLocal() {
 		{
 			key: "tag",
 			sub: "fav",
-			label: textData._Tags.Favorite,
+			label: textData.Favorite,
 		},
 		{
 			key: "tag",
 			sub: "nsfw",
-			label: textData._Tags.NSFW,
+			label: textData.NSFW,
 		},
 	];
 	const filterFunction = useCallback(
@@ -124,7 +124,7 @@ function LeftLocal() {
 		<>
 			<SidebarGroup className=" p-0">
 				<SidebarGroupLabel className="justify-between">
-					{textData._LeftSideBar._LeftLocal.Filter}
+					{textData.Filter}
 					<Dialog>
 						<DialogTrigger>
 							<div
@@ -134,12 +134,12 @@ function LeftLocal() {
 									color: activeFilters ? "var(--background)" : "",
 								}}
 							>
-								{textData._LeftSideBar._LeftLocal._Filter.Advanced}
+								{textData.Advanced}
 							</div>
 						</DialogTrigger>
 						<DialogContent className="max-h-120 min-h-120">
 							<div className="min-h-fit text-accent my-6 text-3xl">
-								{textData._LeftSideBar._LeftLocal._Filter.AdvFilOpt}
+								{textData.AdvFilOpt}
 								<Tooltip>
 									<TooltipTrigger></TooltipTrigger>
 									<TooltipContent className="opacity-0"></TooltipContent>
@@ -150,15 +150,15 @@ function LeftLocal() {
 								{[
 									{
 										icon: <CircleIcon className="aspect-square h-4 text-accent" />,
-										text: textData._LeftSideBar._LeftLocal._Filter.All,
+										text: textData.FilterAll,
 									},
 									{
 										icon: <CheckIcon className="aspect-square h-4 text-success" />,
-										text: textData._LeftSideBar._LeftLocal._Filter.Yes,
+										text: textData.Yes,
 									},
 									{
 										icon: <XIcon className="aspect-square h-4 text-destructive" />,
-										text: textData._LeftSideBar._LeftLocal._Filter.No,
+										text: textData.No,
 									},
 								].map((fil) => (
 									<div key={fil.text} className="flex flex-row gap-1 items-center">
@@ -168,7 +168,7 @@ function LeftLocal() {
 								))}
 							</div>
 							<div className="flex flex-row gap-4 items-center">
-								<label className="min-w-24 text-center">{textData._LeftSideBar._LeftLocal._Filter.Enabled}</label>
+								<label className="min-w-24 text-center">{textData.Enabled}</label>
 								<div className="flex flex-row gap-1 w-full">
 									{[
 										{
@@ -258,12 +258,12 @@ function LeftLocal() {
 						{
 							name: "enabled",
 							icon: <CheckIcon className="aspect-square h-4" />,
-							text: textData._LeftSideBar._LeftLocal._Filter.Enabled,
+							text: textData.Enabled,
 						},
 						{
 							name: "disabled",
 							icon: <XIcon className="aspect-square h-4" />,
-							text: textData._LeftSideBar._LeftLocal._Filter.Disabled,
+							text: textData.Disabled,
 						},
 					].map((fil) => (
 						<Button
@@ -293,7 +293,7 @@ function LeftLocal() {
 			/>
 			<SidebarGroup className="">
 				<SidebarGroupLabel className="flex items-center justify-between">
-					{textData._LeftSideBar._LeftLocal.Presets}
+					{textData.Presets}
 
 					<div
 						onClickCapture={async () => {
@@ -303,7 +303,7 @@ function LeftLocal() {
 						}}
 						className="min-w-fit hover:text-accent cursor-pointerx active:scale-95 text-accent/50 text-xs duration-200 select-none"
 					>
-						{textData._LeftSideBar._LeftLocal._Presets.DisableAll}
+						{textData.DisableAll}
 					</div>
 				</SidebarGroupLabel>
 				<SidebarContent className="justify-evenly flex items-center w-full gap-0 overflow-hidden">
@@ -398,7 +398,7 @@ function LeftLocal() {
 										height: leftSidebarOpen ? "" : "0px",
 									}}
 								>
-									{textData._LeftSideBar._LeftLocal._Presets.Empty}
+									{textData.Empty}
 								</motion.div>
 							)}
 						</AnimatePresence>
@@ -426,7 +426,7 @@ function LeftLocal() {
 									marginRight: leftSidebarOpen ? "" : "-0.5rem",
 								}}
 							>
-								{textData._LeftSideBar._LeftLocal._Presets.New}
+								{textData.New}
 							</label>
 						</Button>
 						<Button
@@ -450,7 +450,7 @@ function LeftLocal() {
 									marginRight: leftSidebarOpen ? "" : "-0.5rem",
 								}}
 							>
-								{textData._LeftSideBar._LeftLocal._Presets.Save}
+								{textData.Save}
 							</label>
 						</Button>
 					</div>

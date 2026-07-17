@@ -30,7 +30,7 @@ function Updater() {
 		if (update?.status === "ready" && counter == 3000)
 			interval = setInterval(() => {
 				if (ref3.current)
-					ref3.current.innerHTML = textData._Main._components._Updater.In.replace(
+					ref3.current.innerHTML = textData.In.replace(
 						"<s/>",
 						Math.ceil(counter / 10).toString()
 					);
@@ -86,7 +86,7 @@ function Updater() {
 												<Loader2Icon className="h-3 max-h-3 w-3 max-w-3 -ml-0.5 -mt-0.5 animate-spin" />
 
 												<Label className=" w-fit max-w-24 text-[0.6rem] pointer-events-none">
-													{textData._Main._components._Updater.Downloading}
+													{textData.Downloading}
 												</Label>
 											</div>
 										</div>
@@ -99,7 +99,7 @@ function Updater() {
 										<Loader2Icon className="h-3 max-h-3 w-3 max-w-3 -ml-0.5 -mt-0.5 animate-spin" />
 
 										<Label className=" w-fit max-w-24 text-[0.6rem] pointer-events-none">
-											{textData._Main._components._Updater.Downloading}
+											{textData.Downloading}
 										</Label>
 									</div>
 								</div>
@@ -114,7 +114,7 @@ function Updater() {
 								<div className=" min-w-fit text-background button-like bg-destructive flex items-center justify-center w-full h-5 gap-1 px-2 rounded-sm pointer-events-none">
 									<CircleAlert className="max-h-3.5" />
 									<Label className=" w-fit max-w-24 text-xs pointer-events-none">
-										{textData._Main._components._Updater.Error}
+										{textData.Error}
 									</Label>
 								</div>
 							),
@@ -126,7 +126,7 @@ function Updater() {
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="game-font">
-				<div className="min-h-fit text-accent mt-6 text-3xl">{textData._Main._components._Updater.Updater}</div>
+				<div className="min-h-fit text-accent mt-6 text-3xl">{textData.Updater}</div>
 				<div className="min-h-fit text-muted-foreground -mt-4">v{VERSION} ({import.meta.env.VITE_BUILD_ID})</div>
 				<div className="min-h-fit text-muted-foreground -mt-4">
 					<Credits/>
@@ -165,7 +165,7 @@ function Updater() {
 							Version {update.version}{" "}
 							<span className="text-muted-foreground text-base">
 								({getTimeDifference(Date.now() / 1000, new Date(update.date).getTime() / 1000)}{" "}
-								{textData._Main._components._Updater.ago})
+								{textData.ago})
 							</span>
 						</div>
 						<Separator className="my-2" />
@@ -174,7 +174,7 @@ function Updater() {
 				<div className="h-72 max-h-72 flex flex-col w-full px-4 overflow-x-hidden overflow-y-auto">
 					{update && update.status !== "ignored" ? (
 						<>
-							{maj.length > 0 && <div className="min-h-6 text-accent">{textData._Main._components._Updater.Maj}:</div>}
+							{maj.length > 0 && <div className="min-h-6 text-accent">{textData.Maj}:</div>}
 							{maj.map((item: string, index: number) => (
 								<div key={index} className="min-h-fit text-muted-foreground flex items-center gap-2 mt-1 text-lg">
 									<div className="min-w-1 min-h-1 aspect-square bg-accent self-start mt-3 rounded-full"></div>
@@ -182,7 +182,7 @@ function Updater() {
 								</div>
 							))}
 							{min.length > 0 && (
-								<div className="min-h-6 text-accent mt-4">{textData._Main._components._Updater.Min}:</div>
+								<div className="min-h-6 text-accent mt-4">{textData.Min}:</div>
 							)}
 							{min.map((item: string, index: number) => (
 								<div key={index} className="min-h-fit text-base text-muted-foreground flex items-center mt-0.5 gap-2">
@@ -191,7 +191,7 @@ function Updater() {
 								</div>
 							))}
 							{pat.length > 0 && (
-								<div className="min-h-6 text-accent mt-4">{textData._Main._components._Updater.Patch}:</div>
+								<div className="min-h-6 text-accent mt-4">{textData.Patch}:</div>
 							)}
 							{pat.map((item: string, index: number) => (
 								<div key={index} className="min-h-fit text-muted-foreground flex items-center gap-2 mt-0.5">
@@ -202,7 +202,7 @@ function Updater() {
 						</>
 					) : (
 						<div className="text-muted-foreground flex flex-col items-center justify-center w-full h-full">
-							{textData._Main._components._Updater.Lat}
+							{textData.Lat}
 							<div className="mt-124 absolute flex items-center gap-2">
 								<label className="opacity-40">{textData.BFR}</label>
 								<label>:</label>
@@ -231,9 +231,9 @@ function Updater() {
 					<div className="flex items-center justify-end w-full h-10 mt-2">
 						<div ref={ref3} className="text-muted-foreground w-full text-xs">
 							{update.status == "ready" ? (
-								<>{textData._Main._components._Updater.Soon}</>
+								<>{textData.Soon}</>
 							) : (
-								textData._Main._components._Updater.Use
+								textData.Use
 							)}
 						</div>
 						<Button
@@ -273,9 +273,9 @@ function Updater() {
 								{
 									{
 										available: textData.Update,
-										downloading: textData._Main._components._Updater.Downloading,
-										ready: textData._Main._components._Updater.InstallNow,
-										error: textData._Main._components._Updater.Retry,
+										downloading: textData.Downloading,
+										ready: textData.InstallNow,
+										error: textData.Retry,
 										installed: textData.Installed,
 									}[update.status]
 								}

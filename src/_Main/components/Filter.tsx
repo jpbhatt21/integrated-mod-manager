@@ -23,7 +23,7 @@ function Blur({  blur }: { blur: boolean }) {
 							parent.style.backdropFilter = "blur(0px)";
 						}
 					}}>
-					<EyeOff /> {textData._Main._components._Filter.Show}
+					<EyeOff /> {textData.Show}
 				</Button>
 			)}
 		</div>

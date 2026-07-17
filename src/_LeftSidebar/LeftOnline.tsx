@@ -63,7 +63,7 @@ function LeftOnline() {
 					minHeight: leftSidebarOpen ? "fit-content" : "",
 				}}
 			>
-				<SidebarGroupLabel>{textData._LeftSideBar._LeftOnline.Type}</SidebarGroupLabel>
+				<SidebarGroupLabel>{textData.Type}</SidebarGroupLabel>
 				<SidebarContent
 					className="min-h-fit grid items-center justify-center w-full grid-cols-2 px-2"
 					style={{

@@ -27,7 +27,7 @@ function ModConflicts() {
 				<TooltipContent className="opacity-0"></TooltipContent>
 			</Tooltip>
 
-			<div className="min-h-fit text-accent mt-6 text-3xl">{textData._Main._components._ModConflicts.ResModConf}</div>
+			<div className="min-h-fit text-accent mt-6 text-3xl">{textData.ResModConf}</div>
 			<AnimatePresence mode="wait">
 				{conflicts.length > 0 ? (
 					<motion.div
@@ -101,7 +101,7 @@ function ModConflicts() {
 							ease: "easeInOut",
 						}}
 					>
-						{textData._Main._components._ModConflicts.NoConf}
+						{textData.NoConf}
 					</motion.div>
 				)}
 			</AnimatePresence>
@@ -144,8 +144,8 @@ function ModConflicts() {
 							></div>
 						))}
 					</div>
-					<div>{textData._Main._components._ModConflicts.Msg1}</div>
-					<div>{textData._Main._components._ModConflicts.Msg2}</div>
+					<div>{textData.Msg1}</div>
+					<div>{textData.Msg2}</div>
 				</div>
 				<Button
 					disabled={curIndex >= conflicts.length - 1 && curSelected === -1}
@@ -175,7 +175,7 @@ function ModConflicts() {
 					}}
 					className="min-w-24"
 				>
-					{curSelected >= 0 ? textData._Main._components._ModConflicts.Resolve : textData.Skip}
+					{curSelected >= 0 ? textData.Resolve : textData.Skip}
 				</Button>
 			</div>
 		</DialogContent>

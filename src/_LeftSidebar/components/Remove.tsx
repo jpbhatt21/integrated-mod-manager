@@ -44,52 +44,52 @@ function Remove() {
 	});
 	const dict = {
 		category: {
-			title: textData._LeftSideBar._components._RemoveIMM.DirStruct,
+			title: textData.DirStruct,
 			options: [
-				textData._LeftSideBar._components._RemoveIMM.Flat,
-				textData._LeftSideBar._components._RemoveIMM.Categorized,
+				textData.Flat,
+				textData.Categorized,
 			],
 			action: "",
 			button: "",
 			doing: "",
 		},
 		enable: {
-			title: textData._LeftSideBar._components._RemoveIMM.EnDisbMods,
+			title: textData.EnDisbMods,
 			options: [
-				textData._LeftSideBar._components._RemoveIMM.DisAll,
-				textData._LeftSideBar._components._RemoveIMM.Unchanged,
-				textData._LeftSideBar._components._RemoveIMM.EnAll,
+				textData.DisAll,
+				textData.Unchanged,
+				textData.EnAll,
 			],
-			action: textData._LeftSideBar._components._RemoveIMM.CompleteRem,
-			button: textData._LeftSideBar._components._Batch.Move,
-			doing: textData._LeftSideBar._components._RemoveIMM.Moving,
+			action: textData.CompleteRem,
+			button: textData.Move,
+			doing: textData.RemoveIMMMoving,
 		},
 		data: {
-			title: textData._LeftSideBar._components._RemoveIMM.IMMData,
-			options: [textData._LeftSideBar._components._RemoveIMM.NoExp, textData._LeftSideBar._components._RemoveIMM.Exp],
-			action: textData._LeftSideBar._components._RemoveIMM.ExpIMM,
-			button: textData._LeftSideBar._components._Settings._ImportExport.Export,
-			doing: textData._LeftSideBar._components._RemoveIMM.Exporting,
+			title: textData.IMMData,
+			options: [textData.NoExp, textData.Exp],
+			action: textData.ExpIMM,
+			button: textData.Export,
+			doing: textData.Exporting,
 		},
 		modData: {
-			title: textData._LeftSideBar._components._RemoveIMM.ModData,
+			title: textData.ModData,
 			options: [
-				textData._LeftSideBar._components._RemoveIMM.NoSave,
-				textData._LeftSideBar._components._RemoveIMM.SaveRef,
+				textData.NoSave,
+				textData.SaveRef,
 			],
-			action: textData._LeftSideBar._components._RemoveIMM.SaveMD,
-			button: textData._LeftSideBar._LeftLocal._Presets.Save,
-			doing: textData._LeftSideBar._components._RemoveIMM.Saving,
+			action: textData.SaveMD,
+			button: textData.Save,
+			doing: textData.Saving,
 		},
 		presetData: {
-			title: textData._LeftSideBar._components._RemoveIMM.PresetData,
+			title: textData.PresetData,
 			options: [
-				textData._LeftSideBar._components._RemoveIMM.NoSave,
-				textData._LeftSideBar._components._RemoveIMM.SaveRef,
+				textData.NoSave,
+				textData.SaveRef,
 			],
-			action: textData._LeftSideBar._components._RemoveIMM.SavePS,
-			button: textData._LeftSideBar._LeftLocal._Presets.Save,
-			doing: textData._LeftSideBar._components._RemoveIMM.Saving,
+			action: textData.SavePS,
+			button: textData.Save,
+			doing: textData.Saving,
 		},
 	};
 	useEffect(() => {
@@ -100,7 +100,7 @@ function Remove() {
 			reloadIntervalRef.current = setInterval(async () => {
 				if (!timer) timer = document.getElementById("reloadTimer");
 				if (timer && time >= 0)
-					timer.innerText = textData._LeftSideBar._components._RemoveIMM.AppRL.replace("<s/>", Math.ceil(time).toString());
+					timer.innerText = textData.AppRL.replace("<s/>", Math.ceil(time).toString());
 				if (time <= 0) {
 					if (reloadIntervalRef.current) clearInterval(reloadIntervalRef.current);
 					reloadIntervalRef.current = null;
@@ -130,11 +130,11 @@ function Remove() {
 			>
 				{" "}
 				<div className="min-h-fit text-accent my-6 text-3xl">
-					{textData._LeftSideBar._components._RemoveIMM.RemoveIMM}
+					{textData.RemoveIMM}
 				</div>
 				{!progress.started && (
 					<div className="w-full h-full flex flex-col gap-2.5 items-center">
-						<label className="text-warn -mb-4">{textData._LeftSideBar._components._RemoveIMM.MoveAll}</label>
+						<label className="text-warn -mb-4">{textData.MoveAll}</label>
 						<label>{tgt}</label>
 						<div className="flex flex-col w-full gap-2">
 							<label>{dict.category.title}</label>
@@ -246,7 +246,7 @@ function Remove() {
 										<InfoIcon className="inline-block w-4 h-4 mb-0.75" />
 									</TooltipTrigger>
 									<TooltipContent className="max-w-48 justify-center text-center">
-										{textData._LeftSideBar._components._RemoveIMM.IMMTip}
+										{textData.IMMTip}
 									</TooltipContent>
 								</Tooltip>
 								{dict.data.title}
@@ -271,7 +271,7 @@ function Remove() {
 										<InfoIcon className="inline-block w-4 h-4 mb-0.75" />
 									</TooltipTrigger>
 									<TooltipContent className="max-w-48 justify-center text-center">
-										{textData._LeftSideBar._components._RemoveIMM.ModTip}
+										{textData.ModTip}
 									</TooltipContent>
 								</Tooltip>
 								{dict.modData.title}
@@ -296,7 +296,7 @@ function Remove() {
 										<InfoIcon className="inline-block w-4 h-4 mb-0.75" />
 									</TooltipTrigger>
 									<TooltipContent className="max-w-48 justify-center text-center">
-										{textData._LeftSideBar._components._RemoveIMM.PresetTip}
+										{textData.PresetTip}
 									</TooltipContent>
 								</Tooltip>
 								{dict.presetData.title}
@@ -316,12 +316,12 @@ function Remove() {
 						</div>
 						<AlertDialog>
 							<AlertDialogTrigger asChild>
-								<Button variant="destructive">{textData._LeftSideBar._components._RemoveIMM.ConfRem}</Button>
+								<Button variant="destructive">{textData.ConfRem}</Button>
 							</AlertDialogTrigger>
 							<AlertDialogContent className="gap-2">
 								<AlertDialogHeader className="text-3xl text-accent">{textData.Confirm}</AlertDialogHeader>
 								<div className="text-center text-destructive max-w-4/5">
-									{textData._LeftSideBar._components._RemoveIMM.Recheck}
+									{textData.Recheck}
 								</div>
 								<div className="w-full">
 									{Object.keys(dict).map((key: any) => (
@@ -333,7 +333,7 @@ function Remove() {
 										</div>
 									))}
 								</div>
-								<p className="text-warn text-center">{textData._LeftSideBar._components._RemoveIMM.AsConf}</p>
+								<p className="text-warn text-center">{textData.AsConf}</p>
 								<div className="w-full flex justify-between">
 									<AlertDialogAction>{textData.Cancel}</AlertDialogAction>
 									<AlertDialogCancel
@@ -441,9 +441,9 @@ function Remove() {
 								pointerEvents: progress.index == progress.max ? "auto" : "none",
 							}}
 						>
-							<div className=" my-6 text-accent text-3xl" >{textData._LeftSideBar._components._RemoveIMM.Thanks}</div>
+							<div className=" my-6 text-accent text-3xl" >{textData.Thanks}</div>
 							<div id="reloadTimer">
-								{textData._LeftSideBar._components._RemoveIMM.AppRL.replace("<s/>", "5")}
+								{textData.AppRL.replace("<s/>", "5")}
 							</div>
 						</div>
 						<div className="absolute left-10 bottom-10">

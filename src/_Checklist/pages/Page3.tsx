@@ -43,9 +43,9 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 			<div className="fixed z-20 flex flex-col items-center justify-center w-full h-full duration-200">
 				{xxmiDir && !customMode ? (
 					<>
-						<div className="text-accent my-4 text-2xl">{textData._Checklist.XXMIConfErr}</div>
+						<div className="text-accent my-4 text-2xl">{textData.ChecklistXXMIConfErr}</div>
 						<p className="text-foreground w-108 text-lg text-center opacity-75">
-							{textData._Checklist.XXMIConfErrMsg.replace("<game/>", game)}
+							{textData.XXMIConfErrMsg.replace("<game/>", game)}
 						</p>
 						<div className="w-lg flex items-center justify-between">
 							<Button
@@ -56,7 +56,7 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 									setPage(1);
 								}}
 							>
-								{textData._Checklist.SwitchGame}
+								{textData.ChecklistSwitchGame}
 							</Button>
 							<Button
 								className={"w-32 scale-110 my-6"}
@@ -64,17 +64,17 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 									setPage(3);
 								}}
 							>
-								{textData._Checklist.Configr}
+								{textData.Configr}
 							</Button>
 						</div>
 					</>
 				) : (
 					<>
 						<div className="text-accent text-5xl">
-							{textData._Checklist.Greeting} <label id="user">{user}</label>
+							{textData.Greeting} <label id="user">{user}</label>
 						</div>
-						<div className="text-foreground mt-4 text-2xl opacity-75">{textData._Checklist.IMMXXMI}</div>
-						<div className="text-foreground text-lg opacity-75">{textData._Checklist.InstallXXMI}</div>
+						<div className="text-foreground mt-4 text-2xl opacity-75">{textData.IMMXXMI}</div>
+						<div className="text-foreground text-lg opacity-75">{textData.InstallXXMI}</div>
 						<Button
 							className={"w-32 scale-110 my-6"}
 							style={{ minWidth: "fit-content" }}
@@ -82,7 +82,7 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 								setPage(3);
 							}}
 						>
-							{textData._Checklist.Continu}
+							{textData.Continu}
 						</Button>
 
 						<AlertDialog>
@@ -92,7 +92,7 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 									href="https://github.com/SpectrumQT/XXMI-Launcher"
 									target="_blank"
 								>
-									<ArrowUpRightFromSquareIcon className="inline w-4 h-4 mb-1" /> {textData._Checklist.WhatIsXXMI}
+									<ArrowUpRightFromSquareIcon className="inline w-4 h-4 mb-1" /> {textData.WhatIsXXMI}
 								</a>
 							</AlertDialogTrigger>
 							<AlertDialogContent>
@@ -103,28 +103,28 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 									<XIcon />
 								</AlertDialogCancel>
 								<div className="text-foreground/75 flex flex-col items-center gap-4 p-4">
-									<h2 className="text-accent text-2xl font-bold">{textData._Checklist.XXMILauncher}</h2>
+									<h2 className="text-accent text-2xl font-bold">{textData.XXMILauncher}</h2>
 
 									<p className=" text-center">
-										{textData._Checklist.InstallOpen}{" "}
+										{textData.InstallOpen}{" "}
 										<a
 											className=" hover:opacity-100 duration-200 opacity-75"
 											href="https://github.com/SpectrumQT/XXMI-Launcher"
 											target="_blank"
 											rel="noreferrer noopener"
 										>
-											{textData._Checklist.XXMILauncher} <ArrowUpRightFromSquareIcon className="inline w-4 h-4 mb-1" />
+											{textData.XXMILauncher} <ArrowUpRightFromSquareIcon className="inline w-4 h-4 mb-1" />
 										</a>{" "}
-										{textData._Checklist.RspMod}
+										{textData.RspMod}
 									</p>
-									<label>{textData._Checklist.OnceComplete}</label>
+									<label>{textData.OnceComplete}</label>
 									<Button
 										className="w-32 mt-2"
 										onClick={async () => {
 											window.location.reload();
 										}}
 									>
-										{textData._Checklist.Reload}
+										{textData.Reload}
 									</Button>
 								</div>
 							</AlertDialogContent>
@@ -134,9 +134,9 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 			</div>
 			{game == "WW" && (
 				<div className="opacity-70 bottom-5 fixed z-30 flex flex-col items-center text-sm">
-					<label>{textData._Checklist.AutoMigration}</label>
-					<label>{textData._Checklist.MigrationFailed}</label>
-					<label>{textData._Checklist.AfterVerify}</label>
+					<label>{textData.AutoMigration}</label>
+					<label>{textData.MigrationFailed}</label>
+					<label>{textData.AfterVerify}</label>
 				</div>
 			)}
 		</div>

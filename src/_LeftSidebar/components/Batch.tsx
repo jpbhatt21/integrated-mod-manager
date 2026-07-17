@@ -184,7 +184,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 			}
 			addToast({
 				type: "info",
-				message: textData._Toasts.RefreshMods,
+				message: textData.RefreshMods,
 			});
 			setChecked(new Set());
 			setCurSelectedIndices([]);
@@ -238,7 +238,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 		Promise.all(promises).then(() => {
 			addToast({
 				type: "success",
-				message: textData._Toasts.ApplyingChanges,
+				message: textData.ApplyingChanges,
 			});
 		});
 	}
@@ -256,7 +256,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									depth: item.depth + 1,
 									isDir: false,
-									name: textData._LeftSideBar._components._Batch.EmptyFolder,
+									name: textData.EmptyFolder,
 									parent: item.path,
 									path: join(item.path, "Loading..."),
 									isSkeleton: true,
@@ -275,7 +275,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 				if (checked.has(item.path))
 					addToast({
 						type: "warning",
-						message: textData._Toasts.CannotExpandSelected,
+						message: textData.CannotExpandSelected,
 					});
 				else newExpanded.add(item.path);
 			}
@@ -392,11 +392,11 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								<FolderCogIcon className="aspect-square w-5 h-5 -mr-1 pointer-events-none" />
 							) : item.path === managedSRC ? (
 								<label className="text-[0.6rem] min-w-fit px-1 py-0.5 wuwa-font border rounded-full text-success border-success/50 pointer-events-none">
-									{textData._LeftSideBar._components._Batch.Source}
+									{textData.BatchSource}
 								</label>
 							) : item.path === managedTGT && source === target ? (
 								<label className="text-[0.6rem] min-w-fit flex items-center px-1 py-0.5 wuwa-font border rounded-full text-warn border-warn/50 pointer-events-none">
-									{textData._LeftSideBar._components._Batch.Target}
+									{textData.Target}
 								</label>
 							) : item.isDir ? (
 								<FolderIcon className="w-4 h-4" />
@@ -408,7 +408,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					<Label className={"w-full pointer-events-none " + ((index % 2) + 1)}>{item.name}</Label>
 					{item.path === managedTGT ? (
 						<label className="text-destructive min-w-fit text-xs opacity-50">
-							{textData._LeftSideBar._components._Batch.CannotModify}
+							{textData.CannotModify}
 						</label>
 					) : (
 						<></>
@@ -430,7 +430,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											{
 												depth: item.depth + 1,
 												isDir: false,
-												name: textData._LeftSideBar._components._Batch.EmptyFolder,
+												name: textData.EmptyFolder,
 												parent: item.path,
 												path: join(item.path, "Loading..."),
 												isSkeleton: true,
@@ -453,7 +453,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					style={{ width: leftSidebarOpen ? "" : "3rem", borderRadius: leftSidebarOpen ? "" : "999px" }}
 				>
 					<GroupIcon />
-					{leftSidebarOpen && textData._LeftSideBar._components._Batch.BatchOps}
+					{leftSidebarOpen && textData.BatchOps}
 				</Button>
 			</DialogTrigger>
 			<DialogContent
@@ -476,10 +476,10 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					<AlertDialogContent>
 						<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 							<div className="text-xl text-gray-200">
-								{textData._Main._MainLocal.Delete} <span className="text-warn ">{cleanChecked.length} item(s)</span>?
+								{textData.Delete} <span className="text-warn ">{cleanChecked.length} item(s)</span>?
 							</div>
-							<div className="text-destructive">{textData._Main._MainLocal.Irrev}</div>
-							<div className="text-destructive">{textData._LeftSideBar._components._Batch.AllFiles}</div>
+							<div className="text-destructive">{textData.Irrev}</div>
+							<div className="text-destructive">{textData.AllFiles}</div>
 						</div>
 						<div className="flex justify-between w-full gap-4 mt-4">
 							<AlertDialogCancel variant="default" className="w-24 duration-300">
@@ -496,19 +496,19 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 									});
 									addToast({
 										type: "success",
-										message: textData._Toasts.Deleting.replace("<length/>", promises.length.toString()),
+										message: textData.Deleting.replace("<length/>", promises.length.toString()),
 									});
 									Promise.all(promises).then(() => {
 										setChecked(new Set());
 										setRefresh((prev) => prev + 1);
 										addToast({
 											type: "success",
-											message: textData._Toasts.SuccessfullyDeleted.replace("<length/>", promises.length.toString()),
+											message: textData.SuccessfullyDeleted.replace("<length/>", promises.length.toString()),
 										});
 									});
 								}}
 							>
-								{textData._Main._MainLocal.Delete}
+								{textData.Delete}
 							</AlertDialogAction>
 						</div>
 					</AlertDialogContent>
@@ -522,10 +522,10 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					{isMaximized ? <Minimize2Icon /> : <Maximize2Icon />}
 				</div>
 				<div className="min-h-fit text-accent my-6 text-3xl">
-					{textData._LeftSideBar._components._Batch.BatchOperations}
+					{textData.BatchOperations}
 				</div>
 				<label className="text-muted min-h-10 z-200 flex items-center gap-1 -mb-4">
-					{textData._LeftSideBar._components._Batch.ContentFrom}
+					{textData.ContentFrom}
 					<label
 						onClick={() => {
 							openPath(toFs(source));
@@ -539,7 +539,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 							onClick={() => {
 								addToast({
 									type: "info",
-									message: textData._Toasts.RefreshMods,
+									message: textData.RefreshMods,
 								});
 								// setModList([]);
 								refreshModList().then((data) => {
@@ -554,14 +554,14 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					</Tooltip>
 				</label>
 				<label className="text-muted min-h-10 z-200 flex items-center justify-between w-full gap-1 -mb-4">
-					{textData._LeftSideBar._components._Batch.ItemsSelected} {cleanChecked.length}
+					{textData.ItemsSelected} {cleanChecked.length}
 					<label
 						onClick={() => {
 							setChecked(new Set());
 						}}
 						className="text-destructive hover:opacity-75 ml-2 text-sm duration-200 opacity-50 pointer-events-auto"
 					>
-						{textData._LeftSideBar._components._Batch.DeselectAll}
+						{textData.DeselectAll}
 					</label>
 				</label>
 				<div
@@ -580,18 +580,18 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 						className="w-34.5 active:bg-success/80 group"
 					>
 						<CheckIcon className="text-success/80 group-active:text-background duration-300" />
-						{textData._LeftSideBar._components._Settings._AutoReload.Enable}
+						{textData.Enable}
 					</Button>
 					<Button
 						disabled={!deleteValid}
 						onClick={() => {
 							const selected = [...cleanChecked];
-							folderSelector(source, textData._LeftSideBar._components._Batch.SelectDest).then((dest) => {
+							folderSelector(source, textData.SelectDest).then((dest) => {
 								if (!dest) return;
 								if (selected.some((modPath) => dest.startsWith(join(source, modPath)))) {
 									addToast({
 										type: "error",
-										message: textData._Toasts.CannotMove,
+										message: textData.CannotMove,
 									});
 									return;
 								}
@@ -602,7 +602,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								});
 								addToast({
 									type: "success",
-									message: textData._Toasts.Moving.replace("<length/>", selected.length.toString()),
+									message: textData.Moving.replace("<length/>", selected.length.toString()),
 								});
 								Promise.all(promises)
 									.then(() => {
@@ -610,14 +610,14 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 										setRefresh((prev) => prev + 1);
 										addToast({
 											type: "success",
-											message: textData._Toasts.SuccessfullyMoved.replace("<length/>", selected.length.toString()),
+											message: textData.SuccessfullyMoved.replace("<length/>", selected.length.toString()),
 										});
 									})
 									.catch((e) => {
 										if (e.includes("The directory is not empty"))
 											addToast({
 												type: "error",
-												message: textData._Toasts.SameName,
+												message: textData.SameName,
 											});
 									});
 							});
@@ -625,7 +625,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 						className="w-34.5 "
 					>
 						<FolderInputIcon className="" />
-						{textData._LeftSideBar._components._Batch.Move}{" "}
+						{textData.Move}{" "}
 					</Button>
 					<Button
 						disabled={!toggleValid}
@@ -633,7 +633,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 						className="w-34.5 active:bg-destructive/80 group"
 					>
 						<XIcon className="text-destructive/80 group-active:text-background duration-300" />
-						{textData._LeftSideBar._components._Settings._AutoReload.Disable}
+						{textData.Disable}
 					</Button>
 					<Button
 						disabled={!deleteValid}
@@ -642,7 +642,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					>
 						<TrashIcon className="text-destructive group-active:text-background duration-300" />
 						<label className="text-destructive group-active:text-background duration-300">
-							{textData._Main._MainLocal.Delete}
+							{textData.Delete}
 						</label>
 					</Button>
 
@@ -663,7 +663,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								className="w-41 item border-accent/25 active:border-border text-ellipsis button-like active:text-background active:bg-accent/80 active:scale-90 whitespace-nowrap bg-button text-accent hover:brightness-120 flex items-center justify-center h-10 px-3 py-2 overflow-hidden text-sm font-medium transition-all duration-300 rounded-md shadow-xs pointer-events-auto select-none"
 							>
 								<Settings2Icon className=" h-5 mr-1" />
-								{textData._LeftSideBar._components._Batch.SetCat}
+								{textData.SetCat}
 							</div>
 						</PopoverTrigger>
 						<PopoverContent className="w-80 z-2000 absolute p-0 mr-2 -mt-12 -translate-x-1/2 -translate-y-full border rounded-lg pointer-events-auto">
@@ -687,7 +687,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 										e.currentTarget.scrollTop += e.deltaY;
 									}}
 								>
-									<CommandEmpty>{textData._RightSideBar._RightLocal.NoCat}</CommandEmpty>
+									<CommandEmpty>{textData.NoCat}</CommandEmpty>
 									{newCategory && (
 										<CommandItem
 											itemID="1"
@@ -723,7 +723,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 												});
 												addToast({
 													type: "success",
-													message: textData._Toasts.Moving.replace("<length/>", mods.length.toString()),
+													message: textData.Moving.replace("<length/>", mods.length.toString()),
 												});
 												Promise.all(promises)
 													.then(() => {
@@ -731,14 +731,14 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 														setRefresh((prev) => prev + 1);
 														addToast({
 															type: "success",
-															message: textData._Toasts.SuccessfullyMoved.replace("<length/>", mods.length.toString()),
+															message: textData.SuccessfullyMoved.replace("<length/>", mods.length.toString()),
 														});
 													})
 													.catch((e) => {
 														if (e.includes("The directory is not empty"))
 															addToast({
 																type: "error",
-																message: textData._Toasts.SameName,
+																message: textData.SameName,
 															});
 													});
 												setPopoverOpen(false);
@@ -754,7 +754,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											/>
 
 											<div className="w-35 min-w-fit text-ellipsis overflow-hidden break-words">
-												{textData._LeftSideBar._components._Batch.CreateCat} {newCategory}
+												{textData.CreateCat} {newCategory}
 											</div>
 										</CommandItem>
 									)}
@@ -779,14 +779,14 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 													});
 													addToast({
 														type: "success",
-														message: textData._Toasts.Moving.replace("<length/>", mods.length.toString()),
+														message: textData.Moving.replace("<length/>", mods.length.toString()),
 													});
 													Promise.all(promises).then(() => {
 														setChecked(new Set());
 														setRefresh((prev) => prev + 1);
 														addToast({
 															type: "success",
-															message: textData._Toasts.SuccessfullyMoved.replace("<length/>", mods.length.toString()),
+															message: textData.SuccessfullyMoved.replace("<length/>", mods.length.toString()),
 														});
 													});
 													setPopoverOpen(false);

@@ -93,7 +93,7 @@ function RightLocal() {
 				if (urlGame && urlGame != game) {
 					if (!(await confirmAndCancelDownloadsForGameSwitch())) return;
 					addToast({
-						message: textData._Toasts.SwitchGame.replace("<game/>", urlGame),
+						message: textData.SwitchGame.replace("<game/>", urlGame),
 					});
 					sessionStorage.setItem("imm-deep-link-game", urlGame);
 					console.log("Setting deep link game in sessionStorage:", urls[urls.length - 1]);
@@ -207,7 +207,7 @@ function RightLocal() {
 			setDeleteItemData(null);
 		}
 	}, [alertOpen]);
-	function manageCategoriesButton({ title = textData._RightSideBar._components._ManageCategories.ManageCat }: any) {
+	function manageCategoriesButton({ title = textData.ManageCat }: any) {
 		return (
 			<Button
 				onClick={() => {
@@ -267,7 +267,7 @@ function RightLocal() {
 			})
 			.catch(() => {
 				addToast({
-					message: textData._Toasts.FailedRename,
+					message: textData.FailedRename,
 					type: "error",
 				});
 			});
@@ -354,9 +354,9 @@ function RightLocal() {
 				<AlertDialogContent>
 					<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 						<div className="max-w-96 text-xl text-gray-200 wrap-break-words">
-							{textData._Main._MainLocal.Delete} <span className="text-accent ">{deleteItemData?.name}</span>?
+							{textData.Delete} <span className="text-accent ">{deleteItemData?.name}</span>?
 						</div>
-						<div className="text-destructive">{textData._Main._MainLocal.Irrev}</div>
+						<div className="text-destructive">{textData.Irrev}</div>
 					</div>
 					<div className="flex justify-between w-full gap-4 mt-4">
 						<AlertDialogCancel variant="default" className="w-24 duration-300">
@@ -384,7 +384,7 @@ function RightLocal() {
 								setSelected("");
 							}}
 						>
-							{textData._Main._MainLocal.Delete}
+							{textData.Delete}
 						</AlertDialogAction>
 					</div>
 				</AlertDialogContent>
@@ -538,7 +538,7 @@ function RightLocal() {
 											<Command>
 												<CommandInput placeholder={textData.Search} className="h-12" />
 												<CommandList>
-													<CommandEmpty>{textData._RightSideBar._RightLocal.NoCat}</CommandEmpty>
+													<CommandEmpty>{textData.NoCat}</CommandEmpty>
 													<CommandGroup>
 														{categories.map((cat) => (
 															<CommandItem
@@ -573,13 +573,13 @@ function RightLocal() {
 									</Popover>
 								) : (
 									<div className="w-48.5 flex items-center pr-2">
-										{manageCategoriesButton({ title: textData._RightSideBar._RightLocal.Manage })}
+										{manageCategoriesButton({ title: textData.Manage })}
 									</div>
 								)}
 							</div>
 							<div className="bg-pat1 flex justify-between w-full px-1 rounded-lg">
 								<Label className="bg-input/0 flex items-center justify-center hover:bg-input/0 h-10 w-28.5 text-accent ">
-									{textData._RightSideBar._RightLocal.Source}
+									{textData.Source}
 								</Label>
 								<div className="w-48.5 flex items-center px-1">
 									<Input
@@ -609,7 +609,7 @@ function RightLocal() {
 											}
 										}}
 										type="text"
-										placeholder={textData._RightSideBar._RightLocal.NoSource}
+										placeholder={textData.NoSource}
 										className="w-full select-none focus-within:select-auto overflow-hidden h-10 focus-visible:ring-[0px] border-0  text-ellipsis"
 										style={{ backgroundColor: "#fff0" }}
 										key={item?.source}
@@ -630,7 +630,7 @@ function RightLocal() {
 												</TooltipTrigger>
 												<TooltipContent className="flex items-center justify-center w-20">
 													<p className="max-w-20 w-full text-center">
-														{textData._RightSideBar._RightLocal.ViewModOnline}
+														{textData.ViewModOnline}
 													</p>
 												</TooltipContent>
 											</Tooltip>
@@ -657,7 +657,7 @@ function RightLocal() {
 													</TooltipTrigger>
 													<TooltipContent className="w-15 flex items-center justify-center">
 														<p className="max-w-15 w-full text-center">
-															{textData._RightSideBar._RightLocal.SearchOnline}
+															{textData.SearchOnline}
 														</p>
 													</TooltipContent>
 												</Tooltip>
@@ -669,7 +669,7 @@ function RightLocal() {
 							</div>
 							<div className="bg-pat1 flex justify-between w-full px-1 rounded-lg">
 								<Label className="bg-input/0 flex items-center justify-center hover:bg-input/0 h-10 w-28.5 text-accent ">
-									{textData._Tags.Tags}
+									{textData.Tags}
 								</Label>
 								<div className="w-48.5 flex gap-1 justify-evenly items-center px-1">
 									<Tooltip>
@@ -712,7 +712,7 @@ function RightLocal() {
 											</Button>
 										</TooltipTrigger>
 										<TooltipContent>
-											{new Set(item?.tags || []).has("fav") ? textData._Tags.RemFav : textData._Tags.AddFav}
+											{new Set(item?.tags || []).has("fav") ? textData.RemFav : textData.AddFav}
 										</TooltipContent>
 									</Tooltip>
 									<Tooltip>
@@ -758,7 +758,7 @@ function RightLocal() {
 											</Button>
 										</TooltipTrigger>
 										<TooltipContent>
-											{new Set(item?.tags || []).has("nsfw") ? textData._Tags.UnmarkNSFW : textData._Tags.MarkNSFW}
+											{new Set(item?.tags || []).has("nsfw") ? textData.UnmarkNSFW : textData.MarkNSFW}
 										</TooltipContent>
 									</Tooltip>
 								</div>
@@ -785,7 +785,7 @@ function RightLocal() {
 											opacity: tab == "hotkeys" ? 1 : 0.4,
 										}}
 									>
-										{textData._RightSideBar._RightLocal.HotKeys}
+										{textData.HotKeys}
 									</TabsTrigger>
 									<TabsTrigger
 										nbg2
@@ -797,7 +797,7 @@ function RightLocal() {
 											opacity: tab !== "hotkeys" ? 1 : 0.4,
 										}}
 									>
-										{textData._RightSideBar._RightLocal.Notes}
+										{textData.Notes}
 									</TabsTrigger>
 								</TabsList>
 								<AnimatePresence mode="wait" initial={false}>
@@ -868,7 +868,7 @@ function RightLocal() {
 													className="w-full focus-within:outline-0 resize-none  select-none focus-within:select-auto overflow-y-scroll h-full  focus-visible:ring-[0px] border-0  text-ellipsis"
 													style={{ backgroundColor: "#fff0" }}
 													key={item?.note}
-													placeholder={textData._RightSideBar._RightLocal.NoNotes}
+													placeholder={textData.NoNotes}
 													defaultValue={text}
 												/>
 											</div>
@@ -893,7 +893,7 @@ function RightLocal() {
 								}}
 							>
 								<Settings2Icon className="w-4 h-4" />
-								{textData._RightSideBar._components._ModPreferences.EditConf}
+								{textData.EditConf}
 							</Button>
 						)}
 
@@ -912,7 +912,7 @@ function RightLocal() {
 								}}
 							>
 								<DownloadIcon className="w-4 h-4" />
-								{textData._RightSideBar._RightLocal.ManualInstall}
+								{textData.ManualInstall}
 							</Button>
 							<Button
 								className="w-38.75 h-12"
@@ -922,7 +922,7 @@ function RightLocal() {
 								}}
 							>
 								<SwordsIcon className="w-4 h-4" />
-								{textData._RightSideBar._RightLocal.Conflicts}
+								{textData.Conflicts}
 							</Button>
 						</div>
 					</SidebarGroup>

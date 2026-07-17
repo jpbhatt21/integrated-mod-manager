@@ -17,19 +17,19 @@ function Help({ setPage }: { setPage: (page: number) => void }) {
 		<Dialog>
 			<DialogTrigger asChild>
 				<Button className="w-38.75 showAfterDelay fixed bottom-5 left-1/2 -translate-x-1/2  text-ellipsis h-12 overflow-hidden">
-					<BadgeHelpIcon className="aspect-square h-full" /> {textData._Checklist._Help.Help}
+					<BadgeHelpIcon className="aspect-square h-full" /> {textData.Help}
 				</Button>
 			</DialogTrigger>
 			<DialogContent>
 				<header className="my-6 space-y-1 text-center">
-					<h2 className="text-foreground text-2xl font-semibold">{textData._Checklist._Help.Help}</h2>
-					<p className="text-muted-foreground text-sm">{textData._Checklist._Help.QuickChecks}</p>
+					<h2 className="text-foreground text-2xl font-semibold">{textData.Help}</h2>
+					<p className="text-muted-foreground text-sm">{textData.QuickChecks}</p>
 				</header>
 				<section className="space-y-4">
 					<div className="border-border/40 bg-sidebar/20 flex items-center justify-between gap-3 p-3 py-6 border rounded-md">
 						<div className="text-sm text-left">
-							<h3 className="text-foreground font-medium">{textData._Checklist._Help.WrongGame}</h3>
-							<p className="text-muted-foreground text-xs">{textData._Checklist._Help.SwitchGames}</p>
+							<h3 className="text-foreground font-medium">{textData.WrongGame}</h3>
+							<p className="text-muted-foreground text-xs">{textData.SwitchGames}</p>
 						</div>
 						<Button
 							size="sm"
@@ -40,14 +40,14 @@ function Help({ setPage }: { setPage: (page: number) => void }) {
 								setPage(1);
 							}}
 						>
-							{textData._Checklist._Help.Select}
+							{textData.Select}
 						</Button>
 					</div>
 					<div className="border-border/40 bg-sidebar/20 flex items-center justify-between gap-3 p-3 py-6 border rounded-md">
 						<div className="text-sm text-left">
-							<h3 className="text-foreground font-medium">{textData._Checklist._Help.CorrectPath}</h3>
+							<h3 className="text-foreground font-medium">{textData.CorrectPath}</h3>
 							<p className="text-muted-foreground text-xs">
-								{textData._Checklist._Help.VerifyPath.replace("<game/>", game ? game : "XX")}
+								{textData.VerifyPath.replace("<game/>", game ? game : "XX")}
 							</p>
 						</div>
 						<Button
@@ -59,13 +59,13 @@ function Help({ setPage }: { setPage: (page: number) => void }) {
 								setPage(2);
 							}}
 						>
-							{textData._Checklist._Help.Change}
+							{textData.HelpChange}
 						</Button>
 					</div>
 					<div className="border-border/40 bg-sidebar/20 flex items-center justify-between gap-3 p-3 py-6 border rounded-md">
 						<div className="text-sm text-left">
-							<h3 className="text-foreground font-medium">{textData._Checklist._Help.UpToDate}</h3>
-							<p className="text-muted-foreground text-xs">{textData._Checklist._Help.UpdatesFix}</p>
+							<h3 className="text-foreground font-medium">{textData.UpToDate}</h3>
+							<p className="text-muted-foreground text-xs">{textData.UpdatesFix}</p>
 						</div>
 						<Button
 							size="sm"
@@ -74,29 +74,29 @@ function Help({ setPage }: { setPage: (page: number) => void }) {
 								setUpdaterOpen(true);
 							}}
 						>
-							{textData._Checklist._Help.Check}
+							{textData.Check}
 						</Button>
 					</div>
 					<div className="border-border/40 bg-sidebar/20 flex items-center justify-between gap-3 p-3 py-6 border rounded-md">
 						<div className="text-sm text-left">
-							<h3 className="text-foreground font-medium">{textData._Checklist._Help.Backup}</h3>
-							<p className="text-muted-foreground text-xs">{textData._Checklist._Help.CreateBKUP}</p>
-							<p className="text-muted-foreground text-xs">{textData._Checklist._Help.ImportConfigs}</p>
+							<h3 className="text-foreground font-medium">{textData.Backup}</h3>
+							<p className="text-muted-foreground text-xs">{textData.CreateBKUP}</p>
+							<p className="text-muted-foreground text-xs">{textData.ImportConfigs}</p>
 						</div>
 						<Button
 							size="sm"
 							className="text-destructive hover:bg-destructive hover:text-background w-24"
 							onClick={() => resetWithBackup()}
 						>
-							{textData._Checklist._Help.Reset}
+							{textData.Reset}
 						</Button>
 					</div>
 				</section>
 				<footer className="space-y-2 text-sm text-center">
-					<p className="opacity-50">{textData._Checklist._Help.StillStuck}</p>
+					<p className="opacity-50">{textData.StillStuck}</p>
 
 					<div className="flex items-center gap-2">
-						<label className="opacity-50">{textData._Checklist._Help.ContactDev}</label>
+						<label className="opacity-50">{textData.ContactDev}</label>
 						<a
 							href={BANANA_LINK}
 							target="_blank"

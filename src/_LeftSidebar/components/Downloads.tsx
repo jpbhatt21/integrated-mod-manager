@@ -372,8 +372,8 @@ function Downloads() {
 										)}
 										<Label className="min-w-2 max-w-71.5 w-fit py-2 pr-2" style={{ backgroundColor: "#fff0" }}>
 											{primaryDownload.status == "downloading"
-												? `${textData._LeftSideBar._components._Downloads.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
-												: `${textData._LeftSideBar._components._Downloads.Downloaded} ${done}/${downloadList.length}`}
+												? `${textData.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
+												: `${textData.Downloaded} ${done}/${downloadList.length}`}
 										</Label>
 									</div>
 								</div>
@@ -383,8 +383,8 @@ function Downloads() {
 									)}
 									<Label className=" w-fit max-w-72 pr-2 pointer-events-none">
 										{primaryDownload.status == "downloading"
-											? `${textData._LeftSideBar._components._Downloads.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
-											: `${textData._LeftSideBar._components._Downloads.Downloaded} ${done}/${downloadList.length}`}
+											? `${textData.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
+											: `${textData.Downloaded} ${done}/${downloadList.length}`}
 									</Label>
 								</div>
 							</div>
@@ -418,7 +418,7 @@ function Downloads() {
 				<div className="min-h-fit text-accent my-6 text-3xl">{textData.Downloads}</div>
 				<div className="h-116 flex flex-col items-center w-full gap-4 p-0">
 					<div className="flex justify-between w-full">
-						<div className="text-accent text-lg">{`${textData._LeftSideBar._components._Downloads.Queue} (${downloadList.length})`}</div>
+						<div className="text-accent text-lg">{`${textData.Queue} (${downloadList.length})`}</div>
 						<Button
 							variant="outline"
 							size="sm"
@@ -426,7 +426,7 @@ function Downloads() {
 							style={{ backgroundColor: "#0000" }}
 							disabled={!downloadList.some((item) => item.status === "completed" || item.status === "failed")}
 						>
-							{textData._LeftSideBar._components._Downloads.Clear}
+							{textData.Clear}
 						</Button>
 					</div>
 					<div className="data-wuwa:gap-0 data-wuwa:border flex flex-col w-full h-full gap-2 overflow-y-auto text-gray-300 border-0 rounded-sm">
@@ -504,7 +504,7 @@ function Downloads() {
 							))
 						) : (
 							<div className="flex items-center justify-center h-full text-gray-400">
-								{textData._LeftSideBar._components._Downloads.NoQ}
+								{textData.NoQ}
 							</div>
 						)}
 					</div>

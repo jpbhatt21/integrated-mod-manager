@@ -67,9 +67,9 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 	const textData = useAtomValue(TEXT_DATA);
 	const textData2 = {
 		default: "Default",
-		pref: textData._RightSideBar._components._ModPreferences.Pref,
+		pref: textData.Pref,
 		expected: "Expected",
-		keys: textData._RightSideBar._RightLocal.HotKeys,
+		keys: textData.HotKeys,
 	} as const;
 	const columns = Object.keys(textData2) as (keyof typeof textData2)[];
 	const [forceKeyUpdate, setForceKeyUpdate] = useState(0);
@@ -257,25 +257,25 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 		<Tooltip>
 			<TooltipTrigger className="text-accent flex items-center justify-center w-full gap-2">
 				<InfoIcon className="text-accent/70 cursor-help inline-block w-4 h-4" />
-				{textData._RightSideBar._components._ModPreferences.DefVal}
+				{textData.DefVal}
 			</TooltipTrigger>
 			<TooltipContent className="w-48 px-1 text-center">
-				{textData._RightSideBar._components._ModPreferences.DefValTip}
+				{textData.DefValTip}
 			</TooltipContent>
 		</Tooltip>,
 		<Tooltip>
 			<TooltipTrigger className="text-accent flex items-center justify-center w-full gap-2">
 				<InfoIcon className="text-accent/70 cursor-help inline-block w-4 h-4" />
-				{textData._RightSideBar._components._ModPreferences.Pref}
+				{textData.Pref}
 			</TooltipTrigger>
 			<TooltipContent className="w-48 px-1 text-center">
-				{textData._RightSideBar._components._ModPreferences.PrefTip}
+				{textData.PrefTip}
 			</TooltipContent>
 		</Tooltip>,
 		<Tooltip>
 			<TooltipTrigger className="text-accent flex items-center justify-center w-full gap-2">
 				{/* <InfoIcon className="text-accent/70 cursor-help inline-block w-4 h-4 ml-1" /> */}
-				{textData._RightSideBar._components._ModPreferences.Expected}
+				{textData.Expected}
 			</TooltipTrigger>
 			{/* <TooltipContent className="w-48 px-1 text-center">
 							{
@@ -286,10 +286,10 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 		<Tooltip>
 			<TooltipTrigger className="text-accent  flex items-center justify-center w-full gap-2">
 				<InfoIcon className="text-accent/70 cursor-help inline-block w-4 h-4" />
-				{textData._RightSideBar._RightLocal.HotKeys}
+				{textData.HotKeys}
 			</TooltipTrigger>
 			<TooltipContent className="w-48 px-1 text-center">
-				{textData._RightSideBar._components._ModPreferences.PrefTip}
+				{textData.PrefTip}
 			</TooltipContent>
 		</Tooltip>,
 	];
@@ -325,13 +325,13 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 
 			<div className="min-h-fit my-6 text-accent text-3xl">
 				{" "}
-				{textData._RightSideBar._components._ModPreferences.EditConfig}
+				{textData.EditConfig}
 			</div>
 
 			<div className="text-sm flex px-10 w-full items-center gap-2">
 				<div className="text-sm w-1/2 justify-center flex items-center gap-2">
 					{/* <Checkbox checked={fileMode} onCheckedChange={(checked) => setFileMode(!!checked)} />{" "}
-				{textData._RightSideBar._components._ModPreferences.ShowVars} */}
+				{textData.ShowVars} */}
 					View Mode
 					<Tabs
 						value={configMode ? "config" : fileMode ? "file" : "general"}
@@ -357,7 +357,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 				</div>
 				<div className="text-sm flex  w-1/2 justify-center items-center gap-2">
 					{/* <Checkbox checked={fileMode} onCheckedChange={(checked) => setFileMode(!!checked)} />{" "}
-				{textData._RightSideBar._components._ModPreferences.ShowVars} */}
+				{textData.ShowVars} */}
 					Columns
 					<div className="text-sm grid grid-cols-4 items-center gap-2">
 						{columns.map((key) => (
@@ -397,7 +397,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 									{selectedFile}
 								</>
 							) : (
-								textData._RightSideBar._components._ModPreferences.Select
+								textData.ModPreferencesSelect
 							)}
 						</div>
 					</PopoverTrigger>
@@ -440,7 +440,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 						<ChevronLeftIcon className="w-3 h-3" />
 					</Button>
 					<div className="text-sm text-muted-foreground flex items-center justify-center min-w-fit">
-						{textData._RightSideBar._components._ModPreferences.Page}
+						{textData.Page}
 						<Input
 							key={pageNo}
 							defaultValue={pageNo + 1}
@@ -454,7 +454,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 							}}
 							className="text-center w-12 mx-2 p-1"
 						/>
-						{textData._RightSideBar._components._ModPreferences.Of}{" "}
+						{textData.Of}{" "}
 						{details.files[selectedFile]?.length ? Math.ceil(details.files[selectedFile].length / pageLimit) : 1}
 					</div>
 					<Button
@@ -491,10 +491,10 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 					<Tooltip>
 						<TooltipTrigger className="text-accent  flex items-center justify-center w-full gap-2">
 							<InfoIcon className="text-accent/70 cursor-help inline-block w-4 h-4 ml-1" />
-							{textData._RightSideBar._components._ModPreferences.Name}
+							{textData.Name}
 						</TooltipTrigger>
 						<TooltipContent className="w-48 px-1 text-center">
-							{textData._RightSideBar._components._ModPreferences.NameTip}
+							{textData.NameTip}
 						</TooltipContent>
 					</Tooltip>
 					{/* <div className="text-accent w-1/5 text-center">Target Var</div>| */}
@@ -502,7 +502,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 				</div>
 			</div>
 			<label className="text-xs text-accent/50 -my-3">
-				{textData._RightSideBar._components._ModPreferences.Priority}
+				{textData.Priority}
 			</label>
 
 			{configMode ? (
@@ -611,7 +611,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 											}}
 											placeholder={
 												keyConfig.state
-													? `${textData._RightSideBar._components._ModPreferences.AutoSaved} ${keyConfig.state}`
+													? `${textData.AutoSaved} ${keyConfig.state}`
 													: "None"
 											}
 										/>
@@ -639,7 +639,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 										{keyConfig.key
 											? (keyConfig.values.toSorted().join(" , ") || "unknown").replace(
 													"unknown",
-													textData._RightSideBar._components._ModPreferences.Unknown
+													textData.Unknown
 												)
 											: "---"}
 									</div>,

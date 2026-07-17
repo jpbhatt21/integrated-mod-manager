@@ -139,7 +139,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 	const importConfig = async () => {
 		try {
 			const dialogOptions: any = {
-				title: textData._LeftSideBar._components._Settings._ImportExport.ImportPop || "Import Config",
+				title: textData.ImportPop || "Import Config",
 				filters: [
 					{
 						name: "JSON files",
@@ -157,13 +157,13 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 				try {
 					setConfig(JSON.parse(content));
 					setSettingsOpen(false);
-					addToast({ type: "success", message: textData._Toasts.ConfigImported });
+					addToast({ type: "success", message: textData.ConfigImported });
 				} catch {
-					addToast({ type: "error", message: textData._Toasts.InvalidConfig });
+					addToast({ type: "error", message: textData.InvalidConfig });
 				}
 			}
 		} catch (error) {
-			addToast({ type: "error", message: textData._Toasts.ErrorImporting });
+			addToast({ type: "error", message: textData.ErrorImporting });
 		}
 	};
 	const options = [
@@ -209,7 +209,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 			icon: MonitorIcon,
 			content: (
 				<>
-					<SettingRow label={textData._LeftSideBar._components._Settings.WindowType}>
+					<SettingRow label={textData.WindowType}>
 						<SettingTabs
 							defaultValue={settings.global.display.winType.toString()}
 							onValueChange={(e) => {
@@ -224,18 +224,18 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: AppWindowIcon,
-									label: textData._LeftSideBar._components._Settings._WindowType.Windowed,
+									label: textData.Windowed,
 								},
 								{
 									value: "2",
 									icon: Maximize2Icon,
-									label: textData._LeftSideBar._components._Settings._WindowType.Fullscreen,
+									label: textData.Fullscreen,
 								},
 							]}
 						/>
 					</SettingRow>
 
-					<SettingRow label={textData._LeftSideBar._components._Settings.WindowBGOpacity}>
+					<SettingRow label={textData.WindowBGOpacity}>
 						<Slider
 							defaultValue={[settings.global.display.bgOpacity * 100]}
 							max={100}
@@ -255,7 +255,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 							}}
 						/>
 					</SettingRow>
-					<SettingRow label={textData._LeftSideBar._components._Settings.BgType}>
+					<SettingRow label={textData.BgType}>
 						<SettingTabs
 							defaultValue={settings.global.display.bgType.toString()}
 							onValueChange={(e) => {
@@ -266,9 +266,9 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								saveConfigs();
 							}}
 							options={[
-								{ value: "0", icon: SquareIcon, label: textData._LeftSideBar._components._Settings._BgType.Blank },
-								{ value: "1", icon: PauseIcon, label: textData._LeftSideBar._components._Settings._BgType.Static },
-								{ value: "2", icon: PlayIcon, label: textData._LeftSideBar._components._Settings._BgType.Dynamic },
+								{ value: "0", icon: SquareIcon, label: textData.Blank },
+								{ value: "1", icon: PauseIcon, label: textData.Static },
+								{ value: "2", icon: PlayIcon, label: textData.Dynamic },
 							]}
 						/>
 					</SettingRow>
@@ -281,7 +281,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 			icon: HardDriveIcon,
 			content: (
 				<>
-					<SettingRow label={textData._LeftSideBar._components._Settings.Toggle}>
+					<SettingRow label={textData.Toggle}>
 						<SettingTabs
 							defaultValue={settings.global.local.toggleClick.toString()}
 							onValueChange={(e) => {
@@ -300,7 +300,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											<MouseIcon />
 										</>
 									),
-									label: textData._LeftSideBar._components._Settings._Toggle.LeftClick,
+									label: textData.LeftClick,
 								},
 								{
 									value: "2",
@@ -310,7 +310,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											<MousePointerClickIcon className=" w-4 -ml-2" />
 										</>
 									),
-									label: textData._LeftSideBar._components._Settings._Toggle.RightClick,
+									label: textData.RightClick,
 								},
 							]}
 						/>
@@ -334,21 +334,21 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 									<TooltipContent>
 										<div className="flex flex-col gap-1">
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._NSFW.Remove} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._NSFW.RemoveMsg}
+												<b>{textData.Remove} -</b>{" "}
+												{textData.RemoveMsg}
 											</div>
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._NSFW.Blur} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._NSFW.BlurMsg}
+												<b>{textData.NSFWBlur} -</b>{" "}
+												{textData.BlurMsg}
 											</div>
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._NSFW.Show} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._NSFW.ShowMsg}
+												<b>{textData.Show} -</b>{" "}
+												{textData.ShowMsg}
 											</div>
 										</div>
 									</TooltipContent>
 								</Tooltip>
-								{textData._LeftSideBar._components._Settings.NSFW}
+								{textData.SettingsNSFW}
 							</>
 						}
 					>
@@ -365,17 +365,17 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: EyeOffIcon,
-									label: textData._LeftSideBar._components._Settings._NSFW.Remove,
+									label: textData.Remove,
 								},
 								{
 									value: "1",
 									icon: EyeClosedIcon,
-									label: textData._LeftSideBar._components._Settings._NSFW.Blur,
+									label: textData.NSFWBlur,
 								},
 								{
 									value: "2",
 									icon: EyeIcon,
-									label: textData._LeftSideBar._components._Settings._NSFW.Show,
+									label: textData.Show,
 								},
 							]}
 						/>
@@ -399,15 +399,15 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 									<TooltipContent>
 										<div className="flex flex-col gap-1">
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._AutoReload.Disable} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._LaunchSettings.NoChanges}
+												<b>{textData.Disable} -</b>{" "}
+												{textData.NoChanges}
 											</div>
 											<div>
-												<b>IMM -</b> {textData._LeftSideBar._components._Settings._LaunchSettings.LaunchGame}
+												<b>IMM -</b> {textData.LaunchGame}
 											</div>
 											<div>
 												<b>{settings.global.game}MI -</b>{" "}
-												{textData._LeftSideBar._components._Settings._LaunchSettings.LaunchIMM.replace(
+												{textData.LaunchIMM.replace(
 													"<game/>",
 													settings.global.game
 												)}
@@ -415,7 +415,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 										</div>
 									</TooltipContent>
 								</Tooltip>
-								{textData._LeftSideBar._components._Settings.LaunchSettings}
+								{textData.LaunchSettings}
 							</>
 						}
 					>
@@ -439,7 +439,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: XIcon,
-									label: textData._LeftSideBar._components._Settings._AutoReload.Disable,
+									label: textData.Disable,
 								},
 								{
 									value: "1",
@@ -464,22 +464,22 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 									<TooltipContent>
 										<div className="flex flex-col gap-1">
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._AutoReload.Disable} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._AutoReload.DisableMsg}
+												<b>{textData.Disable} -</b>{" "}
+												{textData.DisableMsg}
 											</div>
 											<div>
-												<b>IMM -</b> {textData._LeftSideBar._components._Settings._AutoReload.WWMMMsg}
+												<b>IMM -</b> {textData.WWMMMsg}
 											</div>
 											<div>
-												<b>{textData._LeftSideBar._components._Settings._AutoReload.OnFocus} -</b>{" "}
-												{textData._LeftSideBar._components._Settings._AutoReload.FocusMsg}
+												<b>{textData.OnFocus} -</b>{" "}
+												{textData.FocusMsg}
 											</div>
 											<Separator />
-											<div>{textData._LeftSideBar._components._Settings._AutoReload.ReloadMsg}</div>
+											<div>{textData.ReloadMsg}</div>
 										</div>
 									</TooltipContent>
 								</Tooltip>
-								{textData._LeftSideBar._components._Settings.AutoReload}
+								{textData.AutoReload}
 							</>
 						}
 					>
@@ -498,7 +498,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: CircleSlashIcon,
-									label: textData._LeftSideBar._components._Settings._AutoReload.Disable,
+									label: textData.Disable,
 								},
 								{
 									value: "1",
@@ -508,12 +508,12 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "2",
 									icon: FocusIcon,
-									label: textData._LeftSideBar._components._Settings._AutoReload.OnFocus,
+									label: textData.OnFocus,
 								},
 							]}
 						/>
 					</SettingRow>
-					<SettingRow label={textData._LeftSideBar._components._Settings[customMode ? "ModDir" : "XXMIDir"]}>
+					<SettingRow label={customMode ? textData.ModDir : textData.XXMIDir}>
 						{/* <Button
 							className="w-full"
 							onClick={() => {
@@ -524,7 +524,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								store.set(INIT_DONE, false);
 							}}
 						>
-							{textData._LeftSideBar._components._Settings.Change}
+							{textData.HelpChange}
 						</Button> */}
 						<Button
 							className="aspect-square bg-accent text-background items-center justify-center"
@@ -561,7 +561,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 			icon: Settings2Icon,
 			content: (
 				<>
-					<SettingRow label={textData._LeftSideBar._components._Settings.ImportExport}>
+					<SettingRow label={textData.ImportExport}>
 						{/* <Button
 							className="w-full"
 							onClick={() => {
@@ -572,7 +572,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								store.set(INIT_DONE, false);
 							}}
 						>
-							{textData._LeftSideBar._components._Settings.Change}
+							{textData.HelpChange}
 						</Button> */}
 						<div className="flex justify-start w-full gap-2 pr-2">
 							<Button
@@ -582,7 +582,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								variant="ghost"
 							>
 								<DownloadIcon className="w-4 h-4" />
-								{textData._LeftSideBar._components._Settings._ImportExport.Import}
+								{textData.Import}
 							</Button>
 							<Button
 								onClick={() => exportConfig(settings, textData)}
@@ -590,7 +590,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								variant="ghost"
 							>
 								<UploadIcon className="w-4 h-4" />
-								{textData._LeftSideBar._components._Settings._ImportExport.Export}
+								{textData.Export}
 							</Button>
 						</div>
 					</SettingRow>
@@ -623,15 +623,15 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 							<>
 								<div className=" flex flex-col items-center mt-6 text-center">
 									<div className="flex flex-col items-center justify-center gap-2 mb-8 text-3xl text-gray-200">
-										{textData._LeftSideBar._components._Settings._LaunchSettings.Note}
+										{textData.Note}
 									</div>
 									<img src="xxmi-warn.png" className="rounded-xl min-w-164 max-w-164" />
 									<div className="h-12 w-49  -ml-85.25 -mt-15.5 border border-accent animate-pulse rounded-lg" />
 
 									<div className="text-accent mt-6">
-										{textData._LeftSideBar._components._Settings._LaunchSettings.Warn1}
+										{textData.Warn1}
 									</div>
-									<div className="text-accent">{textData._LeftSideBar._components._Settings._LaunchSettings.Warn2}</div>
+									<div className="text-accent">{textData.Warn2}</div>
 								</div>
 								<div className="flex justify-center w-full gap-4 mt-4">
 									<AlertDialogAction className="min-w-24 duration-300">{textData.Confirm}</AlertDialogAction>
@@ -641,7 +641,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 							<>
 								<div className=" flex flex-col items-center gap-6 mt-6 text-center">
 									<div className="flex flex-col items-center justify-center gap-2 text-xl text-gray-200">
-										{TEXT[langAlertData.prev].Change + TEXT[langAlertData.prev].Languages[langAlertData.new]}
+										{TEXT[langAlertData.prev].Change + TEXT[langAlertData.prev][langAlertData.new]}
 										?
 										<Separator />
 										<span
@@ -649,7 +649,7 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 												fontFamily: `var(--game-font-${langAlertData.new})`,
 											}}
 										>
-											{TEXT[langAlertData.new].Change + TEXT[langAlertData.new].Languages[langAlertData.new]}?
+											{TEXT[langAlertData.new].Change + TEXT[langAlertData.new][langAlertData.new]}?
 										</span>
 									</div>
 

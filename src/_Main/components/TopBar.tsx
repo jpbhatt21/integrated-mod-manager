@@ -121,7 +121,7 @@ function TopBar() {
 				<Input
 					id="search-input"
 					defaultValue={online ? "" : search}
-					placeholder={textData._Main._components._TopBar.Search}
+					placeholder={textData.Search}
 					className="text-foreground zzz-rounded placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 h-8 bg-transparent border-0"
 					onChange={(e) => {
 						setTerm(e.target.value);
@@ -139,33 +139,33 @@ function TopBar() {
 								{online ? (
 									onlinePath.startsWith("home") || onlinePath.startsWith("search") ? (
 										onlineType == "Mod" ? (
-											textData._Main._components._TopBar.ModsOnly
+											textData.ModsOnly
 										) : (
 											textData.All
 										)
 									) : onlineSort == "" ? (
-										textData._Main._components._TopBar.Default
+										textData.Default
 									) : (
 										{
 											Generic_MostLiked: (
 												<>
-													{textData._Main._components._TopBar.Most} <ThumbsUpIcon className="h-4" />
+													{textData.Most} <ThumbsUpIcon className="h-4" />
 												</>
 											),
 											Generic_MostViewed: (
 												<>
-													{textData._Main._components._TopBar.Most} <EyeIcon className="h-4" />
+													{textData.Most} <EyeIcon className="h-4" />
 												</>
 											),
 											Generic_MostDownloaded: (
 												<>
-													{textData._Main._components._TopBar.Most} <DownloadIcon className="h-4" />
+													{textData.Most} <DownloadIcon className="h-4" />
 												</>
 											),
 										}[onlineSort]
 									)
 								) : (
-									<>{SORT_OPTIONS[sort].replace("Default",textData._Main._components._TopBar.Default).replace("Favourite",textData._Tags.Favorite)}</>
+									<>{SORT_OPTIONS[sort].replace("Default",textData.Default).replace("Favourite",textData.Favorite)}</>
 								)}
 							</div>
 						</PopoverTrigger>
@@ -194,7 +194,7 @@ function TopBar() {
 													// saveConfig();
 												}}
 											>
-												{textData._Main._components._TopBar.ModsOnly}
+												{textData.ModsOnly}
 											</div>
 										</>
 									) : (
@@ -206,7 +206,7 @@ function TopBar() {
 													setOnlinePath((prev) => `${prev.split("&_sort=")[0]}&_sort=`);
 												}}
 											>
-												{textData._Main._components._TopBar.Default}
+												{textData.Default}
 											</div>
 											<div
 												className="hover:brightness-150 button-like data-zzz:bg-button zzz-border border-y bg-sidebar min-h-12 cursor-pointerx flex items-center justify-center w-full gap-1 p-2 text-sm duration-300 rounded-md select-none"
@@ -215,7 +215,7 @@ function TopBar() {
 													setOnlinePath((prev) => `${prev.split("&_sort=")[0]}&_sort=most_liked`);
 												}}
 											>
-												{textData._Main._components._TopBar.Most} <ThumbsUpIcon className="h-4" />
+												{textData.Most} <ThumbsUpIcon className="h-4" />
 											</div>
 											<div
 												className="hover:brightness-150 button-like data-zzz:bg-button zzz-border border-y bg-sidebar min-h-12 cursor-pointerx flex items-center justify-center w-full gap-1 p-2 text-sm duration-300 rounded-md select-none"
@@ -224,7 +224,7 @@ function TopBar() {
 													setOnlinePath((prev) => `${prev.split("&_sort=")[0]}&_sort=most_viewed`);
 												}}
 											>
-												{textData._Main._components._TopBar.Most} <EyeIcon className="h-4" />
+												{textData.Most} <EyeIcon className="h-4" />
 											</div>
 											<div
 												className="hover:brightness-150 button-like data-zzz:bg-button zzz-border bg-sidebar min-h-12 cursor-pointerx flex items-center justify-center w-full gap-1 p-2 text-sm duration-300 border-t rounded-md select-none"
@@ -233,7 +233,7 @@ function TopBar() {
 													setOnlinePath((prev) => `${prev.split("&_sort=")[0]}&_sort=most_downloaded`);
 												}}
 											>
-												{textData._Main._components._TopBar.Most} <DownloadIcon className="h-4" />
+												{textData.Most} <DownloadIcon className="h-4" />
 											</div>
 										</>
 									)
@@ -246,7 +246,7 @@ function TopBar() {
 												setSort(value);
 											}}
 										>
-											{label.replace("Default",textData._Main._components._TopBar.Default).replace("Favourite",textData._Tags.Favorite)}
+											{label.replace("Default",textData.Default).replace("Favourite",textData.Favorite)}
 										</div>
 									))
 								)}
@@ -273,7 +273,7 @@ function TopBar() {
 					} else {
 						addToast({
 							type: "info",
-							message: textData._Toasts.RefreshMods,
+							message: textData.RefreshMods,
 						});
 						refreshModList().then((data) => {
 							setModList(data);

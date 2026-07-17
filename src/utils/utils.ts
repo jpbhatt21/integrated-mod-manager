@@ -181,7 +181,7 @@ export async function exportConfig(settings: any, textData: any) {
 	try {
 		const { gameConfig } = getConfig(settings);
 		const filePath = await save({
-			title: textData._LeftSideBar._components._Settings._ImportExport.ExportPop,
+			title: textData.ExportPop,
 			defaultPath: `config${settings.global.game}.json`,
 			filters: [
 				{
@@ -192,10 +192,10 @@ export async function exportConfig(settings: any, textData: any) {
 		});
 		if (filePath) {
 			await writeTextFile(filePath, JSON.stringify(gameConfig, null, 2));
-			addToast({ type: "success", message: textData._Toasts.ConfigExported });
+			addToast({ type: "success", message: textData.ConfigExported });
 		}
 	} catch (error) {
-		addToast({ type: "error", message: textData._Toasts.ErrorExporting });
+		addToast({ type: "error", message: textData.ErrorExporting });
 	}
 }
 const sizeLabels = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
@@ -375,7 +375,7 @@ export function useInstalledItemsManager() {
 							if (newCount > 0) {
 								addToast({
 									type: "info",
-									message: TEXT[lang as keyof typeof TEXT]._Toasts.NewUpdates.replace("<new/>", newCount.toString()),
+									message: TEXT[lang as keyof typeof TEXT].NewUpdates.replace("<new/>", newCount.toString()),
 									duration: 10000,
 									onClick: () => {
 										store.set(FILTER, (prev) => ({ ...prev, upd: "has" }));
@@ -384,7 +384,7 @@ export function useInstalledItemsManager() {
 							} else
 								addToast({
 									type: "info",
-									message: TEXT[lang as keyof typeof TEXT]._Toasts.ModsLoaded,
+									message: TEXT[lang as keyof typeof TEXT].ModsLoaded,
 								});
 						},
 						Math.max(3500 - (Date.now() - startTime), 0)

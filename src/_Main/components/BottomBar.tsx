@@ -126,7 +126,7 @@ function BottomBar() {
 									) : cat._sName == UNCATEGORIZED ? (
 										<>
 											<FileQuestionIcon className="aspect-square h-full pointer-events-none" />
-											<span className="">{textData._Main._components._BottomBar.Uncategorized}</span>
+											<span className="">{textData.Uncategorized}</span>
 										</>
 									) : (
 										<>

@@ -162,7 +162,7 @@ function MainLocal() {
 			if (collisions.length > 0 && JSON.stringify(conflicts.conflicts) !== JSON.stringify(newCols)) {
 				addToast({
 					type: "error",
-					message: textData._Toasts.CollisionsDetected,
+					message: textData.CollisionsDetected,
 					onClick: openConflict,
 				});
 				setConflicts({ conflicts: newCols, mods: modsInvolved });
@@ -333,7 +333,7 @@ function MainLocal() {
 					opacity: modList.length == 0 ? 1 : 0,
 				}}
 			>
-				<label>{textData._Main._MainLocal.NoMods}</label>
+				<label>{textData.NoMods}</label>
 			</div>
 		);
 	}, [modList, source]);

@@ -79,7 +79,7 @@ function ManageCategories() {
 							onChange={(e) => {
 								setAlertData((prev: any) => ({ ...prev, _sName: e.target.value }));
 							}}
-							placeholder={textData._RightSideBar._components._ManageCategories.CatName}
+							placeholder={textData.CatName}
 							style={{
 								borderColor: alertData.creating && categorySet.has(alertData._sName) ? "var(--destructive)" : "",
 							}}
@@ -120,7 +120,7 @@ function ManageCategories() {
 							>
 								<TrashIcon className="h-5 p-0.5 w-5 text-destructive cursor-pointer hover:text-accent/70" />
 							</TooltipTrigger>
-							<TooltipContent>{textData._RightSideBar._components._ManageCategories.DeleteCat}</TooltipContent>
+							<TooltipContent>{textData.DeleteCat}</TooltipContent>
 						</Tooltip>
 						<label
 							className="text-destructive -my-1 text-sm duration-300 pointer-events-none select-none"
@@ -128,11 +128,11 @@ function ManageCategories() {
 								opacity: alertData.creating && categorySet.has(alertData._sName) ? 1 : 0,
 							}}
 						>
-							{textData._RightSideBar._components._ManageCategories.CatExist}
+							{textData.CatExist}
 						</label>
 						<div className="w-110 flex flex-col items-start gap-2">
 							<label className="min-w-fit text-xs -mb-2 ml-2 bg-background text-accent border border-b-0 rounded-t-md px-1.5 py-0.5">
-								{textData._RightSideBar._components._ManageCategories.IconURL}
+								{textData.IconURL}
 							</label>
 							<Input
 								type="text"
@@ -158,7 +158,7 @@ function ManageCategories() {
 								>
 									<RefreshCwIcon className="h-5 p-0.5 w-5 text-accent cursor-pointer hover:text-accent/70" />
 								</TooltipTrigger>
-								<TooltipContent>{textData._RightSideBar._components._ManageCategories.Reset}</TooltipContent>
+								<TooltipContent>{textData.ManageCategoriesReset}</TooltipContent>
 							</Tooltip>
 						</div>
 					</div>
@@ -169,7 +169,7 @@ function ManageCategories() {
 							className="text-destructive text-xs duration-200 opacity-0 pointer-events-none"
 							key={alertData._sName}
 						>
-							{textData._RightSideBar._components._ManageCategories.CannotDel}
+							{textData.CannotDel}
 						</label>
 						<AlertDialogAction
 							variant="success"
@@ -203,7 +203,7 @@ function ManageCategories() {
 				</AlertDialogContent>
 			</AlertDialog>
 			<div className="min-h-fit text-accent my-6 text-3xl">
-				{textData._RightSideBar._components._ManageCategories.ManageCat}
+				{textData.ManageCat}
 			</div>
 			<div className="max-h-110 min-h-110 flex flex-wrap w-full h-full gap-2 p-2 overflow-x-hidden overflow-y-scroll text-gray-300 rounded-sm">
 				{categories.map((cat) => (
@@ -244,7 +244,7 @@ function ManageCategories() {
 						setAlertOpen(true);
 					}}
 				>
-					{textData._RightSideBar._components._ManageCategories.CreateCat}
+					{textData.ManageCategoriesCreateCat}
 				</Button>
 			</div>
 		</DialogContent>

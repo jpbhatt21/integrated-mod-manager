@@ -85,7 +85,7 @@ function ModPreview({
 				<TooltipContent className="opacity-0"></TooltipContent>
 			</Tooltip>
 
-			<div className="min-h-fit text-accent mb-4 text-3xl">{textData.Others.setPreview}</div>
+			<div className="min-h-fit text-accent mb-4 text-3xl">{textData.setPreview}</div>
 
 			<div
 				{...getRootProps({
@@ -108,7 +108,7 @@ function ModPreview({
 								}}
 								type="button"
 							>
-							{textData._RightSideBar._components._ModPreferences.Select}
+							{textData.ModPreferencesSelect}
 							</Button>
 							<label className="text-xs text-gray-400">OR</label>
 							<label className="text-accent">Paste Image/URL from clipboard</label>

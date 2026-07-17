@@ -103,7 +103,7 @@ function MainOnline() {
 				setLoadError("");
 			} catch (err) {
 				error("[IMM] Failed to load next online page:", err);
-				setLoadError(textData._Main._components._Updater.Error || "Failed to load online data.");
+				setLoadError(textData.Error || "Failed to load online data.");
 			} finally {
 				loadingRef.current = false;
 			}
@@ -186,7 +186,7 @@ function MainOnline() {
 			.catch((err) => {
 				if (controller.signal.aborted) return;
 				error("[IMM] Failed to load online data:", err);
-				setLoadError(textData._Main._components._Updater.Error || "Failed to load online data.");
+				setLoadError(textData.Error || "Failed to load online data.");
 				loadingRef.current = false;
 			});
 	}
@@ -345,7 +345,7 @@ function MainOnline() {
 								{isVisible ? (
 									<div className="card-generic card-online"></div>
 								) : (
-									<CardOnline {...item} now={now} blur={nsfw == 1} show={textData._Main._components._Filter.Show} />
+									<CardOnline {...item} now={now} blur={nsfw == 1} show={textData.Show} />
 								)}
 							</motion.div>
 						);

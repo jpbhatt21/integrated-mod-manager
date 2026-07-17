@@ -28,15 +28,15 @@ function Progress({animateProps}: {animateProps?: any}) {
 		>
 			<div className="min-h-fit text-accent my-6 text-3xl">
 				{restoreInfo.title
-					.replace("Creating Restore Point", textData._Progress.CreatingRestorePoint)
-					.replace("Restore Point Created", textData._Progress.RestorePointCreated)
+					.replace("Creating Restore Point", textData.CreatingRestorePoint)
+					.replace("Restore Point Created", textData.RestorePointCreated)
 					.replace(
 						"Restoring from",
-						textData._Progress.RestoringFrom +
+						textData.RestoringFrom +
 							(restoreInfo.title.startsWith("Restoring from") ? `: ${restoreInfo.name}` : "")
 					)
-					.replace("Operation Cancelled", textData._Progress.OperationCancelled)
-					.replace("Restoration Completed", textData._Progress.RestorationCompleted)}
+					.replace("Operation Cancelled", textData.OperationCancelled)
+					.replace("Restoration Completed", textData.RestorationCompleted)}
 			</div>
 			<div className="w-120 bg-background/50 button-like h-8 overflow-hidden border rounded-lg">
 				<div
@@ -63,7 +63,7 @@ function Progress({animateProps}: {animateProps?: any}) {
 					}
 				}}
 			>
-				{restoreInfo.finished ? <>{textData._Progress.Close}</> : <>{textData.Cancel}</>}
+				{restoreInfo.finished ? <>{textData.Close}</> : <>{textData.Cancel}</>}
 			</Button>
 		</motion.div>
 	);

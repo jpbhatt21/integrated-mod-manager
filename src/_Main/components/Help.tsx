@@ -10,8 +10,31 @@ import {Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 function Help() {
 	const textData = useAtomValue(TEXT_DATA);
-	const data = textData._Help;
-	const keys = Object.keys(data);
+	const data = [
+		["SwitchGames", textData.title, textData.content],
+		["ToggleMods", textData.ToggleModstitle, textData.ToggleModscontent],
+		["DeleteMod", textData.DeleteModtitle, textData.DeleteModcontent],
+		["EditModInfo", textData.EditModInfotitle, textData.EditModInfocontent],
+		["EditModConfig", textData.EditModConfigtitle, textData.EditModConfigcontent],
+		["ChangeImg", textData.ChangeImgtitle, textData.ChangeImgcontent],
+		["OpenExp", textData.OpenExptitle, textData.OpenExpcontent],
+		["PasteLink", textData.PasteLinktitle, textData.PasteLinkcontent],
+		["OpenLink", textData.OpenLinktitle, textData.OpenLinkcontent],
+		["OnlineMode", textData.OnlineModetitle, textData.OnlineModecontent],
+		["UsingPresets", textData.UsingPresetstitle, textData.UsingPresetscontent],
+		["SearchMods", textData.SearchModstitle, textData.SearchModscontent],
+		["DLMods", textData.DLModstitle, textData.DLModscontent],
+		["UpdateMods", textData.UpdateModstitle, textData.UpdateModscontent],
+		["ManualInstall", textData.ManualInstalltitle, textData.ManualInstallcontent],
+		["ConflictRes", textData.ConflictRestitle, textData.ConflictRescontent],
+		["ManageCats", textData.ManageCatstitle, textData.ManageCatscontent],
+		["BatchOps", textData.BatchOpstitle, textData.BatchOpscontent],
+		["Restore", textData.Restoretitle, textData.Restorecontent],
+		["Settings", textData.Settingstitle, textData.Settingscontent],
+		["Updater", textData.Updatertitle, textData.Updatercontent],
+		["RemoveIMM", textData.RemoveIMMtitle, textData.RemoveIMMcontent],
+	] as const;
+	const keys = data.map(([key]) => key);
 	const [helpOpen, setHelpOpen] = useAtom(HELP_OPEN);
 	const [selectedItem, setSelectedItem] = useState(-1);
 	const [subIndex, setSubIndex] = useState(0);
@@ -24,7 +47,7 @@ function Help() {
 			<DialogTrigger asChild>
 				<Button disabled={helpOpen} className="bg-sidebar flex gap-0.5 h-5 pointer-events-auto p-0 px-1 text-[0.625rem] border">
 					<HelpCircle className="py-[0.0625rem]" />
-					{textData._Checklist._Help.Help}
+					{textData.Help}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="game-font h-200 max-h-[calc(100vh-4rem)] min-w-260 flex flex-col gap-8">
@@ -39,7 +62,7 @@ function Help() {
 					<div className="min-w-82 flex flex-col h-full gap-2 overflow-hidden">
 						{/* <Input placeholder="Search..." /> */}
 						<div className="w-82 data-wuwa:border data-wuwa:gap-0 data-wuwa:pr-0 flex flex-col h-full gap-1 pr-1 overflow-x-hidden overflow-y-auto border-0 rounded-sm">
-							{Object.keys(data).map((key, index) => (
+							{data.map(([key, title], index) => (
 								<Button
 									key={key}
 									onClick={() => setSelectedItem((prev) => (prev === index ? -1 : index))}
@@ -59,7 +82,7 @@ function Help() {
 										animation: game !== "WW" && selectedItem === index ? "" : "none",
 									}}
 								>
-									{data[key as keyof typeof data].title}
+									{title}
 								</Button>
 							))}
 						</div>
@@ -77,7 +100,7 @@ function Help() {
 									<CarouselTut
 										subIndex={subIndex}
 										setSubIndex={setSubIndex}
-										data={data[keys[selectedItem] as keyof typeof data]?.content}
+										data={data[selectedItem]?.[2]}
 										title={keys[selectedItem]}
 									/>
 								</motion.div>
@@ -117,12 +140,12 @@ function Help() {
 							className="min-w-28"
 							disabled={
 								selectedItem === keys.length - 1 &&
-								data[keys[selectedItem] as keyof typeof data]?.content.length - 1 === subIndex
+								data[selectedItem]?.[2].length - 1 === subIndex
 							}
 							onClick={() => {
 								if (
 									selectedItem < 0 ||
-									data[keys[selectedItem] as keyof typeof data]?.content.length - 1 === subIndex
+									data[selectedItem]?.[2].length - 1 === subIndex
 								) {
 									setSelectedItem((prev) => prev + 1);
 									setSubIndex(0);

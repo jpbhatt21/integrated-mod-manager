@@ -55,7 +55,7 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 					style={{ width: leftSidebarOpen ? "" : "3rem", borderRadius: leftSidebarOpen ? "" : "999px" }}
 				>
 					<SaveAllIcon />
-					{leftSidebarOpen && textData._LeftSideBar._components._Restore.Restore}
+					{leftSidebarOpen && textData.Restore}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="">
@@ -63,10 +63,10 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 					<AlertDialogContent className="min-w-120">
 						<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 							<div className="text-xl text-gray-200">
-								{textData._Main._MainLocal.Delete}{" "}
+								{textData.Delete}{" "}
 								<span className="text-accent ">{restorePoints[selectedRestorePoint]}</span>?
 							</div>
-							<div className="text-destructive ">{textData._Main._MainLocal.Irrev}</div>
+							<div className="text-destructive ">{textData.Irrev}</div>
 						</div>
 						<div className="flex justify-between w-full gap-4 mt-4">
 							<AlertDialogCancel variant="default" className="w-24 duration-300">
@@ -92,16 +92,16 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 									setAlertOpen(false);
 								}}
 							>
-								{textData._Main._MainLocal.Delete}
+								{textData.Delete}
 							</AlertDialogAction>
 						</div>
 					</AlertDialogContent>
 				</AlertDialog>
-				<div className="min-h-fit text-accent my-6 text-3xl">{textData._LeftSideBar._components._Restore.Restore}</div>
+				<div className="min-h-fit text-accent my-6 text-3xl">{textData.Restore}</div>
 				<div className="h-100 flex items-center w-full p-0">
 					<div className="max-w-1/2 flex flex-col w-1/2 h-full pr-2">
 						<div className="min-h-10 flex items-center justify-between w-full mb-2">
-							{textData._LeftSideBar._components._Restore.RestorePoints}
+							{textData.RestorePoints}
 						</div>
 						<div className="data-wuwa:border flex flex-col w-full h-full overflow-x-hidden overflow-y-auto text-gray-300 border-0 rounded-sm">
 							{
@@ -142,13 +142,13 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 									createRestorePoint();
 								}}
 							>
-								<PlusIcon className="w-4 h-4" /> {textData._LeftSideBar._components._Restore.CreateRestorePoint}
+								<PlusIcon className="w-4 h-4" /> {textData.CreateRestorePoint}
 							</Button>
 						</div>
 					</div>
 					<div className="max-w-1/2 flex flex-col w-1/2 h-full pl-2">
 						<div className="min-h-10 flex items-center justify-between w-full mb-2">
-							{textData._LeftSideBar._components._Restore.RestorePointContent}
+							{textData.RestorePointContent}
 							<Button
 								className=" max-h-7 max-w-7"
 								disabled={disabled || !restorePoints[selectedRestorePoint]}
@@ -214,7 +214,7 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 				<div className="flex items-center justify-end w-full h-10 mt-2">
 					
 					<div className="text-muted-foreground w-full">
-						{disabled && textData._LeftSideBar._components._Restore.Restricted}
+						{disabled && textData.Restricted}
 					</div>
 					<Button
 						className="w-28"
@@ -224,11 +224,11 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 								setDialogOpen(false);
 								restoreFromPoint(restorePoints[selectedRestorePoint]);
 							} else {
-								alert(textData._LeftSideBar._components._Restore.PleaseSelect);
+								alert(textData.PleaseSelect);
 							}
 						}}
 					>
-						{textData._LeftSideBar._components._Restore.Restore}
+						{textData.Restore}
 					</Button>
 				</div>
 			</DialogContent>

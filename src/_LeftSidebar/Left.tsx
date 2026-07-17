@@ -52,7 +52,7 @@ function LeftSidebar() {
 
 					<div className="duration-200 shrink-0 px-0 w-full mt-2.5">
 						<SidebarGroupLabel className="justify-between">
-							{textData._LeftSideBar._Left.Mode}
+							{textData.Mode}
 						</SidebarGroupLabel>
 						<div
 							className="min-h-fit grid justify-between w-full grid-cols-2 gap-2 px-2 overflow-hidden"
@@ -82,7 +82,7 @@ function LeftSidebar() {
 								}
 							>
 								<Globe className="w-6 h-6" />
-								{leftSidebarOpen && textData._LeftSideBar._Left.Online}
+								{leftSidebarOpen && textData.Online}
 							</Button>
 						</div>
 					</div>

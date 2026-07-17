@@ -130,7 +130,7 @@ export async function setConfig(config: any) {
 	if (config.version && isVersionOlderThan(config.version, "2.1.0")) {
 		info("[IMM] Old config version, migrating...");
 		await updateConfig(config);
-		addToast({ type: "success", message: textData._Toasts.SuccessPort });
+		addToast({ type: "success", message: textData.SuccessPort });
 		main();
 		return;
 	}
@@ -138,12 +138,12 @@ export async function setConfig(config: any) {
 	info("[IMM] Current config:", { ...curConfig });
 	info("[IMM] New config:", config);
 	if (!curConfig.game || !config.game || curConfig.game !== config.game) {
-		addToast({ type: "error", message: textData._Toasts.GameConfigMismatch });
+		addToast({ type: "error", message: textData.GameConfigMismatch });
 		return;
 	}
 	config.version = VERSION;
 	await writeTextFile(`config${curConfig.game}.json`, JSON.stringify(config, null, 2));
-	addToast({ type: "success", message: textData._Toasts.ConfigLoaded });
+	addToast({ type: "success", message: textData.ConfigLoaded });
 	await main();
 	//EDIT AFTER MERGE
 	// store.set(MOD_LIST, await refreshModList());
@@ -676,7 +676,7 @@ export async function verifyDirStruct() {
 			}
 		} catch (e: any) {
 			if (e.startsWith("failed to rename old path")) {
-				store.set(ERR, textData["v2.1.2Warning"]);
+				store.set(ERR, textData["2Warning"]);
 			} else {
 				store.set(ERR, e.toString());
 			}
@@ -1359,7 +1359,7 @@ export async function refreshModList(maxed = false) {
 		).sort(sortMods);
 
 		if (hasErr && !maxed) {
-			addToast({ type: "error", message: textData._Toasts.UnableCat.replace("<item/>", hasErr) });
+			addToast({ type: "error", message: textData.UnableCat.replace("<item/>", hasErr) });
 		}
 
 		// Batch process entries - separate rename operations from exists checks
@@ -1543,11 +1543,11 @@ export async function validateModDownload(path: string, skip = false, addModSrc 
 			const downloads = store.get(DOWNLOAD_LIST);
 			const completed = downloads.completed.length + 1;
 			const total = completed + downloads.queue.length;
-			addToast({ type: "success", message: `${textData._Toasts.DownloadComplete} (${completed}/${total})` });
+			addToast({ type: "success", message: `${textData.DownloadComplete} (${completed}/${total})` });
 		}
 		
 	} catch (err) {
-		if (!skip) addToast({ type: "error", message: textData._Toasts.ErrDownload });
+		if (!skip) addToast({ type: "error", message: textData.ErrDownload });
 		error("[IMM] Error validating mod download:", err);
 	}
 	return count;
@@ -1609,11 +1609,11 @@ export async function deleteRestorePoint(point: string) {
 	try {
 		const path = join(modRoot, RESTORE, point);
 		await remove(path, { recursive: true });
-		addToast({ type: "success", message: textData._Toasts.Deleted });
+		addToast({ type: "success", message: textData.Deleted });
 		return true;
 	} catch (err) {
 		error("[IMM] Error deleting restore point:", err);
-		addToast({ type: "error", message: textData._Toasts.ErrOcc });
+		addToast({ type: "error", message: textData.ErrOcc });
 		return false;
 	}
 }
@@ -1629,10 +1629,10 @@ export async function deleteMod(path: string) {
 
 	try {
 		await remove(modSrc, { recursive: true });
-		addToast({ type: "success", message: textData._Toasts.Deleted });
+		addToast({ type: "success", message: textData.Deleted });
 	} catch (err) {
 		error("[IMM] Error removing mod source:", err);
-		addToast({ type: "error", message: textData._Toasts.ErrOcc });
+		addToast({ type: "error", message: textData.ErrOcc });
 		throw error;
 	}
 }
@@ -1862,7 +1862,7 @@ export async function savePreviewImageFromData(relPath: string, type: string, da
 	});
 	saveConfigs();
 
-	addToast({ type: "success", message: textData._Toasts.ImgSaved });
+	addToast({ type: "success", message: textData.ImgSaved });
 }
 export async function savePreviewImage(path: string) {
 	try {
@@ -1888,10 +1888,10 @@ export async function savePreviewImage(path: string) {
 		const fileExt = file.split(".").pop();
 		await copyFile(file, path + "/" + "preview." + fileExt);
 		store.set(LAST_UPDATED, Date.now());
-		addToast({ type: "success", message: textData._Toasts.ImgSaved });
+		addToast({ type: "success", message: textData.ImgSaved });
 	} catch (err) {
 		//console.error("Error saving preview image:", error);
-		addToast({ type: "error", message: textData._Toasts.ErrOcc });
+		addToast({ type: "error", message: textData.ErrOcc });
 		return false;
 		throw error;
 	}
@@ -1918,11 +1918,11 @@ export async function applyPreset(data: string[], name = "") {
 			);
 		}
 		if (name) {
-			addToast({ type: "success", message: textData._Toasts.PresetApplied });
+			addToast({ type: "success", message: textData.PresetApplied });
 		}
 	} catch (err) {
 		error("[IMM] Error applying preset:", err);
-		if (name) addToast({ type: "error", message: textData._Toasts.ErrOcc });
+		if (name) addToast({ type: "error", message: textData.ErrOcc });
 		throw error;
 	}
 }
@@ -1972,14 +1972,14 @@ export async function installFromArchives(archives: string[]) {
 			success++;
 		} catch (err) {
 			error("[IMM] Error extracting archive:", err);
-			addToast({ type: "error", message: textData._Toasts.ErrInstall.replace("<item/>", name) });
+			addToast({ type: "error", message: textData.ErrInstall.replace("<item/>", name) });
 		}
 	}
 	const extractPromises = archives.map((archive) => extractArchive(archive));
 	await Promise.all(extractPromises);
 	addToast({
 		type: "success",
-		message: textData._Toasts.SuccessInstall.replace("<success/>", success.toString()).replace(
+		message: textData.SuccessInstall.replace("<success/>", success.toString()).replace(
 			"<total/>",
 			archives.length.toString()
 		),

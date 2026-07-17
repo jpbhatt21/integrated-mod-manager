@@ -188,7 +188,7 @@ function RightOnline({ open }: { open: boolean }) {
 					extracting: prev?.extracting || [],
 				};
 			});
-			addToast({ type: "success", message: textData._Toasts.FileAdded });
+			addToast({ type: "success", message: textData.FileAdded });
 		},
 		[altPopoverOpen, item, setDownloadList, modList, data, installedItems, installedItem]
 	);
@@ -275,17 +275,17 @@ function RightOnline({ open }: { open: boolean }) {
 						<>
 							{file._sAvState == "done" && file._sAvResult == "clean" ? (
 								<div className=" bg-success w-16 px-1 text-center rounded-lg">
-									{textData._RightSideBar._RightOnline.Clean}
+									{textData.Clean}
 								</div>
 							) : (
 								<div className=" bg-destructive w-16 px-1 text-center rounded-lg">
-									{textData._RightSideBar._RightOnline.Danger}
+									{textData.Danger}
 								</div>
 							)}
 						</>
 					) : (
 						<div className=" bg-warn w-12 px-1 text-center rounded-lg">
-							{textData._RightSideBar._RightOnline.Pending}
+							{textData.Pending}
 						</div>
 					)}
 				</div>
@@ -446,7 +446,7 @@ function RightOnline({ open }: { open: boolean }) {
 										<span className="text-[0.625rem] font-medium">{comment._aPoster?._sUserTitle}</span>
 									</div>
 									{comment._aLabels.has("Submitter") && (
-										<span className="text-xs rounded px-1 bg-accent text-background">{textData.Others.submitter}</span>
+										<span className="text-xs rounded px-1 bg-accent text-background">{textData.submitter}</span>
 									)}
 									<span className="text-xs text-gray-400">
 										{getTimeDifference(now, comment._tsDateModified || comment._tsDateAdded || 0)}
@@ -524,7 +524,7 @@ function RightOnline({ open }: { open: boolean }) {
 												viewReplies(e, comment);
 											}}
 										>
-											{textData._RightSideBar._RightOnline.ViewReps}
+											{textData.ViewReps}
 										</Button>
 									)}
 								</div>
@@ -557,7 +557,7 @@ function RightOnline({ open }: { open: boolean }) {
 									key="no-selection"
 									className="text-accent flex items-center justify-center h-full p-4"
 								>
-									{textData._RightSideBar._RightOnline.NoItem}
+									{textData.NoItem}
 								</motion.div>
 							) : !onlineData[selected] ? (
 								<motion.div
@@ -579,18 +579,14 @@ function RightOnline({ open }: { open: boolean }) {
 									key="loading"
 									className="text-accent flex flex-col items-center justify-center h-full gap-4 p-4"
 								>
-									{
-										textData._RightSideBar._RightOnline[
-											item._bIsPrivate ? "Private" : item._bIsTrashed ? "Deleted" : "Withheld"
-										]
-									}
+									{item._bIsPrivate ? textData.Private : item._bIsTrashed ? textData.RightOnlineDeleted : textData.Withheld}
 									{selected.startsWith("Mod") && (
 										<a
 											href={`https://gamebanana.com/${selected.replace("Mod", "mods")}`}
 											target="_blank"
 											className="text-xs"
 										>
-											{textData._RightSideBar._RightOnline.OpenBrowser}
+											{textData.OpenBrowser}
 										</a>
 									)}
 								</motion.div>
@@ -630,12 +626,12 @@ function RightOnline({ open }: { open: boolean }) {
 												<Button
 													onClick={() => {
 														navigator.clipboard.writeText(item._sProfileUrl || "");
-														addToast({ type: "success", message: textData._RightSideBar._RightOnline.LinkCopied });
+														addToast({ type: "success", message: textData.LinkCopied });
 														setLinkPopoverOpen(false);
 														setLinkExistingPopoverOpen(false);
 													}}
 												>
-													{textData._RightSideBar._RightOnline.CopyLink}
+													{textData.CopyLink}
 												</Button>
 												<Button
 													className="w-full mt-2"
@@ -650,7 +646,7 @@ function RightOnline({ open }: { open: boolean }) {
 														setLinkExistingPopoverOpen(false);
 													}}
 												>
-													{textData._RightSideBar._RightOnline.OpenBrowser}
+													{textData.OpenBrowser}
 												</Button>
 
 												{gameMatched && (
@@ -663,7 +659,7 @@ function RightOnline({ open }: { open: boolean }) {
 													>
 														<PopoverTrigger>
 															<Button className="min-w-fit w-full mt-2">
-																{textData._RightSideBar._RightOnline.LinkToMod}
+																{textData.LinkToMod}
 															</Button>
 														</PopoverTrigger>
 														<PopoverContent className="w-84 -mt-37.5 min-h-40 bg-sidebar p-2 flex flex-col">
@@ -675,7 +671,7 @@ function RightOnline({ open }: { open: boolean }) {
 																	className="h-12"
 																/>
 																<CommandList>
-																	<CommandEmpty>{textData._RightSideBar._RightLocal.NoCat}</CommandEmpty>
+																	<CommandEmpty>{textData.NoCat}</CommandEmpty>
 																	<CommandGroup>
 																		{modList.map((mod) => (
 																			<CommandItem
@@ -721,7 +717,7 @@ function RightOnline({ open }: { open: boolean }) {
 																					saveConfigs();
 																					addToast({
 																						type: "success",
-																						message: textData._RightSideBar._RightOnline.LinkToModSuccess,
+																						message: textData.LinkToModSuccess,
 																					});
 																					setLinkPopoverOpen(false);
 																					setLinkExistingPopoverOpen(false);
@@ -811,7 +807,7 @@ function RightOnline({ open }: { open: boolean }) {
 																		: "bg-input/50 text-accent hover:text-accent hover:bg-input")
 																}
 															>
-																{textData._RightSideBar._RightOnline.About}{" "}
+																{textData.About}{" "}
 																<ChevronDownIcon
 																	id="deschev"
 																	className=" transform-[roate(180deg)] duration-200"
@@ -847,7 +843,7 @@ function RightOnline({ open }: { open: boolean }) {
 																		: "bg-input/50 text-accent hover:text-accent hover:bg-input")
 																}
 															>
-																{textData._RightSideBar._RightOnline.Updates}{" "}
+																{textData.Updates}{" "}
 																<ChevronDownIcon
 																	id="deschev"
 																	className=" transform-[roate(180deg)] duration-200"
@@ -919,7 +915,7 @@ function RightOnline({ open }: { open: boolean }) {
 																	: "bg-input/50 text-accent hover:text-accent hover:bg-input")
 															}
 														>
-															{textData._RightSideBar._RightOnline.Comments}{" "}
+															{textData.Comments}{" "}
 															<ChevronDownIcon
 																id="deschev"
 																className=" transform-[roate(180deg)] duration-200"
@@ -932,7 +928,7 @@ function RightOnline({ open }: { open: boolean }) {
 															? recursiveComments(item._aComments.list, 0)
 															: !loadingComments && (
 																	<div className="flex items-center justify-center w-full p-4 text-accent">
-																		{textData._RightSideBar._RightOnline.NoComs}
+																		{textData.NoComs}
 																	</div>
 																)}
 														{loadingComments ? (
@@ -948,7 +944,7 @@ function RightOnline({ open }: { open: boolean }) {
 																		setLoadingComments(true);
 																	}}
 																>
-																	{textData._RightSideBar._RightOnline.LoadMore}
+																	{textData.LoadMore}
 																</Button>
 															)
 														)}
@@ -1002,7 +998,7 @@ function RightOnline({ open }: { open: boolean }) {
 																{
 																	{
 																		Install: textData.Install,
-																		Reinstall: textData._RightSideBar._RightOnline.Reinstall,
+																		Reinstall: textData.Reinstall,
 																		Update: textData.Update,
 																	}[type]
 																}
@@ -1025,7 +1021,7 @@ function RightOnline({ open }: { open: boolean }) {
 																</PopoverTrigger>
 																<PopoverContent className="w-152 max-w-[calc(42vw-8.625rem)] mr-2 max-h-[75vh] mb-2 overflow-auto gap-1 bg-sidebar p-1 flex flex-col">
 																	<Label className="bg-accent/25 data-zzz:bg-zzz-accent-2/25 data-zzz:text-zzz-accent-2 text-accent flex items-center justify-center w-full h-12 text-lg rounded-md">
-																		{textData._RightSideBar._RightOnline.Sep}
+																		{textData.Sep}
 																	</Label>
 																	{popoverContent}
 																</PopoverContent>
@@ -1053,7 +1049,7 @@ function RightOnline({ open }: { open: boolean }) {
 																		</div>
 																	</>
 																) : (
-																	<>{textData.Others.selectModUpd}</>
+																	<>{textData.selectModUpd}</>
 																)}
 															</PopoverTrigger>
 															<PopoverContent
@@ -1095,14 +1091,14 @@ function RightOnline({ open }: { open: boolean }) {
 											key="notgame"
 											className="text-accent flex flex-col items-center justify-center h-full gap-4 p-4"
 										>
-											{textData._RightSideBar._RightOnline.ForGame.replace("<game/>", item._aGame._sName)}
+											{textData.ForGame.replace("<game/>", item._aGame._sName)}
 											<div className="flex items-center justify-center gap-10">
 												<Button
 													onClick={() => {
 														setIgnoreGameCheck(true);
 													}}
 												>
-													{textData._RightSideBar._RightOnline.ViewAnyways}
+													{textData.ViewAnyways}
 												</Button>
 												{GAME_GB_IDS.hasOwnProperty(item._aGame._idRow) && (
 													<Button
@@ -1112,7 +1108,7 @@ function RightOnline({ open }: { open: boolean }) {
 																if (!(await confirmAndCancelDownloadsForGameSwitch())) return;
 																const url = item._sProfileUrl;
 																addToast({
-																	message: textData._Toasts.SwitchGame.replace("<game/>", item._aGame._sName),
+																	message: textData.SwitchGame.replace("<game/>", item._aGame._sName),
 																});
 																sessionStorage.setItem("imm-deep-link-game", game);
 																console.log("Setting deep link game in sessionStorage:", url);
@@ -1122,7 +1118,7 @@ function RightOnline({ open }: { open: boolean }) {
 															}
 														}}
 													>
-														{textData._RightSideBar._RightOnline.SwitchGame.replace("<game/>", item._aGame._sName)}
+														{textData.RightOnlineSwitchGame.replace("<game/>", item._aGame._sName)}
 													</Button>
 												)}
 											</div>
@@ -1184,7 +1180,7 @@ function RightOnline({ open }: { open: boolean }) {
 										}, 50);
 									}}
 								>
-									{textData._RightSideBar._RightOnline.About}
+									{textData.About}
 								</Button>
 							)}
 							{item?._eUpdate && (
@@ -1210,7 +1206,7 @@ function RightOnline({ open }: { open: boolean }) {
 										}, 50);
 									}}
 								>
-									{textData._RightSideBar._RightOnline.Updates}
+									{textData.Updates}
 								</Button>
 							)}
 							{item && (
@@ -1242,7 +1238,7 @@ function RightOnline({ open }: { open: boolean }) {
 										}, 50);
 									}}
 								>
-									{textData._RightSideBar._RightOnline.Comments}
+									{textData.Comments}
 								</Button>
 							)}
 						</div>

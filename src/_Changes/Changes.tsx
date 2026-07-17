@@ -58,7 +58,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 				{alertType == "warn" ? (
 					<AlertDialogContent className="max-w-100">
 						<div className="text-accent min-h-fit my-4 text-3xl">{textData.Note}</div>
-						<div className="text-center text-destructive">{textData._Changes.WillBeOrg}</div>
+						<div className="text-center text-destructive">{textData.WillBeOrg}</div>
 						<div className="flex w-full justify-between">
 							<AlertDialogAction>{textData.Back}</AlertDialogAction>
 							<AlertDialogCancel
@@ -73,13 +73,13 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 				) : (
 					<AlertDialogContent className="min-h-fit min-w-fit mt-4">
 						<img src="/tutorials/RemoveIMM/1.png" className="max-h-125 rounded-md" />
-						<label className="text-accent text-sm text-center max-w-132 ">{textData._Changes.RemIMM}</label>
+						<label className="text-accent text-sm text-center max-w-132 ">{textData.RemIMM}</label>
 						<AlertDialogAction className="-my-2">{textData.Back}</AlertDialogAction>
 					</AlertDialogContent>
 				)}
 			</AlertDialog>
 			<div className="w-180 h-166 bg-background/50 border-border flex flex-col items-center mt-8 gap-4 p-4 overflow-hidden border-2 rounded-lg">
-				<div className="text-accent min-h-fit my-6 text-3xl">{textData._Changes.ConfirmChanges}</div>
+				<div className="text-accent min-h-fit my-6 text-3xl">{textData.ConfirmChanges}</div>
 				<div className="flex flex-row items-center w-full gap-2 px-2">
 					<Button
 						className="aspect-square flex items-center justify-center w-10 h-10"
@@ -106,7 +106,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 				</div>
 				<div className=" flex items-center -my-2 gap-2">
 					<Checkbox id="checkbox" className=" checked:bg-accent bgaccent" />
-					<label className="text-accent text-sm opacity-75">{textData._Changes.CreateRestore}</label>
+					<label className="text-accent text-sm opacity-75">{textData.CreateRestore}</label>
 				</div>
 				<div className="h-100 flex items-center w-full p-0">
 					<div className="flex flex-col w-1/2 h-full overflow-x-hidden overflow-y-auto text-gray-300 border rounded-sm">
@@ -223,7 +223,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 						}}
 					>
 						<HelpCircleIcon className="h-4 -mt-0.5" />
-						<label className="text-sm">{textData._Changes.WhatIfRem}</label>
+						<label className="text-sm">{textData.WhatIfRem}</label>
 
 						{/* <Tooltip>
 							<TooltipTrigger className="flex items-center justify-center text-accent/75 duration-200">
@@ -231,7 +231,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 								
 							</TooltipTrigger>
 							<TooltipContent className="p-1 max-w-8 group flex flex-col  rounded-md text-sm">
-								<label className="bg-accent rounded px-2">{textData._Changes.RemIMM}</label>
+								<label className="bg-accent rounded px-2">{textData.RemIMM}</label>
 							</TooltipContent>
 						</Tooltip> */}
 					</div>
@@ -249,7 +249,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 									let cont = true;
 									if (checked) cont = await createRestorePoint("ORG-");
 									if (cont) {
-										addToast({ type: "info", message: textData._Toasts.ApplyingChanges });
+										addToast({ type: "info", message: textData.ApplyingChanges });
 										await applyChanges();
 										setChanges((prev) => ({ ...prev, skip: true }));
 									}
@@ -262,7 +262,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 							setAlertOpen(true);
 						}}
 					>
-						{loading ? textData.Others.processing : textData.Confirm}
+						{loading ? textData.processing : textData.Confirm}
 					</Button>
 				</div>
 			</div>

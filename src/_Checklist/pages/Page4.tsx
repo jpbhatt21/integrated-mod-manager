@@ -32,7 +32,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 			<div className="fixed z-20 flex flex-col items-center justify-center w-full duration-200">
 				{
 					<div className="text-accent flex flex-col items-center gap-5 my-2 text-2xl">
-						{textData._Checklist._Help.Select} {textData._Checklist[checked ? "CustomDir" : "XXMILDir"]}
+						{textData.Select} {checked ? textData.CustomDir : textData.XXMILDir}
 						<div
 							className="flex items-center gap-2"
 							style={{
@@ -51,13 +51,13 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 											<HelpCircleIcon className="hover:opacity-100 inline w-5 h-5 opacity-50" />
 										</TooltipTrigger>
 										<TooltipContent>
-											<p className="text-center w-20">{textData._Checklist.ClickHelp}</p>
+											<p className="text-center w-20">{textData.ClickHelp}</p>
 										</TooltipContent>
 									</Tooltip>
 								</DialogTrigger>
 								<DialogContent className="min-h-130">
 									<div className="min-h-fit text-accent my-6 text-3xl">
-										{textData._Checklist.SelectingXXMIDir}
+										{textData.SelectingXXMIDir}
 										<Tooltip>
 											<TooltipTrigger></TooltipTrigger>
 											<TooltipContent className="opacity-0"></TooltipContent>
@@ -67,22 +67,22 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 										<div className="w-1/2 items-center text-xs flex flex-col">
 											<div className="flex  text-success items-center text-xl justify-center my-4 gap-2">
 												<CheckIcon className="inline w-6 h-6" />
-												{textData._Checklist.Correct}
+												{textData.Correct}
 											</div>
 											<img src="/EX_COR_XX.png" className="border-2 mb-1 border-success rounded-md" />
-											<label>{textData._Checklist.SelectXXMIFolder}</label>
+											<label>{textData.SelectXXMIFolder}</label>
 											<img src="/EX_COR_CONFIG.png" className="border-2 mt-4 mb-1 border-success rounded-md" />
-											<label>{textData._Checklist.ContainConfig}</label>
+											<label>{textData.ContainConfig}</label>
 										</div>
 										<div className="w-1/2 items-center text-xs flex flex-col">
 											<div className="flex  text-destructive items-center text-xl justify-center my-4 gap-2">
 												<XIcon className="inline w-6 h-6" />
-												{textData._Checklist.Incorrect}
+												{textData.Incorrect}
 											</div>
 											<img src="/EX_INC_GI.png" className="border-2 mb-2 border-destructive rounded-md" />
 											<img src="/EX_INC_WW.png" className="border-2 mt-4 mb-2 border-destructive rounded-md" />
 											<img src="/EX_INC_ZZ.png" className="border-2 mt-4 mb-1 border-destructive rounded-md" />
-											<label>{textData._Checklist.DoNotSelectFolders}</label>
+											<label>{textData.DoNotSelectFolders}</label>
 										</div>
 									</div>
 								</DialogContent>
@@ -118,7 +118,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 								onClick={() => setChecked(checked ? 0 : 1)}
 								className=" checked:bg-accent bgaccent"
 							/>
-							<label className="text-accent/75 min-w-fit text-sm">{textData._Checklist.UsingXXMILauncher}</label>
+							<label className="text-accent/75 min-w-fit text-sm">{textData.UsingXXMILauncher}</label>
 						</div>
 						<div
 							className="flex items-center gap-2 overflow-y-hidden"
@@ -137,10 +137,10 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 										<InfoIcon className="hover:opacity-100 inline w-4 h-4 opacity-50" />
 									</TooltipTrigger>
 									<TooltipContent>
-										<p className="w-48 text-center">{textData._Checklist.ThisDirTarget}</p>
+										<p className="w-48 text-center">{textData.ThisDirTarget}</p>
 									</TooltipContent>
 								</Tooltip>
-								{textData._Checklist.TargetDir}
+								{textData.TargetDir}
 							</Label>
 							<Input
 								type="text"
@@ -187,10 +187,10 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 										<InfoIcon className="hover:opacity-100 inline w-4 h-4 opacity-50" />
 									</TooltipTrigger>
 									<TooltipContent>
-										<p className="w-48 text-center">{textData._Checklist.ThisDirSource}</p>
+										<p className="w-48 text-center">{textData.ThisDirSource}</p>
 									</TooltipContent>
 								</Tooltip>
-								{textData._Checklist.SourceDir}
+								{textData.SourceDir}
 							</Label>
 							<Input
 								type="text"
@@ -234,7 +234,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 								onClick={() => setChecked2(!checked2)}
 								className=" checked:bg-accent bgaccent"
 							/>
-							<label className="text-accent/75 min-w-fit text-sm">{textData._Checklist.SameDir}</label>
+							<label className="text-accent/75 min-w-fit text-sm">{textData.SameDir}</label>
 						</div>
 						<Button
 							className={"w-32 mt-2"}
@@ -242,7 +242,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 								if (checked) {
 									if (!(await exists(tgt)) || (!checked2 && !(await exists(src)))) {
 										addToast({
-											message: textData._Toasts.SrcOrTgt,
+											message: textData.SrcOrTgt,
 											type: "error",
 										});
 										return;
@@ -255,7 +255,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 									info("verfiying game directories", { dirs });
 									if (!dirs.sourceDir || !dirs.targetDir) {
 										addToast({
-											message: textData._Toasts.XXMIConfErr,
+											message: textData.XXMIConfErr,
 											type: "error",
 										});
 										return;
