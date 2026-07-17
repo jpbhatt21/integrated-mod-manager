@@ -19,6 +19,7 @@ use tauri_plugin_tracing::{tracing, Builder as Tracing, LevelFilter, MaxFileSize
 mod hotreload;
 mod image_server;
 mod logger_utils;
+mod preview_capture;
 
 const PROGRESS_UPDATE_THRESHOLD: u64 = 1024;
 const BUFFER_SIZE: usize = 8192;
@@ -994,7 +995,13 @@ pub fn run() {
             hotreload::focus_mod_manager_send_f10_return_to_game,
             hotreload::set_window_target,
             hotreload::is_game_process_running,
-            hotreload::check_hotreload_dependencies
+            hotreload::check_hotreload_dependencies,
+            preview_capture::enter_preview_capture_overlay,
+            preview_capture::pause_preview_capture_overlay,
+            preview_capture::capture_preview_screen_region,
+            preview_capture::cancel_preview_capture_overlay,
+            preview_capture::save_mod_preview_stage,
+            preview_capture::discard_preview_capture_stage
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

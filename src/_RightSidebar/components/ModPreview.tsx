@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { DialogContent } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { savePreviewImageFromData } from "@/utils/filesys";
-import { TEXT_DATA } from "@/utils/vars";
-import { useAtomValue } from "jotai";
-import { UploadIcon } from "lucide-react";
+import { PREVIEW_CAPTURE_TARGET, TEXT_DATA } from "@/utils/vars";
+import { useAtomValue, useSetAtom } from "jotai";
+import { CameraIcon, UploadIcon } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 function ModPreview({
@@ -16,6 +16,7 @@ function ModPreview({
 	isBlank: boolean;
 }) {
 	const textData = useAtomValue(TEXT_DATA);
+	const setCaptureTarget = useSetAtom(PREVIEW_CAPTURE_TARGET);
 	const onDrop = useCallback(
 		async (acceptedFiles: File[]) => {
 			if (acceptedFiles.length == 0) return;
@@ -108,7 +109,17 @@ function ModPreview({
 								}}
 								type="button"
 							>
-							{textData._RightSideBar._components._ModPreferences.Select}
+								{textData._RightSideBar._components._ModPreferences.Select}
+							</Button>
+							<Button
+								className="min-w-36"
+								onClick={(event) => {
+									event.stopPropagation();
+									setCaptureTarget({ path: item.path, name: item.name });
+								}}
+								type="button"
+							>
+								<CameraIcon className="h-4 w-4" /> Capture from game
 							</Button>
 							<label className="text-xs text-gray-400">OR</label>
 							<label className="text-accent">{textData.Others.pasteImage}</label>

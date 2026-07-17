@@ -28,11 +28,17 @@ interface UpdateInfo {
 	body: string;
 	raw: Update | null;
 }
+export interface PreviewCaptureTarget {
+	path: string;
+	name: string;
+}
 const OPTIMIZED = atomWithStorage("imm-optimized", {} as Record<string, string>);
 const DEV_HIDE_PREVIEWS = atomWithStorage("imm-dev-hide-previews", false);
 const SCALE = atomWithStorage("imm-scale", 0);
 const BLUR = atomWithStorage("imm-blur", 1);
 const ANIMATIONS = atomWithStorage("imm-animations", true);
+const PREVIEW_CAPTURE_TARGET = atom<PreviewCaptureTarget | null>(null);
+const PREVIEW_CAPTURE_OVERLAY = atom(false);
 const BACKUP_INI = atomWithStorage("imm-backup-ini", false);
 const INIT_DONE = atom(false);
 const MAIN_FUNC_STATUS = atom<string>("");
@@ -203,5 +209,7 @@ export {
 	SCALE,
 	BLUR,
 	ANIMATIONS,
+	PREVIEW_CAPTURE_TARGET,
+	PREVIEW_CAPTURE_OVERLAY,
 	BACKUP_INI,
 };

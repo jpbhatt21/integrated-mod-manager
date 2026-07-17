@@ -14,6 +14,7 @@ import {
 	MOD_LIST,
 	ONLINE,
 	PROGRESS_OVERLAY,
+	PREVIEW_CAPTURE_OVERLAY,
 	RIGHT_SIDEBAR_OPEN,
 	RIGHT_SLIDEOVER_OPEN,
 	SCALE,
@@ -47,6 +48,7 @@ import {
 } from "./components/ui/alert-dialog";
 import { OPTIMIZE_TARGET } from "./utils/consts";
 import { scaleHandler } from "./utils/ResizeHandles";
+import CapturePreviewModal from "./_Main/components/CapturePreviewModal";
 // import { Button } from "./components/ui/button";
 const animateProps = {
 	initial: { opacity: 0, filter: "blur(6px)" },
@@ -78,6 +80,7 @@ function App() {
 	const setModList = useSetAtom(MOD_LIST);
 	const modCheckProgress = useAtomValue(MOD_CHECK_PROGRESS);
 	const progressOverlay = useAtomValue(PROGRESS_OVERLAY);
+	const captureOverlayActive = useAtomValue(PREVIEW_CAPTURE_OVERLAY);
 	const [_, setShowModeSwitch] = useState(false);
 	const [previousOnline, setPreviousOnline] = useState(online);
 	const initializedRef = useRef(false);
@@ -149,6 +152,10 @@ function App() {
 		}
 	}, [err]);
 	useEffect(() => {
+		document.body.classList.toggle("preview-capture-transparent", captureOverlayActive);
+		return () => document.body.classList.remove("preview-capture-transparent");
+	}, [captureOverlayActive]);
+	useEffect(() => {
 		if (scale) {
 			scaleHandler(scale);
 		}
@@ -213,7 +220,12 @@ function App() {
 		[rightSidebarOpen]
 	);
 	return (
-		<div id="background" className="game-font fixed border-b flex flex-row items-start justify-start w-full h-full">
+		<>
+			<div
+				id="background"
+				className="game-font fixed border-b flex flex-row items-start justify-start w-full h-full"
+				style={{ opacity: captureOverlayActive ? 0 : 1, pointerEvents: captureOverlayActive ? "none" : "auto" }}
+			>
 			<div
 				className="bg-bgg fixed w-screen h-screen"
 				style={{
@@ -309,7 +321,9 @@ function App() {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</div>
+			</div>
+			<CapturePreviewModal />
+		</>
 	);
 }
 export default App;

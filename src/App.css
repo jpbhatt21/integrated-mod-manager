@@ -50,6 +50,17 @@
 	z-index: 1000;
 }
 
+body.preview-capture-transparent,
+body.preview-capture-transparent #root {
+	background: transparent !important;
+	background-color: transparent !important;
+}
+
+body.preview-capture-transparent::before,
+body.preview-capture-transparent::after {
+	display: none !important;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
