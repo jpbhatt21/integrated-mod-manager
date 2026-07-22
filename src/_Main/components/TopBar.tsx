@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
 	MOD_LIST,
+	LOCAL_NAVIGATION_MODE,
+	LOCAL_NAVIGATION_PAGE,
 	// LEFT_SIDEBAR_OPEN,
 	ONLINE,
 	ONLINE_DATA,
@@ -19,6 +21,9 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
 	DownloadIcon,
 	EyeIcon,
+	GalleryVerticalEndIcon,
+	LayoutGridIcon,
+	ListIcon,
 	// PanelLeftCloseIcon,
 	// PanelLeftOpenIcon,
 	// PanelRightCloseIcon,
@@ -45,6 +50,8 @@ function TopBar() {
 	const [onlineType, setOnlineType] = useAtom(ONLINE_TYPE);
 	const [onlineSort, setOnlineSort] = useAtom(ONLINE_SORT);
 	const [onlinePath, setOnlinePath] = useAtom(ONLINE_PATH);
+	const [localNavigationMode, setLocalNavigationMode] = useAtom(LOCAL_NAVIGATION_MODE);
+	const setLocalNavigationPage = useSetAtom(LOCAL_NAVIGATION_PAGE);
 	const [sort, setSort] = useAtom(SORT);
 	const [popoverOpen, setPopoverOpen] = useState(false);
 	const [search, setSearch] = useAtom(SEARCH);
@@ -131,6 +138,27 @@ function TopBar() {
 					}}
 				/>
 			</div>
+			{!online && (
+				<Button
+					onClick={() => {
+						const nextMode = {
+							classic: "categories",
+							categories: "vertical",
+							vertical: "classic",
+						}[localNavigationMode] as typeof localNavigationMode;
+						setLocalNavigationMode(nextMode);
+						if (nextMode !== "classic") setLocalNavigationPage("categories");
+					}}
+					className="bg-sidebar flex h-full min-w-12 items-center justify-center gap-2 rounded-lg border px-3"
+					aria-label={`Switch to ${localNavigationMode === "classic" ? "category" : localNavigationMode === "categories" ? "portrait" : "classic"} view`}
+					title={`Switch to ${localNavigationMode === "classic" ? "category" : localNavigationMode === "categories" ? "portrait" : "classic"} view`}
+				>
+					{localNavigationMode === "classic" ? <LayoutGridIcon className="h-4 w-4" /> : localNavigationMode === "categories" ? <GalleryVerticalEndIcon className="h-4 w-4" /> : <ListIcon className="h-4 w-4" />}
+					<span className="hidden 2xl:inline">
+						{localNavigationMode === "classic" ? "Category view" : localNavigationMode === "categories" ? "Portrait view" : "Classic view"}
+					</span>
+				</Button>
+			)}
 			<div className="data-wuwa:bg-sidebar data-wuwa:min-w-32 min-w-28 data-wuwa:border h-full bg-transparent border-0 rounded-lg">
 				{
 					<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>

@@ -10,6 +10,7 @@ import {
 	INIT_DONE,
 	LANG,
 	LEFT_SIDEBAR_OPEN,
+	LOCAL_NAVIGATION_MODE,
 	MOD_CHECK_PROGRESS,
 	MOD_LIST,
 	ONLINE,
@@ -24,7 +25,7 @@ import { AnimatePresence, motion, MotionGlobalConfig } from "motion/react";
 import Checklist from "./_Checklist/Checklist";
 import { initializeThemes } from "./utils/theme";
 import Changes from "./_Changes/Changes";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { refreshModList, saveConfigs } from "./utils/filesys";
 import { SidebarProvider } from "./components/ui/sidebar";
 import LeftSidebar from "./_LeftSidebar/Left";
@@ -70,7 +71,8 @@ function App() {
 	const changes = useAtomValue(CHANGES);
 	const settings = useAtomValue(SETTINGS);
 	const animations = useAtomValue(ANIMATIONS);
-	const leftSidebarOpen = useAtomValue(LEFT_SIDEBAR_OPEN);
+	const [leftSidebarOpen, setLeftSidebarOpen] = useAtom(LEFT_SIDEBAR_OPEN);
+	const localNavigationMode = useAtomValue(LOCAL_NAVIGATION_MODE);
 	const scale = useAtomValue(SCALE);
 	const blur = useAtomValue(BLUR);
 	const [rightSidebarOpen, setRightSidebarOpen] = useAtom(RIGHT_SIDEBAR_OPEN);
@@ -83,6 +85,21 @@ function App() {
 	const initializedRef = useRef(false);
 	const [optimized, setOptimized] = useAtom(OPTIMIZED);
 	const [data, setData] = useAtom(DATA);
+	const verticalLayout = !online && localNavigationMode === "vertical";
+	const previousVerticalLayout = useRef(false);
+	const sidebarStateBeforeVertical = useRef({ left: leftSidebarOpen, right: rightSidebarOpen });
+
+	useLayoutEffect(() => {
+		if (verticalLayout && !previousVerticalLayout.current) {
+			sidebarStateBeforeVertical.current = { left: leftSidebarOpen, right: rightSidebarOpen };
+			setLeftSidebarOpen(false);
+			setRightSidebarOpen(false);
+		} else if (!verticalLayout && previousVerticalLayout.current) {
+			setLeftSidebarOpen(sidebarStateBeforeVertical.current.left);
+			setRightSidebarOpen(sidebarStateBeforeVertical.current.right);
+		}
+		previousVerticalLayout.current = verticalLayout;
+	}, [verticalLayout, leftSidebarOpen, rightSidebarOpen, setLeftSidebarOpen, setRightSidebarOpen]);
 
 	const [isOptimizing, setIsOptimizing] = useState(false);
 
@@ -202,15 +219,15 @@ function App() {
 	}, [online]);
 	const leftSidebarStyle = useMemo(
 		() => ({
-			minWidth: leftSidebarOpen ? "20.95rem" : "3.95rem",
+			minWidth: verticalLayout ? "3.95rem" : leftSidebarOpen ? "20.95rem" : "3.95rem",
 		}),
-		[leftSidebarOpen]
+		[leftSidebarOpen, verticalLayout]
 	);
 	const rightSidebarStyle = useMemo(
 		() => ({
-			minWidth: rightSidebarOpen ? "20.95rem" : "0rem",
+			minWidth: verticalLayout ? "0rem" : rightSidebarOpen ? "20.95rem" : "0rem",
 		}),
-		[rightSidebarOpen]
+		[rightSidebarOpen, verticalLayout]
 	);
 	return (
 		<div id="background" className="game-font fixed border-b flex flex-row items-start justify-start w-full h-full">
@@ -230,6 +247,22 @@ function App() {
 				<RightLocal />
 			</SidebarProvider>
 			<RightOnline open={online && rightSlideOverOpen} />
+			<AnimatePresence>
+				{verticalLayout && (leftSidebarOpen || rightSidebarOpen) && (
+					<motion.button
+						type="button"
+						aria-label="Close sidebar"
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						onClick={() => {
+							setLeftSidebarOpen(false);
+							setRightSidebarOpen(false);
+						}}
+						className="fixed inset-0 z-[9] bg-background/40 backdrop-blur-[calc(var(--blur-xs)*0.5)]"
+					/>
+				)}
+			</AnimatePresence>
 			<div className="fixed flex flex-row w-full h-full">
 				<div className="h-full duration-200 ease-linear" style={leftSidebarStyle} />
 				<Main />

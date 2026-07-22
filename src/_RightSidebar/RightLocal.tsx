@@ -5,10 +5,12 @@ import {
 	GAME,
 	INIT_DONE,
 	LAST_UPDATED,
+	LOCAL_NAVIGATION_MODE,
 	MOD_LIST,
 	ONLINE,
 	openConflict,
 	SELECTED,
+	RIGHT_SIDEBAR_OPEN,
 	SOURCE,
 	TEXT_DATA,
 } from "@/utils/vars";
@@ -194,6 +196,11 @@ function RightLocal() {
 	// const decor = useAtomValue(SETTINGS).global.winType
 	const [modList, setModList] = useAtom(MOD_LIST);
 	const [selected, setSelected] = useAtom(SELECTED);
+	const localNavigationMode = useAtomValue(LOCAL_NAVIGATION_MODE);
+	const setRightSidebarOpen = useSetAtom(RIGHT_SIDEBAR_OPEN);
+	useEffect(() => {
+		if (localNavigationMode === "vertical" && !selected) setRightSidebarOpen(false);
+	}, [localNavigationMode, selected, setRightSidebarOpen]);
 	const textData = useAtomValue(TEXT_DATA);
 	const [data, setData] = useAtom(DATA);
 	const [item, setItem] = useState<Mod | undefined>();

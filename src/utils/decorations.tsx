@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useAtom, useAtomValue } from "jotai";
 import { ArrowLeftIcon, ArrowRightIcon, MinusIcon, RectangleHorizontalIcon, XIcon } from "lucide-react";
-import { INIT_DONE, LEFT_SIDEBAR_OPEN, ONLINE, RIGHT_SIDEBAR_OPEN, RIGHT_SLIDEOVER_OPEN } from "./vars";
+import { INIT_DONE, LEFT_SIDEBAR_OPEN, LOCAL_NAVIGATION_MODE, ONLINE, RIGHT_SIDEBAR_OPEN, RIGHT_SLIDEOVER_OPEN } from "./vars";
 import Help from "@/_Main/components/Help";
 import Updater from "@/_Main/components/Updater";
 // import { createPortal } from "react-dom";
@@ -14,6 +14,8 @@ function Decorations() {
 	const [rightSlideOverOpen, setRightSlideOverOpen] = useAtom(RIGHT_SLIDEOVER_OPEN);
 	const online = useAtomValue(ONLINE);
 	const initDone = useAtomValue(INIT_DONE);
+	const localNavigationMode = useAtomValue(LOCAL_NAVIGATION_MODE);
+	const verticalLayout = !online && localNavigationMode === "vertical";
 	return (
 		<div
 			data-tauri-drag-region
@@ -23,7 +25,7 @@ function Decorations() {
 				<div
 					className="flex items-center h-full gap-1 -mr-2 text-xs duration-200 pointer-events-none"
 					style={{
-						minWidth: leftSidebarOpen ? "20.75rem" : "3.75rem",
+						minWidth: verticalLayout ? "3.75rem" : leftSidebarOpen ? "20.75rem" : "3.75rem",
 						justifyContent: leftSidebarOpen ? "" : "center",
 					}}
 				></div>
@@ -51,7 +53,7 @@ function Decorations() {
 					<div className="min-w-16 h-1"></div>
 					<div
 						style={{
-							marginLeft: rightSidebarOpen ? "" : "6.5rem",
+							marginLeft: verticalLayout || rightSidebarOpen ? "" : "6.5rem",
 						}}
 						className="flex items-center justify-center h-full gap-1"
 					>
@@ -62,7 +64,7 @@ function Decorations() {
 				</div>
 				<div
 					style={{
-						minWidth: rightSidebarOpen ? "16.25rem" : "1.5rem",
+						minWidth: verticalLayout ? "1.5rem" : rightSidebarOpen ? "16.25rem" : "1.5rem",
 					}}
 					className="flex items-center justify-start mx-1 duration-200"
 				>
