@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useAtom, useAtomValue } from "jotai";
 import { CONFLICTS_OPEN, ONLINE } from "@/utils/vars";
-import MainLocal from "./MainLocal";
+import MainLocalNavigation from "./MainLocalNavigation";
 import MainOnline from "./MainOnline";
 import BottomBar from "./components/BottomBar";
 import TopBar from "./components/TopBar";
@@ -34,7 +34,7 @@ function Main() {
 						key={online == debouncedOnline ? (online ? "online" : "local") : "transitioning"}
 						className=" flex flex-col items-center h-full min-w-full overflow-y-hidden delay-200"
 					>
-						{online == debouncedOnline ? online ? <MainOnline /> : <MainLocal /> : <></>}
+						{online == debouncedOnline ? online ? <MainOnline /> : <MainLocalNavigation /> : <></>}
 					</motion.div>
 				</AnimatePresence>
 			</div>

@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { UNCATEGORIZED } from "@/utils/consts";
-import { CATEGORIES, CATEGORY, MOD_LIST, ONLINE, ONLINE_PATH, ONLINE_SORT, ONLINE_TYPE, TEXT_DATA } from "@/utils/vars";
+import {
+	CATEGORIES,
+	CATEGORY,
+	LOCAL_NAVIGATION_MODE,
+	MOD_LIST,
+	ONLINE,
+	ONLINE_PATH,
+	ONLINE_SORT,
+	ONLINE_TYPE,
+	TEXT_DATA,
+} from "@/utils/vars";
 import { useAtom, useAtomValue } from "jotai";
 import { ChevronUpIcon, FileQuestionIcon, GroupIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -8,6 +18,7 @@ import { useMemo, useState } from "react";
 
 function BottomBar() {
 	const textData = useAtomValue(TEXT_DATA);
+	const mode = useAtomValue(LOCAL_NAVIGATION_MODE);
 	const [category, setCategory] = useAtom(CATEGORY);
 	const [onlinePath, setOnlinePath] = useAtom(ONLINE_PATH);
 	const onlineType = useAtomValue(ONLINE_TYPE);
@@ -16,6 +27,8 @@ function BottomBar() {
 	const modList = useAtomValue(MOD_LIST);
 	const categories = useAtomValue(CATEGORIES);
 	const [expanded, setExpanded] = useState(false);
+	if (mode !== "classic" && expanded && !online) setExpanded(false);
+
 	const localCategories = useMemo(() => {
 		// info("Online Path:", onlinePath);
 		return online
@@ -35,12 +48,13 @@ function BottomBar() {
 					...categories.filter((cat) => modList.some((mod) => mod.parent == cat._sName)),
 				];
 	}, [categories, modList, online, onlinePath]);
-	console.log(onlinePath)
+	console.log(onlinePath);
 	return (
 		<div
 			className="min-h-20 duration-200 flex items-center justify-center w-full h-20 p-2"
 			style={{
 				height: expanded ? "16rem" : "",
+				marginBottom: mode == "classic" ? "" : "-4.75rem",
 			}}
 		>
 			<div className="bg-sidebar data-zzz:rounded-[3rem] data-gi:rounded-[3rem] z-100 text-accent flex items-center justify-center w-full h-full gap-1 p-2 border rounded-lg">

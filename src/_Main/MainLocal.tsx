@@ -9,12 +9,13 @@ import {
 	openConflict,
 	SEARCH,
 	SELECTED,
+	RIGHT_SIDEBAR_OPEN,
 	SETTINGS,
 	SORT,
 	SOURCE,
 	TEXT_DATA,
 } from "@/utils/vars";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { AnimatePresence, motion } from "motion/react";
 import CardLocal from "./components/CardLocal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -28,9 +29,6 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { Mod } from "@/utils/types";
 import { addToast } from "@/_Toaster/ToastProvider";
 import { info } from "@/lib/logger";
-// import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-// import { RefreshCwIcon } from "lucide-react";
-// import { addToast } from "@/_Toaster/ToastProvider";
 const modKeys = [
 	"isDir",
 	"name",
@@ -52,7 +50,7 @@ const modKeys = [
 	"crop",
 	"maxed",
 ];
-function MainLocal() {
+function MainLocal({ compact = false, isCategory = false }: { compact?: boolean; isCategory?: boolean }) {
 	const initDone = useAtomValue(INIT_DONE);
 	const textData = useAtomValue(TEXT_DATA);
 	const [conflicts, setConflicts] = useAtom(CONFLICTS);
@@ -74,6 +72,7 @@ function MainLocal() {
 	const [filteredList, setFilteredList] = useState([] as Mod[]);
 	const [visibleRange, setVisibleRange] = useState({ start: -1, end: -1 });
 	const [selected, setSelected] = useAtom(SELECTED);
+	const setRightSidebarOpen = useSetAtom(RIGHT_SIDEBAR_OPEN);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const toggleOn = useAtomValue(SETTINGS).global.local.toggleClick;
 	const sort = useAtomValue(SORT);
@@ -271,7 +270,11 @@ function MainLocal() {
 						return m;
 					});
 				});
-		} else setSelected(mod.path == selected ? "" : mod.path);
+		} else {
+			const nextSelected = mod.path == selected ? "" : mod.path;
+			setSelected(nextSelected);
+			if (compact) setRightSidebarOpen(!!nextSelected);
+		}
 	};
 	const handleScroll = useCallback(() => {
 		if (initial) {
@@ -285,7 +288,7 @@ function MainLocal() {
 				const scrollTop = containerRef.current.scrollTop;
 				const itemHeight = 304 * scale;
 				const itemWidth = 256 * scale;
-				const itemsPerRow = Math.floor((box.width - 10) / itemWidth);
+				const itemsPerRow = Math.max(1, Math.floor((box.width - 10) / itemWidth));
 				info(itemsPerRow, itemWidth, box.width - 10);
 				setVisibleRange({
 					start: Math.floor(scrollTop / itemHeight) * itemsPerRow,
@@ -346,7 +349,7 @@ function MainLocal() {
 				className="flex flex-col items-center w-full h-screen overflow-x-hidden overflow-y-auto duration-300"
 			>
 				{" "}
-				<label className="text-muted z-200 flex flex-col items-center gap-1">
+				{!isCategory && <label className="text-muted z-200 flex flex-col items-center gap-1">
 					<label className="flex items-center">
 						{filteredList.length} {textData.Items}{" "}
 					</label>
@@ -362,6 +365,7 @@ function MainLocal() {
 						</label>
 					</label>
 				</label>
+				}
 				{noItems}
 				<AnimatePresence mode="popLayout">
 					<motion.div

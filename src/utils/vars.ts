@@ -33,6 +33,10 @@ const DEV_HIDE_PREVIEWS = atomWithStorage("imm-dev-hide-previews", false);
 const SCALE = atomWithStorage("imm-scale", 0);
 const BLUR = atomWithStorage("imm-blur", 1);
 const ANIMATIONS = atomWithStorage("imm-animations", true);
+export type LocalNavigationMode = "classic" | "categories" | "vertical";
+const LOCAL_NAVIGATION_MODE = atomWithStorage<LocalNavigationMode>("imm-local-navigation-mode", "classic");
+const LOCAL_NAVIGATION_PAGE = atom<"categories" | "mods">("categories");
+const LOCAL_CATEGORY_FAVORITES = atomWithStorage<string[]>("imm-local-category-favorites", []);
 const BACKUP_INI = atomWithStorage("imm-backup-ini", false);
 const INIT_DONE = atom(false);
 const MAIN_FUNC_STATUS = atom<string>("");
@@ -203,5 +207,8 @@ export {
 	SCALE,
 	BLUR,
 	ANIMATIONS,
+	LOCAL_NAVIGATION_MODE,
+	LOCAL_NAVIGATION_PAGE,
+	LOCAL_CATEGORY_FAVORITES,
 	BACKUP_INI,
 };
