@@ -20,6 +20,7 @@ import {
 	SCALE,
 	SETTINGS,
 	OPTIMIZED,
+	SELECTED,
 } from "./utils/vars";
 import { AnimatePresence, motion, MotionGlobalConfig } from "motion/react";
 import Checklist from "./_Checklist/Checklist";
@@ -88,7 +89,7 @@ function App() {
 	const verticalLayout = !online && localNavigationMode === "vertical";
 	const previousVerticalLayout = useRef(false);
 	const sidebarStateBeforeVertical = useRef({ left: leftSidebarOpen, right: rightSidebarOpen });
-
+	const setSelected = useSetAtom(SELECTED);
 	useLayoutEffect(() => {
 		if (verticalLayout && !previousVerticalLayout.current) {
 			sidebarStateBeforeVertical.current = { left: leftSidebarOpen, right: rightSidebarOpen };
@@ -257,6 +258,7 @@ function App() {
 						exit={{ opacity: 0 }}
 						onClick={() => {
 							setLeftSidebarOpen(false);
+							if (rightSidebarOpen) setSelected("");
 							setRightSidebarOpen(false);
 						}}
 						className="fixed inset-0 z-[9] bg-background/40 backdrop-blur-[calc(var(--blur-xs)*0.5)]"

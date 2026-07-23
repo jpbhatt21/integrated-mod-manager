@@ -957,6 +957,7 @@ async function readDirRecr(
 		];
 	const filePromises = entries.map(async (entry) => {
 		if ((entry.name == RESTORE || entry.name == IGNORE || entry.name == PREFS) && cached && depth == 0) return null;
+		if(entry.name == ".imm-cache.json") return null;
 		let children: Mod[] = [];
 		if (entry.isDirectory && (!backupMode || (entry.name !== INI_BACKUP && !entry.name.startsWith(".imm"))))
 			children = await readDirRecr(root, join(path, entry.name), maxDepth, depth + 1, cached, backupMode);

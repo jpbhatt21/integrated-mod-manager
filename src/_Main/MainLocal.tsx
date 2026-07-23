@@ -29,9 +29,6 @@ import { openPath } from "@tauri-apps/plugin-opener";
 import { Mod } from "@/utils/types";
 import { addToast } from "@/_Toaster/ToastProvider";
 import { info } from "@/lib/logger";
-// import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-// import { RefreshCwIcon } from "lucide-react";
-// import { addToast } from "@/_Toaster/ToastProvider";
 const modKeys = [
 	"isDir",
 	"name",
@@ -53,7 +50,7 @@ const modKeys = [
 	"crop",
 	"maxed",
 ];
-function MainLocal({ compact = false }: { compact?: boolean }) {
+function MainLocal({ compact = false, isCategory = false }: { compact?: boolean; isCategory?: boolean }) {
 	const initDone = useAtomValue(INIT_DONE);
 	const textData = useAtomValue(TEXT_DATA);
 	const [conflicts, setConflicts] = useAtom(CONFLICTS);
@@ -289,8 +286,8 @@ function MainLocal({ compact = false }: { compact?: boolean }) {
 				const scale = parseInt((document.documentElement.style.fontSize || "16px").replace("px", ""))/16;
 				const box = containerRef.current.getBoundingClientRect();
 				const scrollTop = containerRef.current.scrollTop;
-				const itemHeight = (compact ? 352 : 304) * scale;
-				const itemWidth = (compact ? 240 : 256) * scale;
+				const itemHeight = 304 * scale;
+				const itemWidth = 256 * scale;
 				const itemsPerRow = Math.max(1, Math.floor((box.width - 10) / itemWidth));
 				info(itemsPerRow, itemWidth, box.width - 10);
 				setVisibleRange({
@@ -299,7 +296,7 @@ function MainLocal({ compact = false }: { compact?: boolean }) {
 				});
 			}
 		}, 50);
-	}, [compact, initial]);
+	}, [initial]);
 
 	// Memoize animation variants to prevent recreation on every render
 	const animationVariants = useCallback(
@@ -352,7 +349,7 @@ function MainLocal({ compact = false }: { compact?: boolean }) {
 				className="flex flex-col items-center w-full h-screen overflow-x-hidden overflow-y-auto duration-300"
 			>
 				{" "}
-				<label className="text-muted z-200 flex flex-col items-center gap-1">
+				{!isCategory && <label className="text-muted z-200 flex flex-col items-center gap-1">
 					<label className="flex items-center">
 						{filteredList.length} {textData.Items}{" "}
 					</label>
@@ -368,11 +365,12 @@ function MainLocal({ compact = false }: { compact?: boolean }) {
 						</label>
 					</label>
 				</label>
+				}
 				{noItems}
 				<AnimatePresence mode="popLayout">
 					<motion.div
 						layout
-						className={compact ? "min-h-fit grid w-full grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4 px-4 py-4 [--card-height:20rem] [&_.card-generic]:!w-full" : "min-h-fit card-grid grid justify-center w-full py-4"}
+						className="min-h-fit card-grid grid justify-center w-full py-4"
 						key={keyRef.current}
 						initial={{ opacity: 0, pointerEvents: "none" }}
 						animate={{ opacity: 1, pointerEvents: "auto" }}
