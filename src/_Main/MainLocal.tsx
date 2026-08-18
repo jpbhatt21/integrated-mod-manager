@@ -228,6 +228,12 @@ function MainLocal() {
 			newList = newList.filter((mod) => category.has(mod.parent));
 		}
 		switch (sort) {
+			case "alpha-asc":
+				newList.sort((a, b) => a.name.localeCompare(b.name));
+				break;
+			case "alpha-desc":
+				newList.sort((a, b) => b.name.localeCompare(a.name));
+				break;
 			case "fav-asc":
 				newList.sort((a, b) => {
 					const aFav = a.tags?.includes("fav") ? 1 : 0;
