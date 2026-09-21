@@ -48,17 +48,37 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Patch AppImage GTK plugin
+        run: bash packaging/appimage/patch-gtk-plugin.sh
+
       - name: Build Tauri app
         env:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run tauri -- build --target x86_64-unknown-linux-gnu
 
+      - name: Verify AppImage
+        run: |
+          appimage=$(find "$PWD/src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage" -name '*.AppImage' | head -n1)
+          test -n "$appimage"
+          cd "$(mktemp -d)"
+          "$appimage" --appimage-extract >/dev/null
+          if find squashfs-root \( -name 'libwayland-*.so*' -o -name 'im-uim.so' \) | grep .; then
+            echo "Bundled libwayland or im-uim found"
+            exit 1
+          fi
+          if grep -rq 'im-uim\.so' --include=immodules.cache squashfs-root; then
+            echo "im-uim still listed in immodules.cache"
+            exit 1
+          fi
+          grep -q 'GDK_BACKEND="${GDK_BACKEND:-x11}"' squashfs-root/apprun-hooks/linuxdeploy-plugin-gtk.sh
+
       - name: Create release bundle
         run: |
           rm -rf src-tauri/target/release
           mv src-tauri/target/x86_64-unknown-linux-gnu/release src-tauri/target/release
-          bash bundle.sh
+          python3 utils.py -b
+          cp ".bundle/$(jq -r .version latest.json).zip" bundle.zip
 
       - name: Send bundle to Telegram
         env:
