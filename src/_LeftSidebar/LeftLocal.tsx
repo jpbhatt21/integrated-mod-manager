@@ -137,7 +137,7 @@ function LeftLocal() {
 								{textData._LeftSideBar._LeftLocal._Filter.Advanced}
 							</div>
 						</DialogTrigger>
-						<DialogContent className="max-h-120 min-h-120">
+						<DialogContent srTitle={textData._LeftSideBar._LeftLocal._Filter.AdvFilOpt} className="max-h-120 min-h-120">
 							<div className="min-h-fit text-accent my-6 text-3xl">
 								{textData._LeftSideBar._LeftLocal._Filter.AdvFilOpt}
 								<Tooltip>

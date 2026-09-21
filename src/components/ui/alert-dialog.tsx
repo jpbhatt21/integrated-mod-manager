@@ -38,8 +38,10 @@ function AlertDialogOverlay({
 }
 function AlertDialogContent({
   className,
+  children,
+  srTitle,
   ...props
-}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
+}: React.ComponentProps<typeof AlertDialogPrimitive.Content> & { srTitle?: string }) {
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
@@ -49,8 +51,12 @@ function AlertDialogContent({
           "game-font bg-background/75 focus-within:outline-0 bgpattern backdrop-blur-xs border-border flex flex-col items-center gap-4 p-4 overflow-hidden border-2 rounded-lg min-w-120 data-zzz:bg-background data-gi:bg-background/90 data-zzz:min-w-[110vw] data-zzz:px-[calc(55vw-16rem)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] shadow-lg duration-200 sm:max-w-lg",
           className
         )}
+        {...(srTitle !== undefined && { "aria-describedby": undefined })}
         {...props}
-      />
+      >
+        {children}
+        {srTitle !== undefined && <AlertDialogPrimitive.Title className="sr-only">{srTitle}</AlertDialogPrimitive.Title>}
+      </AlertDialogPrimitive.Content>
     </AlertDialogPortal>
   )
 }

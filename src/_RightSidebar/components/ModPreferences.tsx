@@ -310,6 +310,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 	);
 	return (
 		<DialogContent
+			srTitle={textData._RightSideBar._components._ModPreferences.EditConfig}
 			className="min-w-250"
 			onEscapeKeyDown={(e) => {
 				if ((e.target as HTMLElement).tagName === "INPUT") {

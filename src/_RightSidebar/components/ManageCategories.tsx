@@ -56,13 +56,19 @@ function ManageCategories() {
 		});
 	}, 400);
 	return (
-		<DialogContent>
+		<DialogContent srTitle={textData._RightSideBar._components._ManageCategories.ManageCat}>
 			<Tooltip>
 				<TooltipTrigger></TooltipTrigger>
 				<TooltipContent className="opacity-0"></TooltipContent>
 			</Tooltip>
 			<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-				<AlertDialogContent>
+				<AlertDialogContent
+					srTitle={
+						alertData.creating
+							? textData._RightSideBar._components._ManageCategories.CreateCat
+							: textData._RightSideBar._components._ManageCategories.CatName
+					}
+				>
 					<div className="max-w-96 flex flex-col items-center gap-2 mt-6 text-center">
 						<img
 							className="aspect-square outline bg-accent/10 z-10 flex items-center justify-center h-20 text-white rounded-full pointer-events-none"

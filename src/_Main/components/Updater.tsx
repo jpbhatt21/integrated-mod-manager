@@ -125,7 +125,7 @@ function Updater() {
 					)}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="game-font">
+			<DialogContent srTitle={textData._Main._components._Updater.Updater} className="game-font">
 				<div className="min-h-fit text-accent mt-6 text-3xl">{textData._Main._components._Updater.Updater}</div>
 				<div className="min-h-fit text-muted-foreground -mt-4">
 					v{VERSION} ({import.meta.env.VITE_BUILD_ID})

@@ -20,7 +20,7 @@ function Help({ setPage }: { setPage: (page: number) => void }) {
 					<BadgeHelpIcon className="aspect-square h-full" /> {textData._Checklist._Help.Help}
 				</Button>
 			</DialogTrigger>
-			<DialogContent>
+			<DialogContent srTitle={textData._Checklist._Help.Help}>
 				<header className="my-6 space-y-1 text-center">
 					<h2 className="text-foreground text-2xl font-semibold">{textData._Checklist._Help.Help}</h2>
 					<p className="text-muted-foreground text-sm">{textData._Checklist._Help.QuickChecks}</p>

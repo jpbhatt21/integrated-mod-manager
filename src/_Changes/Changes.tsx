@@ -56,7 +56,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 		>
 			<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
 				{alertType == "warn" ? (
-					<AlertDialogContent className="max-w-100">
+					<AlertDialogContent srTitle={textData.Note} className="max-w-100">
 						<div className="text-accent min-h-fit my-4 text-3xl">{textData.Note}</div>
 						<div className="text-center text-destructive">{textData._Changes.WillBeOrg}</div>
 						<div className="flex w-full justify-between">
@@ -71,7 +71,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 						</div>
 					</AlertDialogContent>
 				) : (
-					<AlertDialogContent className="min-h-fit min-w-fit mt-4">
+					<AlertDialogContent srTitle={textData.Note} className="min-h-fit min-w-fit mt-4">
 						<img src="/tutorials/RemoveIMM/1.png" className="max-h-125 rounded-md" />
 						<label className="text-accent text-sm text-center max-w-132 ">{textData._Changes.RemIMM}</label>
 						<AlertDialogAction className="-my-2">{textData.Back}</AlertDialogAction>

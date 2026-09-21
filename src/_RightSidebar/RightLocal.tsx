@@ -351,7 +351,7 @@ function RightLocal() {
 				)}
 			</Dialog>
 			<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-				<AlertDialogContent>
+				<AlertDialogContent srTitle={textData._Main._MainLocal.Delete}>
 					<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 						<div className="max-w-96 text-xl text-gray-200 wrap-break-words">
 							{textData._Main._MainLocal.Delete} <span className="text-accent ">{deleteItemData?.name}</span>?

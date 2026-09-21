@@ -57,7 +57,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 										</TooltipContent>
 									</Tooltip>
 								</DialogTrigger>
-								<DialogContent className="min-h-130">
+								<DialogContent srTitle={textData._Checklist.SelectingXXMIDir} className="min-h-130">
 									<div className="min-h-fit text-accent my-6 text-3xl">
 										{textData._Checklist.SelectingXXMIDir}
 										<Tooltip>
@@ -280,7 +280,7 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 				{extDriveText.Prompt}
 				<Dialog>
 					<DialogTrigger className="ml-1 text-destructive">{extDriveText.Here}</DialogTrigger>
-					<DialogContent>
+					<DialogContent srTitle={extDriveText.Title}>
 						<div className="min-h-fit text-accent my-6 text-3xl">{extDriveText.Title}</div>
 						<p className="text-foreground/80 text-sm">{extDriveText.Intro}</p>
 						<ul className="text-xs w-full pl-4 text-foreground/80 space-y-2">

@@ -58,9 +58,9 @@ function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boole
 					{leftSidebarOpen && textData._LeftSideBar._components._Restore.Restore}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="">
+			<DialogContent srTitle={textData._LeftSideBar._components._Restore.Restore} className="">
 				<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-					<AlertDialogContent className="min-w-120">
+					<AlertDialogContent srTitle={textData._Main._MainLocal.Delete} className="min-w-120">
 						<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 							<div className="text-xl text-gray-200">
 								{textData._Main._MainLocal.Delete}{" "}

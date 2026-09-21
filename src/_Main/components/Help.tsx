@@ -27,7 +27,7 @@ function Help() {
 					{textData._Checklist._Help.Help}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="game-font h-200 max-h-[calc(100vh-4rem)] min-w-260 flex flex-col gap-8">
+			<DialogContent srTitle={textData.Tutorials} className="game-font h-200 max-h-[calc(100vh-4rem)] min-w-260 flex flex-col gap-8">
 				<div className="min-h-fit text-accent mt-6 text-3xl">
 					{textData.Tutorials}
 					<Tooltip>

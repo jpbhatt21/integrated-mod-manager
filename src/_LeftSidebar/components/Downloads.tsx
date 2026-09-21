@@ -413,7 +413,7 @@ function Downloads() {
 					)}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="min-w-180 min-h-150">
+			<DialogContent srTitle={textData.Downloads} className="min-w-180 min-h-150">
 				<div className="min-h-fit text-accent my-6 text-3xl">{textData.Downloads}</div>
 				<div className="h-116 flex flex-col items-center w-full gap-4 p-0">
 					<div className="flex justify-between w-full">
