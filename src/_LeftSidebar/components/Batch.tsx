@@ -457,6 +457,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 				</Button>
 			</DialogTrigger>
 			<DialogContent
+				srTitle={textData._LeftSideBar._components._Batch.BatchOperations.trim()}
 				onFocus={(e) => {
 					e.currentTarget.blur();
 				}}
@@ -473,7 +474,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 					<TooltipContent className="opacity-0"></TooltipContent>
 				</Tooltip>
 				<AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
-					<AlertDialogContent>
+					<AlertDialogContent srTitle={textData._Main._MainLocal.Delete}>
 						<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 							<div className="text-xl text-gray-200">
 								{textData._Main._MainLocal.Delete} <span className="text-warn ">{cleanChecked.length} item(s)</span>?

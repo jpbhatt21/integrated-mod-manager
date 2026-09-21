@@ -122,6 +122,7 @@ function Remove() {
 	return (
 		<Dialog open={removeOpen || progress.started} onOpenChange={setRemoveOpen}>
 			<DialogContent
+				srTitle={textData._LeftSideBar._components._RemoveIMM.RemoveIMM}
 				className=""
 				style={{
 					minHeight: progress.started ? "calc(100vh - 2rem)" : "",
@@ -318,7 +319,7 @@ function Remove() {
 							<AlertDialogTrigger asChild>
 								<Button variant="destructive">{textData._LeftSideBar._components._RemoveIMM.ConfRem}</Button>
 							</AlertDialogTrigger>
-							<AlertDialogContent className="gap-2">
+							<AlertDialogContent srTitle={textData.Confirm} className="gap-2">
 								<AlertDialogHeader className="text-3xl text-accent">{textData.Confirm}</AlertDialogHeader>
 								<div className="text-center text-destructive max-w-4/5">
 									{textData._LeftSideBar._components._RemoveIMM.Recheck}

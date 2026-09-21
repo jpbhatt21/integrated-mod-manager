@@ -5,11 +5,12 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { saveConfigs } from "@/utils/filesys";
 import { Mod } from "@/utils/types";
 import { getImageUrl, handleImageError } from "@/utils/utils";
-import { DATA, LAST_UPDATED, MOD_LIST } from "@/utils/vars";
-import { useAtom,  useSetAtom } from "jotai";
+import { DATA, LAST_UPDATED, MOD_LIST, TEXT_DATA } from "@/utils/vars";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {  RefreshCcwIcon, SaveIcon, Undo2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 function ModPreviewCrop({ item, setDialogType }: { item: any, setDialogType: (type: string) => void }) {
+	const textData = useAtomValue(TEXT_DATA);
 	const setData = useSetAtom(DATA);
 	const setModList = useSetAtom(MOD_LIST);
 	const [lastUpdated, setLastUpdated] = useAtom(LAST_UPDATED);
@@ -39,7 +40,7 @@ function ModPreviewCrop({ item, setDialogType }: { item: any, setDialogType: (ty
 		setMouseDownPos({ x: e.clientX, y: e.clientY });
 	}
 	return (
-		<DialogContent className="min-w-250 select-none">
+		<DialogContent srTitle={textData.Others.editPreview} className="min-w-250 select-none">
 			<Tooltip>
 				<TooltipTrigger></TooltipTrigger>
 				<TooltipContent className="opacity-0"></TooltipContent>

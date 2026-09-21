@@ -79,7 +79,7 @@ function ModPreview({
 	}, []);
 
 	return (
-		<DialogContent className=" select-none min-w-136 min-h-0">
+		<DialogContent srTitle={textData.Others.setPreview} className=" select-none min-w-136 min-h-0">
 			<Tooltip>
 				<TooltipTrigger></TooltipTrigger>
 				<TooltipContent className="opacity-0"></TooltipContent>

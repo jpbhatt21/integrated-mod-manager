@@ -167,7 +167,7 @@ export default class ErrorBoundary extends React.Component<React.PropsWithChildr
 							<DialogTrigger className="text-xs text-muted hover:brightness-125 duration-200">
 								{textData.Others.showCompStack}
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent srTitle={textData.Others.compStack}>
 								<div className="min-h-fit text-accent my-6 text-3xl">
 									{textData.Others.compStack}
 									<Tooltip>

@@ -54,7 +54,7 @@ function Notice() {
 					</div>
 				</Button>
 			</AlertDialogTrigger>
-			<AlertDialogContent>
+			<AlertDialogContent srTitle={notice.heading}>
 				<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
 					<div className="text-xl text-accent">{notice.heading}</div>
 					<div className={["text-destructive","text-warn"][notice.ignoreable] || "text-foreground/80"}>

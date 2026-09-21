@@ -21,7 +21,7 @@ function ModConflicts() {
 		setCurSelected(-1);
 	}, [curIndex]);
 	return (
-		<DialogContent>
+		<DialogContent srTitle={textData._Main._components._ModConflicts.ResModConf}>
 			<Tooltip>
 				<TooltipTrigger></TooltipTrigger>
 				<TooltipContent className="opacity-0"></TooltipContent>

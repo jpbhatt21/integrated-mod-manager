@@ -22,6 +22,7 @@ function Credits() {
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent
+				srTitle={textData.Credits.creds}
 				className="min-w-full border-0 h-full max-h-[calc(100%-2rem)] mt-4 overflow-hidden"
 				onClick={(e) => {
 					(e.currentTarget.firstChild as HTMLButtonElement)?.click();

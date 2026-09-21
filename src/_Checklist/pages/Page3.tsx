@@ -95,7 +95,7 @@ function Page3({ setPage }: { setPage: (page: number) => void }) {
 									<ArrowUpRightFromSquareIcon className="inline w-4 h-4 mb-1" /> {textData._Checklist.WhatIsXXMI}
 								</a>
 							</AlertDialogTrigger>
-							<AlertDialogContent>
+							<AlertDialogContent srTitle={textData._Checklist.XXMILauncher}>
 								<AlertDialogCancel
 									className="top-3 text-destructive right-3 hover:opacity-100 absolute opacity-75"
 									variant="hidden"
