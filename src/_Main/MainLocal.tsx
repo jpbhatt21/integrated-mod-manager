@@ -19,7 +19,7 @@ import { AnimatePresence, motion } from "motion/react";
 import CardLocal from "./components/CardLocal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preventContextMenu } from "@/utils/utils";
-import { toggleMod } from "@/utils/filesys";
+import { sortMods, toggleMod } from "@/utils/filesys";
 import MiniSearch from "minisearch";
 import { join, setChange } from "@/utils/hotreload";
 import { toFs } from "@/utils/pathsep";
@@ -228,18 +228,24 @@ function MainLocal() {
 			newList = newList.filter((mod) => category.has(mod.parent));
 		}
 		switch (sort) {
+			case "alpha-asc":
+				newList.sort(sortMods);
+				break;
+			case "alpha-desc":
+				newList.sort((a, b) => sortMods(b, a));
+				break;
 			case "fav-asc":
 				newList.sort((a, b) => {
 					const aFav = a.tags?.includes("fav") ? 1 : 0;
 					const bFav = b.tags?.includes("fav") ? 1 : 0;
-					return bFav - aFav || a.name.localeCompare(b.name);
+					return bFav - aFav || sortMods(a, b);
 				});
 				break;
 			case "fav-desc":
 				newList.sort((a, b) => {
 					const aFav = a.tags?.includes("fav") ? 1 : 0;
 					const bFav = b.tags?.includes("fav") ? 1 : 0;
-					return aFav - bFav || a.name.localeCompare(b.name);
+					return aFav - bFav || sortMods(a, b);
 				});
 				break;
 		}

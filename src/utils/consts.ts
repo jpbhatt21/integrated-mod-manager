@@ -171,14 +171,14 @@ export const SORT_OPTIONS = Object.fromEntries(
 			label: "Default",
 			value: "default",
 		},
-		// {
-		// 	label: "A-Z",
-		// 	value: "alpha-asc",
-		// },
-		// {
-		// 	label: "Z-A",
-		// 	value: "alpha-desc",
-		// },
+		{
+			label: "A - Z",
+			value: "alpha-asc",
+		},
+		{
+			label: "Z - A",
+			value: "alpha-desc",
+		},
 		{
 			label: "Favourite ↑",
 			value: "fav-asc",

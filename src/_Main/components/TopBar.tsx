@@ -135,7 +135,7 @@ function TopBar() {
 				{
 					<Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
 						<PopoverTrigger asChild>
-							<div className="min-w-fit button-like zzz-border hover:brightness-150 bg-sidebar cursor-pointerx flex items-center justify-center h-full gap-1 p-2 text-xs duration-300 rounded-md select-none">
+							<div className="min-w-fit button-like zzz-border hover:brightness-150 bg-sidebar cursor-pointerx flex items-center justify-center text-center h-full gap-1 p-2 text-xs duration-300 rounded-md select-none">
 								{online ? (
 									onlinePath.startsWith("home") || onlinePath.startsWith("search") ? (
 										onlineType == "Mod" ? (
@@ -241,7 +241,7 @@ function TopBar() {
 									Object.entries(SORT_OPTIONS).map(([value, label]) => (
 										<div
 											key={value}
-											className="hover:brightness-150 button-like data-zzz:bg-button zzz-border bg-sidebar min-h-12 cursor-pointerx flex items-center justify-center w-full gap-1 p-2 text-sm duration-300 rounded-md select-none"
+											className="hover:brightness-150 button-like data-zzz:bg-button zzz-border bg-sidebar min-h-12 cursor-pointerx flex items-center justify-center text-center w-full gap-1 p-2 text-sm duration-300 rounded-md select-none"
 											onClick={() => {
 												setSort(value);
 											}}

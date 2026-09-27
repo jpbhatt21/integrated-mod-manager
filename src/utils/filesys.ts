@@ -225,7 +225,7 @@ function formatDateTime() {
  * Optimized sorting function using Intl.Collator for better performance
  * Handles case-insensitive sorting with uppercase precedence for same letters
  */
-function sortMods(a: Mod | DirEntry, b: Mod | DirEntry) {
+export function sortMods(a: Mod | DirEntry, b: Mod | DirEntry) {
 	const x = replaceDisabled(a.name);
 	const y = replaceDisabled(b.name);
 
