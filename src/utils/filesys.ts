@@ -35,14 +35,16 @@ import {
 import { open } from "@tauri-apps/plugin-dialog";
 import { invoke } from "@tauri-apps/api/core";
 import { join, iniPath, getModData } from "./hotreload";
-import { toFs, toInternal } from "./pathsep";
+import { parentDir, toFs, toInternal } from "./pathsep";
 import { main, updateConfig } from "./init";
 import { addToast } from "@/_Toaster/ToastProvider";
 import MiniSearch from "minisearch";
-import { ChangeInfo, DirEntry, GameConfig, GlobalSettings, Mod, ModDataObj, ModHotKeys, Settings } from "./types";
+import { ChangeInfo, DirEntry, GameConfig, GlobalSettings, Mod, ModDataObj, ModHotKeys } from "./types";
 import { openPath } from "@tauri-apps/plugin-opener";
 import { error, info, warn } from "@/lib/logger";
 import { addToExtracts } from "@/_LeftSidebar/components/Downloads";
+import { isVersionOlderThan } from "./semver";
+let staleCache = false;
 export async function setGame(game: string) {
 	try {
 		const config = await readTextFile(`config.json`);
@@ -126,7 +128,7 @@ store.sub(CATEGORIES, () => {
 export async function setConfig(config: any) {
 	info("[IMM] Setting config...");
 	if (!config) return;
-	if (config.version && config.version < "2.1.0") {
+	if (config.version && isVersionOlderThan(config.version, "2.1.0")) {
 		info("[IMM] Old config version, migrating...");
 		await updateConfig(config);
 		addToast({ type: "success", message: textData._Toasts.SuccessPort });
@@ -509,11 +511,11 @@ export async function checkOldVerDirs(src: string) {
 }
 export async function categorizeDir(src: string, modifyIni = false) {
 	info("[IMM] Categorizing directory:", src, "Skip restore:", modifyIni);
-	const d3dx_path = join(...tgt.split(/[/\\]/).slice(0, -1), "d3dx_user.ini");
+	const d3dx_path = join(parentDir(tgt), "d3dx_user.ini");
 	let d3dx = "" as any;
 	try {
 		info("[IMM] Reading d3dx_user.ini...", await exists(d3dx_path));
-		const backupPath = join(...tgt.split(/[/\\]/).slice(0, -1), `d3dx_user_pre_imm.ini.bak`);
+		const backupPath = join(parentDir(tgt), `d3dx_user_pre_imm.ini.bak`);
 		if (!(await exists(backupPath))) {
 			await copyFile(d3dx_path, backupPath);
 		}
@@ -638,8 +640,7 @@ export async function verifyDirStruct() {
 			if (await exists(oldTgtPath)) {
 				await rename(oldTgtPath, newTgtPath);
 				//add code to read the file d3dx_user.ini in the parent folder of oldTgtPath, and replace all instances of OLD_managedTGT with managedTGT
-				const parentDir = join(...tgt.split(/[/\\]/).slice(0, -1));
-				const iniFilePath = join(parentDir, "d3dx_user.ini");
+				const iniFilePath = join(parentDir(tgt), "d3dx_user.ini");
 				info("[IMM] Updating d3dx_user.ini at:", iniFilePath);
 
 				try {
@@ -924,7 +925,14 @@ export async function applyChanges(isMigration = false) {
 		throw err;
 	}
 }
-async function readDirRecr(root: string, path: string, maxDepth = 2, depth = 0, cached = false, backupMode = false): Promise<Mod[]> {
+async function readDirRecr(
+	root: string,
+	path: string,
+	maxDepth = 2,
+	depth = 0,
+	cached = false,
+	backupMode = false
+): Promise<Mod[]> {
 	if (depth > maxDepth) return [];
 	let entries: DirEntry[] = [];
 	try {
@@ -932,11 +940,25 @@ async function readDirRecr(root: string, path: string, maxDepth = 2, depth = 0, 
 	} catch {
 		return [];
 	}
-	if (cached && depth == 1 && entries.find((entry) => entry.name == ".imm-cache.json")) return [];
+	if (cached && depth == 2 && entries.find((entry) => entry.name == ".imm-cache.json"))
+		return [
+			{
+				isDir: false,
+				name: ".imm-cache.json",
+				parent: join(path),
+				path: join(path, ".imm-cache.json"),
+				keys: [],
+				enabled: false,
+				children: [],
+				depth,
+				maxed: maxDepth == 9,
+			},
+		];
 	const filePromises = entries.map(async (entry) => {
 		if ((entry.name == RESTORE || entry.name == IGNORE || entry.name == PREFS) && cached && depth == 0) return null;
 		let children: Mod[] = [];
-		if (entry.isDirectory && (!backupMode || entry.name!== INI_BACKUP && !entry.name.startsWith(".imm"))) children = await readDirRecr(root, join(path, entry.name), maxDepth, depth + 1, cached, backupMode);
+		if (entry.isDirectory && (!backupMode || (entry.name !== INI_BACKUP && !entry.name.startsWith(".imm"))))
+			children = await readDirRecr(root, join(path, entry.name), maxDepth, depth + 1, cached, backupMode);
 		return {
 			isDir: entry.isDirectory,
 			name: entry.name,
@@ -1020,7 +1042,7 @@ export async function remMoveMods(categoryMode = true, enable = 0) {
 	});
 	await Promise.all(movePromises);
 	// console.log("All entries moved. Updating d3dx_user.ini if needed...", iniChanges);
-	const d3dxPath = join(...tgt.split(/[/\\]/).slice(0, -1), "d3dx_user.ini");
+	const d3dxPath = join(parentDir(tgt), "d3dx_user.ini");
 	try {
 		if (await exists(d3dxPath)) {
 			let d3dx = await readTextFile(d3dxPath);
@@ -1090,7 +1112,8 @@ async function detectHotkeys(
 						let ln = line
 							.trim()
 							.replaceAll(/[\r\n]+/g, "")
-							.replaceAll(" ", "");
+							.replaceAll(" ", "")
+							.toLowerCase();
 						if (ln.startsWith("[") && ln.endsWith("]")) {
 							section = ln.slice(1, -1).toLowerCase();
 						}
@@ -1132,21 +1155,7 @@ async function detectHotkeys(
 							hashes.add(val);
 						}
 						if (counter === 0 && ln.startsWith("key=")) {
-							key =
-								line
-									.split("=")[1]
-									?.trim()
-									.split(" ")
-									.map((k) => {
-										k = k.toLowerCase();
-										if (k.startsWith("no_")) k = "";
-										else {
-											k = k.replace("vk_", "");
-										}
-										return k.trim();
-									})
-									.filter((k) => k)
-									.join("+") || "";
+							key = line.split("=")[1]?.trim();
 							counter++;
 						} else if (counter === 1 && ln.startsWith("type=")) {
 							type = line.split("=")[1]?.trim() || "";
@@ -1183,13 +1192,18 @@ async function detectHotkeys(
 					console.log("Error reading/parsing ini file:", join(src, entry.path), iniError);
 				}
 			}
-			if (entry.isDir && entry.children.length > 0 && entry.name !== INI_BACKUP) {
+			if (entry.isDir && entry.children.length && entry.name !== INI_BACKUP) {
 				try {
-					if (depth == 1 && cache % 2 == 1 && (await exists(join(src, entry.path, ".imm-cache.json")))) {
+					if (depth == 1 && entry.children.slice(-1)?.pop()?.name === ".imm-cache.json" && cache % 2 == 1) {
 						cacheUsed = true;
+						const cache = JSON.parse(await readTextFile(join(src, entry.path, ".imm-cache.json")));
+						if (!cache.version || cache.version < VERSION) {
+							staleCache = true;
+							await remove(join(src, entry.path, ".imm-cache.json"));
+						}
 						entry = {
 							...entry,
-							...JSON.parse(await readTextFile(join(src, entry.path, ".imm-cache.json"))),
+							...cache,
 							...modData,
 							path: entry.path,
 							parent: entry.parent,
@@ -1217,23 +1231,28 @@ async function detectHotkeys(
 					if (childHK.length > 0 && depth > 0) {
 						hkData = [...hkData, ...childHK];
 					}
-					if (depth == 1 && cache > 1 && !cacheUsed) {
-						await writeTextFile(
-							join(src, entry.path, ".imm-cache.json"),
-							JSON.stringify(
-								{ ...entry, keys: hkData, hashes: Array.from(hashes), namespaces: Array.from(namespaces) },
-								null,
-								2
-							)
-						);
-					}
 					namespaces = new Set([...Array.from(namespaces), ...Array.from(newNamespaces)]);
+					if (depth == 1) {
+						entry.keys = hkData;
+						entry.hashes = Array.from(hashes);
+						entry.namespaces = namespaces;
+						if (cache > 1 && !cacheUsed)
+							await writeTextFile(
+								join(src, entry.path, ".imm-cache.json"),
+								JSON.stringify(
+									{
+										...entry,
+										keys: hkData,
+										hashes: Array.from(hashes),
+										namespaces: Array.from(namespaces),
+										version: VERSION,
+									},
+									null,
+									2
+								)
+							);
+					}
 				}
-			}
-			if (depth == 1) {
-				entry.keys = hkData;
-				entry.hashes = Array.from(hashes);
-				entry.namespaces = namespaces;
 			}
 		} catch (entryError) {}
 		return { entry, hkData, hashes, namespaces };
@@ -1321,7 +1340,12 @@ export async function refreshModList(maxed = false) {
 		}
 		if (!maxed) await categorizeDir(modSrc);
 		if (curId !== deepRefreshId && maxed) return [];
-		const ret = await detectHotkeys(await readDirRecr(modSrc, "", 9, 0, true), data, modSrc, 0, maxed ? 3 : 1);
+		let ret = await detectHotkeys(await readDirRecr(modSrc, "", 9, 0, true), data, modSrc, 0, maxed ? 3 : 1);
+		if (staleCache) {
+			console.log("[IMM] Stale cache detected, performing deep refresh...");
+			staleCache = false;
+			ret = await detectHotkeys(await readDirRecr(modSrc, "", 9, 0, false), data, modSrc, 0, maxed ? 3 : 1);
+		}
 		console.log(
 			"[IMM] Mod list refresh complete. Entries:",
 			ret[0].length,
@@ -1421,10 +1445,7 @@ export async function refreshModList(maxed = false) {
 				.filter((entry) => recentlyDownloaded.includes(entry.path))
 				.concat(entries.filter((entry) => !recentlyDownloaded.includes(entry.path)));
 		}
-		info(
-			"[IMM] Mod list refreshed:",
-			entries.map((e) => ({ path: e.path, enabled: e.enabled }))
-		);
+		info("[IMM] Mod list refreshed:", entries);
 		info("[IMM] Mod list refresh took", Date.now() - before, "ms");
 		return entries
 			.filter((entry) => recentlyDownloaded.includes(entry.path))
@@ -1470,7 +1491,7 @@ export async function createModDownloadDir(cat: string, dir: string) {
 	}
 }
 export async function validateModDownload(path: string, skip = false, addModSrc = false) {
-	if(addModSrc && !path.startsWith(join(src, managedSRC))) {
+	if (addModSrc && !path.startsWith(join(src, managedSRC))) {
 		path = join(src, managedSRC, path);
 	}
 	console.log("[IMM] Validating mod download for path:", path);
@@ -1515,16 +1536,26 @@ export async function validateModDownload(path: string, skip = false, addModSrc 
 			count++;
 		}
 		if (!skip) {
-			const list = store.get(MOD_LIST);
 			const relPath = path.split(new RegExp(managedSRC.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "[/\\\\]"))[1];
-			info("[IMM] Validating mod download for path:", relPath);
-			const ele = list.find((mod) => mod.path === relPath);
-			if (ele) {
-				const keys = ele.keys || [];
-				const files = {} as any;
+			info("[IMM] Validating mod download for path:", relPath)
+			const keys = JSON.parse(sessionStorage.getItem("modData_" + relPath) || "[]") as any[];
+			if (keys) {
+				const files = {} as Record<string, Record<string, { def?: string, hk?:string }>>;
 				for (const hk of keys) {
-					if (!files[hk.file]) files[hk.file] = {};
-					if (hk.default) files[hk.file][hk.target] = hk.default;
+					if (hk.default) {
+						if (!files[hk.file]) files[hk.file] = {};
+						files[hk.file][hk.target] = {
+							def: hk.default,
+						};
+					}
+					if (hk.key) {
+						if (!files[hk.file]) files[hk.file] = {};
+						files[hk.file][hk.target] = {
+							...files[hk.file][hk.target],
+							hk: hk.key,
+						};
+					}
+
 				}
 				const promises = [] as Promise<any>[];
 				Object.keys(files).forEach((file) => {
@@ -1539,6 +1570,7 @@ export async function validateModDownload(path: string, skip = false, addModSrc 
 			const total = completed + downloads.queue.length;
 			addToast({ type: "success", message: `${textData._Toasts.DownloadComplete} (${completed}/${total})` });
 		}
+		
 	} catch (err) {
 		if (!skip) addToast({ type: "error", message: textData._Toasts.ErrDownload });
 		error("[IMM] Error validating mod download:", err);
@@ -1636,7 +1668,7 @@ async function updateDataFromD3DXIni(modPaths: string | string[]) {
 	} else {
 		mods = [modPaths];
 	}
-	const root = join(...tgt.split(/[/\\]/).slice(0, -1), "d3dx_user.ini");
+	const root = join(parentDir(tgt), "d3dx_user.ini");
 	const lines = [] as string[];
 	if (await exists(root)) {
 		lines.push(
@@ -1658,14 +1690,14 @@ async function updateDataFromD3DXIni(modPaths: string | string[]) {
 		const path = `mods\\${managedTGT}\\${modPath}\\`.toLowerCase();
 		const namespaces = Array.from(modMap[modPath]?.namespaces || new Set()) as string[];
 		for (let line of lines) {
-			const namespaceMatch = namespaces.find((n) => line.includes(n)) || "";
+			const namespaceMatch = namespaces.find((n) => line.startsWith(`$\\${n}`)) || "";
 			const mode = line.includes(path) ? 0 : namespaceMatch ? 1 : -1;
 			if (mode == -1) continue;
 			const lineKey = mode ? namespaceMatch : path;
 			const [KeyVar, Val] = line
 				.split("=")
 				.map((part: string, i: number) => (i ? part.trim() : part.trim().split(lineKey)[1]));
-			const Var = (mode ? KeyVar : KeyVar.split("\\").pop() || "").toLowerCase().trim();
+			const Var = (KeyVar.split("\\").pop() || "").toLowerCase().trim();
 			const Key = mode ? lineKey : KeyVar.split("\\").slice(0, -1).join("\\").toLowerCase().trim();
 			if (Key && Var && Val) {
 				if (!data[modPath].vars.hasOwnProperty(Key)) data[modPath].vars[Key] = {};
@@ -1712,7 +1744,6 @@ async function updatePrefsIniFromData(modPath: string, oldPath = "") {
 				const line =
 					`$\\${key.endsWith(".ini") ? `mods\\${managedTGT}\\${modPath}\\` : ""}${key}\\${Var}`.toLowerCase();
 				const value = x.pref ?? x.state;
-				//lines[line] = x.pref ?? x.state;
 				lines[line] = value === undefined || value === null ? "" : String(value);
 				if (lines[line] === undefined || lines[line] === null || lines[line] === "") delete lines[line];
 				else info(`[IMM] Updating Mod: ${modPath} | File: ${key} | Added Line: ${line}`);
@@ -1729,35 +1760,54 @@ async function updatePrefsIniFromData(modPath: string, oldPath = "") {
 		);
 	}
 }
-export async function updateIniVars(relPath: string, keyVals: Record<string, string>) {
+
+export async function updateIniVars(relPath: string, keyVals: Record<string, { def?: string; hk?: string }>) {
 	const path = join(modRoot, relPath);
-	console.log("Updating ini vars for:", relPath, "at", path, "with keyVals:", keyVals);
+	console.log("Updating ini vars for:", relPath, "at", path, "with keyVals:", JSON.parse(JSON.stringify(keyVals)));
 	const [category, modName, ...rest] = relPath.split("\\");
 	const backupPath = join(modRoot, category, modName, INI_BACKUP, "default", ...rest);
 	if (!(await exists(backupPath))) {
-		await mkdir(join(...backupPath.split("\\").slice(0, -1)), { recursive: true });
+		await mkdir(parentDir(backupPath), { recursive: true });
 		await copyFile(path, backupPath);
 	}
 	const file = await readTextFile(path);
 	const lines = file.split("\n");
 	try {
 		let section = "";
+		let keyLine = -1;
+		let counter = 0;
 		for (let i = 0; i < lines.length; i++) {
 			let ln = lines[i]
 				.trim()
 				.replaceAll(/[\r\n]+/g, "")
-				.replaceAll(" ", "");
+				.replaceAll(" ", "")
+				.toLowerCase();
 			if (ln.startsWith("[") && ln.endsWith("]")) {
 				section = ln.slice(1, -1).toLowerCase();
 			}
 			if (section === "constants" && ln.includes("$") && ln.includes("=")) {
 				const modKey = ln.split("$")[1].split("=")[0].trim().toLowerCase();
-				if (keyVals.hasOwnProperty(modKey)) {
-					lines[i] = `${lines[i].split("=")[0]}= ${keyVals[modKey]}`;
+				if (keyVals.hasOwnProperty(modKey) && keyVals[modKey].hasOwnProperty("def")) {
+					lines[i] = `${lines[i].split("=")[0]}= ${keyVals[modKey].def}`;
 					info(`[IMM] Updating Mod: ${path} | Line${i}: ${lines[i]}`);
 				}
-				delete keyVals[modKey];
 				if (Object.keys(keyVals).length === 0) break;
+			}
+			if (section !== "constants") {
+				if (counter === 0 && ln.startsWith("key=")) {
+					keyLine = i;
+					counter++;
+				} else if (counter === 1 && ln.startsWith("type=")) {
+					counter++;
+				} else if (counter === 2 && ln.startsWith("$")) {
+					let [target] = ln.split("=").map((part) => part.trim());
+					target = target?.slice(1) || "";
+					counter = 0;
+
+					if (keyVals.hasOwnProperty(target) && keyVals[target].hasOwnProperty("hk")) {
+						lines[keyLine] = `key = ${keyVals[target].hk}`;
+					}
+				}
 			}
 		}
 	} catch {

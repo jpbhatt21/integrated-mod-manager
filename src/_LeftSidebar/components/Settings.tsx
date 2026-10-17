@@ -10,12 +10,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { GAME_NAMES, LANG_LIST } from "@/utils/consts";
 import { saveConfigs, setConfig } from "@/utils/filesys";
-import { encodeHotkeyForStorage, formatHotkeyDisplay, processHotkeyCode } from "@/utils/hotkeyUtils";
+import { encodeHotkeyForStorage, formatKeysToDisplay, sortHotkeys } from "@/utils/hotkeyUtils";
 import { join, setHotreload } from "@/utils/hotreload";
 import { toFs } from "@/utils/pathsep";
 import { getCwd, setPrePostLaunch, setWindowType } from "@/utils/init";
 import TEXT from "@/textData.json";
-import { exportConfig, keySort } from "@/utils/utils";
+import { exportConfig } from "@/utils/utils";
 import {
 	ANIMATIONS,
 	BACKUP_INI,
@@ -66,7 +66,6 @@ import {
 	UploadIcon,
 	XIcon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { ComponentType, ReactNode, useRef, useState } from "react";
 let bg: HTMLBodyElement | null = null;
 let keys = [] as any[];
@@ -236,7 +235,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 		},
 		{
 			key: "disp",
-			label: "Display",
+			label: textData.Others.display,
 			icon: MonitorIcon,
 			content: (
 				<>
@@ -303,7 +302,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 							]}
 						/>
 					</SettingRow>
-					<SettingRow label={"Scale"}>
+					<SettingRow label={textData.Others.scale}>
 						<Slider
 							defaultValue={[scale]}
 							max={0}
@@ -314,16 +313,9 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								document.documentElement.style.fontSize = 16 * Math.pow(2, e[0] / 50) + "px";
 								setScale(e[0]);
 							}}
-							onValueCommit={(e) => {
-								// setSettings((prev) => {
-								// 	prev.global.display.bgOpacity = e[0] / 100;
-								// 	return { ...prev };
-								// });
-								// saveConfigs();
-							}}
 						/>
 					</SettingRow>
-					<SettingRow label={"Animations"}>
+					<SettingRow label={textData.Others.animation}>
 						<SettingTabs
 							defaultValue={animations ? "1" : "0"}
 							onValueChange={(e) => {
@@ -333,17 +325,17 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: XIcon,
-									label: "Off",
+									label: textData._LeftSideBar._components._Settings._AutoReload.Disable,
 								},
 								{
 									value: "1",
 									icon: CheckIcon,
-									label: "On",
+									label: textData._LeftSideBar._components._Settings._AutoReload.Enable,
 								},
 							]}
 						/>
 					</SettingRow>
-					<SettingRow label={"Blur"}>
+					<SettingRow label={textData.Others.blur}>
 						<Slider
 							defaultValue={[blur * 50]}
 							max={100}
@@ -354,13 +346,6 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								// document.documentElement.style.fontSize = 16 * Math.pow(2,e[0]/50) + "px";
 								setBlur(e[0] / 50);
 							}}
-							onValueCommit={(e) => {
-								// setSettings((prev) => {
-								// 	prev.global.display.bgOpacity = e[0] / 100;
-								// 	return { ...prev };
-								// });
-								// saveConfigs();
-							}}
 						/>
 					</SettingRow>
 				</>
@@ -368,7 +353,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 		},
 		{
 			key: "local",
-			label: "Local",
+			label: textData.Others.local,
 			icon: HardDriveIcon,
 			content: (
 				<>
@@ -423,17 +408,17 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: XIcon,
-									label: "Off",
+									label:textData._LeftSideBar._components._Settings._AutoReload.Disable,
 								},
 								{
 									value: "1",
 									icon: CheckIcon,
-									label: "On",
+									label: textData._LeftSideBar._components._Settings._AutoReload.Enable,
 								},
 							]}
 						/>
 					</SettingRow>
-					<SettingRow label={"Backup INIs before Updates"}>
+					<SettingRow label={textData.Others.backupInis}>
 						<SettingTabs
 							defaultValue={backupIni ? "1" : "0"}
 							onValueChange={(e) => {
@@ -443,12 +428,12 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 								{
 									value: "0",
 									icon: XIcon,
-									label: "Off",
+									label: textData._LeftSideBar._components._Settings._AutoReload.Disable,
 								},
 								{
 									value: "1",
 									icon: CheckIcon,
-									label: "On",
+									label: textData._LeftSideBar._components._Settings._AutoReload.Enable,
 								},
 							]}
 						/>
@@ -458,11 +443,11 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 		},
 		{
 			key: "online",
-			label: "Online",
+			label: textData.Others.online,
 			icon: Globe2,
 			content: (
 				<>
-					<SettingRow label={"Concurrent Downloads"}>
+					<SettingRow label={textData.Others.concDLs}>
 						<div className="flex items-center w-full gap-3">
 							<Slider
 								value={[settings.global.maxConcurrentDownloads || 1]}
@@ -742,7 +727,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 						presets.map((preset, index) => (
 							<SettingRow key={`${preset?.name}-${index}`} label={preset?.name}>
 								<Input
-									defaultValue={formatHotkeyDisplay(preset?.hotkey || "")}
+									defaultValue={formatKeysToDisplay(preset?.hotkey || "").split(" ﹢ ").map((x) => x.split("").map((x,i) => (i == 0 ? x.toUpperCase() : x)).join("")).join(" ﹢ ")}
 									autoFocus={false}
 									contentEditable={false}
 									onKeyDownCapture={(e) => {
@@ -751,12 +736,12 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											e.currentTarget.value = "";
 											saveConfigs();
 										} else if (e.code == "Escape") {
-											e.currentTarget.value = formatHotkeyDisplay(preset?.hotkey || "");
+											e.currentTarget.value = formatKeysToDisplay(preset?.hotkey || "");
 											keysdown = [];
 											keys = [];
 										} else {
 											let next: any = [];
-											let key = processHotkeyCode(e.code)
+											let key = formatKeysToDisplay(e.code)
 												.split("")
 												.map((x, i) => (i == 0 ? x.toUpperCase() : x))
 												.join("");
@@ -765,7 +750,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 											} else {
 												if (!keysdown.includes(e.code)) keysdown.push(e.code);
 												keys.push(key);
-												next = keySort(keys);
+												next = sortHotkeys(keys);
 											}
 											e.currentTarget.value = next.join(" ﹢ ");
 										}
@@ -804,7 +789,7 @@ function Settings({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 		},
 		{
 			key: "misc",
-			label: "Misc",
+			label: textData.Others.misc,
 			icon: Settings2Icon,
 			content: (
 				<>

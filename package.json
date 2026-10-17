@@ -1,7 +1,7 @@
 {
 	"name": "integrated-mod-manager",
 	"private": true,
-	"version": "3.1.1",
+	"version": "4.0.0",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -53,6 +53,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
+		"dompurify": "^3.4.11",
 		"embla-carousel-autoplay": "^8.6.0",
 		"embla-carousel-react": "^8.6.0",
 		"jotai": "^2.17.1",

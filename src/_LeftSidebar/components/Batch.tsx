@@ -23,7 +23,7 @@ import { setCategories } from "@/utils/init";
 import { CATEGORIES, MOD_LIST, SETTINGS, SOURCE, TARGET, TEXT_DATA } from "@/utils/vars";
 import { remove, rename } from "@/utils/fs";
 import { openPath } from "@tauri-apps/plugin-opener";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
 	CheckIcon,
 	ChevronRightIcon,
@@ -120,8 +120,7 @@ function BatchOperations({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 	const [refresh, setRefresh] = useState(0);
 	const [alertOpen, setAlertOpen] = useState(false);
 	const [popoverOpen, setPopoverOpen] = useState(false);
-	const [settings, setSettings] = useAtom(SETTINGS);
-	const customCategories = settings.game.customCategories || ({} as any);
+	const  setSettings = useSetAtom(SETTINGS);
 	const textData = useAtomValue(TEXT_DATA);
 	const [treeData, setTreeData] = useState<BatchNode[]>([]);
 	const [expanded, setExpanded] = useState<Set<string>>(new Set());

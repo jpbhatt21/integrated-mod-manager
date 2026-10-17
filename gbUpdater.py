@@ -48,16 +48,16 @@ def main():
     
     # Changes (text + category pairs)
     changes = []
-    print("\n--- Reading changes from LIST.md ---")
+    print("\n--- Reading changes from Notes.md ---")
     print(f"Categories: {', '.join(categories)}")
     print("(Use abbreviations like 'add', 'rem', 'bug', etc.)\n")
     
-    # Read changes from LIST.md
+    # Read changes from Notes.md
     try:
-        with open("LIST.md", "r", encoding="utf-8") as f:
-            change_lines = [line.strip() for line in f.readlines() if line.strip()]
+        with open("Notes.md", "r", encoding="utf-8") as f:
+            change_lines = list(filter(lambda x: not x.startswith("#"), [line.strip().replace("* ","") for line in f.readlines() if line.strip()]))
     except FileNotFoundError:
-        print("LIST.md not found. Please create it with your changes.")
+        print("Notes.md not found. Please create it with your changes.")
         return
     
     for text in change_lines:

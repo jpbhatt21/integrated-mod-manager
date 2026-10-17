@@ -2,18 +2,20 @@ import { Button } from "@/components/ui/button";
 import { DialogContent } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { savePreviewImageFromData } from "@/utils/filesys";
+import { TEXT_DATA } from "@/utils/vars";
+import { useAtomValue } from "jotai";
 import { UploadIcon } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 function ModPreview({
 	item,
 	setDialogType,
-	isBlank,
 }: {
 	item: any;
 	setDialogType: (type: string) => void;
 	isBlank: boolean;
 }) {
+	const textData = useAtomValue(TEXT_DATA);
 	const onDrop = useCallback(
 		async (acceptedFiles: File[]) => {
 			if (acceptedFiles.length == 0) return;
@@ -83,7 +85,7 @@ function ModPreview({
 				<TooltipContent className="opacity-0"></TooltipContent>
 			</Tooltip>
 
-			<div className="min-h-fit text-accent mb-4 text-3xl">Set Preview Image</div>
+			<div className="min-h-fit text-accent mb-4 text-3xl">{textData.Others.setPreview}</div>
 
 			<div
 				{...getRootProps({
@@ -94,7 +96,7 @@ function ModPreview({
 			>
 				<input {...getInputProps()} ref={inputRef} />
 				{isDragActive ? (
-					<p className="text-accent">Drop the image here...</p>
+					<p className="text-accent">{textData.Others.dropImage}</p>
 				) : (
 					<div className="w-full h-full flex items-center justify-center text-accent/50">
 						<div className="w-1/2 h-full flex flex-col items-center justify-center text-sm gap-4">
@@ -106,14 +108,14 @@ function ModPreview({
 								}}
 								type="button"
 							>
-								Select File
+							{textData._RightSideBar._components._ModPreferences.Select}
 							</Button>
 							<label className="text-xs text-gray-400">OR</label>
-							<label className="text-accent">Paste Image/URL from clipboard</label>
+							<label className="text-accent">{textData.Others.pasteImage}</label>
 						</div>
 						<div className="w-1/2 border-l h-full flex flex-col gap-2 items-center justify-center">
 							<UploadIcon className="w-6 h-6" />
-							<label className="text-sm text-accent text-center">Drag and Drop Here</label>
+							<label className="text-sm text-accent text-center">{textData.Others.dragImage}</label>
 						</div>
 					</div>
 				)}

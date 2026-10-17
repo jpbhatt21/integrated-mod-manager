@@ -23,12 +23,12 @@ export function iniPath(...parts: string[]) {
 	result = result.startsWith("\\") ? result.slice(1) : result;
 	return result;
 }
-export function updateIni(tgt: string, foreground = 0) {
+export async function updateIni(tgt: string, foreground = 0) {
 	tgt = tgt.split(/[/\\]/).slice(0, -1).join("\\");
 	const target = join(tgt, "d3dx.ini");
-	exists(target).then((res) => {
-		if (!res) return;
-		readTextFile(target).then((data) => {
+	if (!(await exists(target))) return;
+	try {
+		const data = await readTextFile(target);
 			let modified = false;
 			const lines = data.split("\n").map((line) => {
 				const trimmed = line.trim();
@@ -38,11 +38,10 @@ export function updateIni(tgt: string, foreground = 0) {
 				}
 				return line;
 			});
-			if (modified) {
-				writeTextFile(target, lines.join("\n"));
-			}
-		});
-	});
+			if (modified) await writeTextFile(target, lines.join("\n"));
+	} catch (error) {
+		console.error("[IMM] Failed to update hotreload INI:", error);
+	}
 }
 export async function setHotreload(enabled: 0 | 1 | 2, game: string, target: string): Promise<void> {
 	try {

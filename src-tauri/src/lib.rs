@@ -285,6 +285,8 @@ async fn decompress_file(
             file_path,
             &format!("-o{}", save_path),
             "-y",
+            // Never allow 7-Zip to wait for an interactive password prompt.
+            "-p-",
         ])
         .output()
         .await
@@ -293,12 +295,20 @@ async fn decompress_file(
     if output.status.success() {
         Ok(())
     } else {
-        let err = String::from_utf8_lossy(&output.stderr);
-        Err(if err.is_empty() {
-            String::from_utf8_lossy(&output.stdout).to_string()
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let details = format!("{}\n{}", stderr, stdout).to_lowercase();
+        if details.contains("password")
+            || details.contains("enter password")
+            || details.contains("wrong password")
+            || details.contains("encrypted")
+            || details.contains("can not open encrypted archive")
+            || details.contains("cannot open encrypted archive")
+        {
+            Err("Failure: Password protected archive".to_string())
         } else {
-            err.to_string()
-        })
+            Err(if stderr.trim().is_empty() { stdout.to_string() } else { stderr.to_string() })
+        }
     }
 }
 
@@ -844,6 +854,21 @@ async fn set_window_icon(app_handle: tauri::AppHandle, game: String) -> Result<(
     Ok(())
 }
 
+#[tauri::command]
+async fn get_platform(_app: tauri::AppHandle) -> Result<String, String> {
+    println!("Detected platform: {:?}", tauri::utils::platform::bundle_type());    
+    Ok(std::env::consts::OS.to_string())
+}
+#[tauri::command]
+async fn get_target(_app: tauri::AppHandle) -> Result<String, String> {
+    let res = tauri::utils::platform::bundle_type();
+    if let Some(bundle_type) = res {
+        Ok(format!("{:?}", bundle_type))
+    } else {
+        Ok("Unknown".to_string())
+    }
+}
+
 use tauri_plugin_window_state::{Builder, StateFlags};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -867,7 +892,6 @@ pub fn run() {
         )
         .plugin(
             Builder::default()
-                // sets the flags to only track and restore size
                 .with_state_flags(StateFlags::all().difference(StateFlags::DECORATIONS))
                 .build(),
         )
@@ -960,6 +984,8 @@ pub fn run() {
             create_symlink,
             extract_archive,
             set_window_icon,
+            get_platform,
+            get_target,
             logger_utils::open_logs_folder,
             hotreload::set_hotreload,
             hotreload::start_window_monitoring,

@@ -9,14 +9,13 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { GAME_NAMES, LANG_LIST } from "@/utils/consts";
 import { saveConfigs, setConfig } from "@/utils/filesys";
-import { encodeHotkeyForStorage, formatHotkeyDisplay, processHotkeyCode } from "@/utils/hotkeyUtils";
 import { join, setHotreload } from "@/utils/hotreload";
 import { getCwd, setPrePostLaunch, setWindowType } from "@/utils/init";
 import { readTextFile } from "@/utils/fs";
 import { toFs } from "@/utils/pathsep";
 import TEXT from "@/textData.json";
-import { exportConfig, keySort } from "@/utils/utils";
-import { INIT_DONE, PRESETS, SAVED_LANG, SETTINGS, SOURCE, store, TARGET, TEXT_DATA, XXMI_MODE } from "@/utils/vars";
+import { exportConfig } from "@/utils/utils";
+import { INIT_DONE, SAVED_LANG, SETTINGS, SOURCE, store, TARGET, TEXT_DATA, XXMI_MODE } from "@/utils/vars";
 import { Separator } from "@radix-ui/react-separator";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAtom, useAtomValue } from "jotai";
@@ -47,11 +46,8 @@ import {
 	UploadIcon,
 	XIcon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import { ComponentType, ReactNode, useRef, useState } from "react";
 let bg: HTMLBodyElement | null = null;
-let keys = [] as any[];
-let keysdown = [] as any[];
 
 function SettingSection(sec: {
 	id: string;
@@ -136,7 +132,6 @@ function SettingsSlideover({ leftSidebarOpen }: { leftSidebarOpen: boolean }) {
 	const [settings, setSettings] = useAtom(SETTINGS);
 	const scrollTimer = useRef<number>(null);
 	const [alertOpen, setAlertOpen] = useState(false);
-	const [globalPage, setGlobalPage] = useState(true);
 	const [langAlertData, setLangAlertData] = useState({ prev: "en", new: "en" } as {
 		prev: keyof typeof TEXT;
 		new: keyof typeof TEXT;

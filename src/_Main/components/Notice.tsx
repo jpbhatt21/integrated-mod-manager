@@ -56,8 +56,10 @@ function Notice() {
 			</AlertDialogTrigger>
 			<AlertDialogContent>
 				<div className="max-w-96 flex flex-col items-center gap-6 mt-6 text-center">
-					<div className="text-xl text-gray-200">{notice.heading}</div>
-					<div className="text-destructive">{notice.subheading}</div>
+					<div className="text-xl text-accent">{notice.heading}</div>
+					<div className={["text-destructive","text-warn"][notice.ignoreable] || "text-foreground/80"}>
+						{notice.subheading}
+					</div>
 				</div>
 				<div className="flex justify-between w-full gap-4 mt-4">
 					<Button

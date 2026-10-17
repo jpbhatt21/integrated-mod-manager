@@ -144,12 +144,14 @@ export function resetAtoms() {
 	);
 }
 const ERR = atom("");
+const DATA_PATH = atom(null as string | null);
 export {
 	OPTIMIZED,
 	DEV_HIDE_PREVIEWS,
 	CONFLICTS,
 	FILE_TO_DL,
 	ERR,
+	DATA_PATH,
 	XXMI_DIR,
 	XXMI_MODE,
 	FIRST_LOAD,

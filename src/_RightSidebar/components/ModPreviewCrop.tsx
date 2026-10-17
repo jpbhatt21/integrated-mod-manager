@@ -21,7 +21,6 @@ function ModPreviewCrop({ item, setDialogType }: { item: any, setDialogType: (ty
 	const [aspect, setAspect] = useState(1);
 	const [disabled, setDisabled] = useState(false);
 	useEffect(() => {
-		console.log(setDialogType)
 		setMouseDown(false);
 		setOffset({ x: (item?.crop?.x || 0) * 1.5, y: (item?.crop?.y || 0) * 1.5 });
 		setScale(item?.crop?.scale || 1);

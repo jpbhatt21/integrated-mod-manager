@@ -13,10 +13,9 @@ function Decorations() {
 	const [rightSidebarOpen, setRightSidebarOpen] = useAtom(RIGHT_SIDEBAR_OPEN);
 	const [rightSlideOverOpen, setRightSlideOverOpen] = useAtom(RIGHT_SLIDEOVER_OPEN);
 	const online = useAtomValue(ONLINE);
-	const initDone = useAtomValue(INIT_DONE)
+	const initDone = useAtomValue(INIT_DONE);
 	return (
-		
-			<div
+		<div
 			data-tauri-drag-region
 			className="game-font pointer-events-auto z-2000 bg-sidebar fixed top-0 left-0 right-0 flex items-center w-screen h-8 border-b select-none"
 		>
@@ -27,8 +26,7 @@ function Decorations() {
 						minWidth: leftSidebarOpen ? "20.75rem" : "3.75rem",
 						justifyContent: leftSidebarOpen ? "" : "center",
 					}}
-				>
-				</div>
+				></div>
 				<Button
 					onClick={(e) => {
 						e.stopPropagation();
@@ -51,10 +49,13 @@ function Decorations() {
 				</Button>
 				<div className="flex items-center justify-between w-full h-full overflow-hidden">
 					<div className="min-w-16 h-1"></div>
-					<div style={{
-						marginLeft: rightSidebarOpen?"":"6.5rem"
-					}} className="flex items-center justify-center h-full gap-1">
-						<Updater/>
+					<div
+						style={{
+							marginLeft: rightSidebarOpen ? "" : "6.5rem",
+						}}
+						className="flex items-center justify-center h-full gap-1"
+					>
+						<Updater />
 					</div>
 
 					{initDone ? <Help /> : <div></div>}
@@ -88,7 +89,16 @@ function Decorations() {
 				</div>
 			</div>
 			<div className="flex gap-1 z-200 pointer-events-auto px-1">
-				<Button onClick={() => appWindow.minimize()} variant="warn" className="w-4 h-4">
+				<Button
+					onClick={() => {
+						appWindow.isMaximized().then((isMaximized) => {
+							sessionStorage.setItem("isMaximized", isMaximized ? "true" : "false");
+							
+						}).finally(()=>{appWindow.minimize();})
+					}}
+					variant="warn"
+					className="w-4 h-4"
+				>
 					<MinusIcon className="max-h-3" />
 				</Button>
 				<Button onClick={() => appWindow.toggleMaximize()} variant="success" className="w-4 h-4">

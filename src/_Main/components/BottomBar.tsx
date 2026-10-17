@@ -21,7 +21,7 @@ function BottomBar() {
 		return online
 			? categories.filter((_, index) =>
 					["Weapons", "Bows", "Catalysts", "Claymores", "Polearms", "Swords"].includes(
-						onlinePath.split("&")[0].split("/").pop() as string
+						onlinePath.split("&_")[0].split("/").pop() as string
 					)
 						? index >= categories.findIndex((c) => c._sName == "Bows") &&
 							index <= categories.findIndex((c) => c._sName == "Swords")
@@ -35,6 +35,7 @@ function BottomBar() {
 					...categories.filter((cat) => modList.some((mod) => mod.parent == cat._sName)),
 				];
 	}, [categories, modList, online, onlinePath]);
+	console.log(onlinePath)
 	return (
 		<div
 			className="min-h-20 duration-200 flex items-center justify-center w-full h-20 p-2"
@@ -78,7 +79,7 @@ function BottomBar() {
 											if (cat._special) {
 												return;
 											}
-											if (onlinePath.startsWith("Skins/" + cat._sName)) {
+											if (onlinePath.split("&_").shift() === `Skins/${cat._sName}`) {
 												setOnlinePath("home&_type=" + onlineType);
 												return;
 											}
@@ -110,7 +111,7 @@ function BottomBar() {
 										" data-zzz:rounded-lg " +
 										((
 											online
-												? onlinePath.startsWith(`Skins/${cat._sName}`)
+												? onlinePath.split("&_").shift() === `Skins/${cat._sName}`
 												: (cat._sName == "All" && category.size == 0) || category.has(cat._sName)
 										)
 											? " bg-accent bgaccent    text-background"

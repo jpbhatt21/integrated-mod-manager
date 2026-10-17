@@ -19,7 +19,7 @@ import { AnimatePresence, motion } from "motion/react";
 import CardLocal from "./components/CardLocal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preventContextMenu } from "@/utils/utils";
-import { getModDetails, toggleMod } from "@/utils/filesys";
+import { toggleMod } from "@/utils/filesys";
 import MiniSearch from "minisearch";
 import { join, setChange } from "@/utils/hotreload";
 import { toFs } from "@/utils/pathsep";

@@ -82,24 +82,24 @@ function MainOnline() {
 			pageCount[onlinePath] =
 				pageCount[onlinePath] ||
 				Math.max(1, Math.ceil((((onlineData[onlinePath] as OnlineMod[]) || []).length || 15) / 15));
-			pageCount[onlinePath]++;
-
-			if (maxRef.current > 0 && pageCount[onlinePath] - 1 > maxRef.current) {
+			const nextPageNumber = pageCount[onlinePath] + 1;
+			if (maxRef.current > 0 && nextPageNumber - 1 > maxRef.current) {
 				loadingRef.current = false;
 				return;
 			}
-			prevLoadedRef.current = (pageCount[onlinePath] - 1) * 15;
+			prevLoadedRef.current = (nextPageNumber - 1) * 15;
 			try {
 				if (onlinePath.startsWith("home")) {
-					await nextPage(apiClient.home({ page: pageCount[onlinePath], type: onlineType }), onlinePath);
+					await nextPage(apiClient.home({ page: nextPageNumber, type: onlineType }), onlinePath);
 				} else if (onlinePath.startsWith("Skins") || onlinePath.startsWith("Other") || onlinePath.startsWith("UI")) {
 					let cat = onlinePath.split("&_sort=")[0];
-					await nextPage(apiClient.category({ cat, sort: onlineSort, page: pageCount[onlinePath] }), onlinePath);
+					await nextPage(apiClient.category({ cat, sort: onlineSort, page: nextPageNumber }), onlinePath);
 				} else if (onlinePath.startsWith("search/")) {
 					let term = onlinePath.replace("search/", "").split("&_type=")[0];
 					if (term.trim().length == 0) return;
-					await nextPage(apiClient.search({ term, type: onlineType, page: pageCount[onlinePath] }), onlinePath);
+					await nextPage(apiClient.search({ term, type: onlineType, page: nextPageNumber }), onlinePath);
 				}
+				pageCount[onlinePath] = nextPageNumber;
 				setLoadError("");
 			} catch (err) {
 				error("[IMM] Failed to load next online page:", err);

@@ -5,7 +5,6 @@ import {
 	BLUR,
 	CHANGES,
 	DATA,
-	DEV_HIDE_PREVIEWS,
 	ERR,
 	GAME,
 	INIT_DONE,
@@ -26,7 +25,7 @@ import Checklist from "./_Checklist/Checklist";
 import { initializeThemes } from "./utils/theme";
 import Changes from "./_Changes/Changes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getModDetails, refreshModList, saveConfigs } from "./utils/filesys";
+import { refreshModList, saveConfigs } from "./utils/filesys";
 import { SidebarProvider } from "./components/ui/sidebar";
 import LeftSidebar from "./_LeftSidebar/Left";
 import Main from "./_Main/Main";
@@ -37,7 +36,17 @@ import ToastProvider from "./_Toaster/ToastProvider";
 import Progress from "./_Progress/Progress";
 import { Mod, ModData } from "./utils/types";
 import Optimizing from "./_Optimizing/Optimizing";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogTitle,
+} from "./components/ui/alert-dialog";
 import { OPTIMIZE_TARGET } from "./utils/consts";
+import { scaleHandler } from "./utils/ResizeHandles";
 // import { Button } from "./components/ui/button";
 const animateProps = {
 	initial: { opacity: 0, filter: "blur(6px)" },
@@ -45,6 +54,14 @@ const animateProps = {
 	exit: { opacity: 0, filter: "blur(6px)" },
 };
 function App() {
+	const [switchConfirm, setSwitchConfirm] = useState<{ message: string; resolve: (value: boolean) => void } | null>(
+		null
+	);
+	useEffect(() => {
+		const handler = (event: Event) => setSwitchConfirm((event as CustomEvent).detail);
+		window.addEventListener("download-switch-confirm", handler);
+		return () => window.removeEventListener("download-switch-confirm", handler);
+	}, []);
 	const initDone = useAtomValue(INIT_DONE);
 	const lang = useAtomValue(LANG);
 	const err = useAtomValue(ERR);
@@ -115,7 +132,7 @@ function App() {
 				newData[key] = val;
 			});
 			setData(newData);
-			setIsOptimizing(true);
+			if (modList.length > 0) setIsOptimizing(true);
 		}
 		setModList(modList);
 		return Promise.resolve();
@@ -132,7 +149,9 @@ function App() {
 		}
 	}, [err]);
 	useEffect(() => {
-		if (scale) document.documentElement.style.fontSize = 16 * Math.pow(2, scale / 50) + "px";
+		if (scale) {
+			scaleHandler(scale);
+		}
 		if (typeof blur === "number") {
 			document.documentElement.style.setProperty("--blur-xs", `${4 * blur}px`);
 			document.documentElement.style.setProperty("--blur-sm", `${8 * blur}px`);
@@ -264,6 +283,32 @@ function App() {
 				{isOptimizing && <Optimizing setIsOptimizing={setIsOptimizing} animateProps={animateProps} />}
 			</AnimatePresence>
 			<ToastProvider />
+			<AlertDialog
+				open={!!switchConfirm}
+				onOpenChange={(open) => {
+					if (!open && switchConfirm) {
+						switchConfirm.resolve(false);
+						setSwitchConfirm(null);
+					}
+				}}
+			>
+				<AlertDialogContent>
+					<AlertDialogTitle>Cancel Downloads?</AlertDialogTitle>
+					<AlertDialogDescription className="whitespace-pre-line">{switchConfirm?.message}</AlertDialogDescription>
+					<AlertDialogFooter className="sm:flex-row sm:justify-evenly w-full">
+						<AlertDialogCancel variant="warn">Keep Downloading</AlertDialogCancel>
+						<AlertDialogAction
+							variant="destructive"
+							onClick={() => {
+								switchConfirm?.resolve(true);
+								setSwitchConfirm(null);
+							}}
+						>
+							Cancel Downloads
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</div>
 	);
 }

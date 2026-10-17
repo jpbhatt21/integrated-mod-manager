@@ -39,3 +39,23 @@ export const copyFile = (fromPath: string, toPath: string, options?: fs.CopyFile
 
 export const writeFile = (path: string, data: Uint8Array, options?: fs.WriteFileOptions) =>
 	fs.writeFile(toFs(path), data, options);
+
+export async function atomicWriteTextFile(path: string, data: string): Promise<void> {
+	const suffix = `${Date.now()}-${crypto.randomUUID()}`;
+	const temporary = `${path}.tmp-${suffix}`;
+	const previous = `${path}.previous-${suffix}`;
+	const hadOriginal = await exists(path);
+
+	await writeTextFile(temporary, data);
+	try {
+		if (hadOriginal) await rename(path, previous);
+		await rename(temporary, path);
+		if (hadOriginal) await remove(previous);
+	} catch (error) {
+		if (await exists(temporary)) await remove(temporary).catch(() => undefined);
+		if (hadOriginal && (await exists(previous)) && !(await exists(path))) {
+			await rename(previous, path).catch(() => undefined);
+		}
+		throw error;
+	}
+}

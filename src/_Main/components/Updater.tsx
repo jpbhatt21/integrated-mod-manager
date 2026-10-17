@@ -4,15 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { BANANA_LINK, DISCORD_LINK, VERSION } from "@/utils/consts";
 import { getTimeDifference, isOlderThanOneDay } from "@/utils/utils";
-import { IMM_UPDATE, SETTINGS, TEXT_DATA, UPDATER_OPEN } from "@/utils/vars";
+import { DATA_PATH, IMM_UPDATE, SETTINGS, TEXT_DATA, UPDATER_OPEN } from "@/utils/vars";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAtom, useAtomValue } from "jotai";
 import { CircleAlert, DownloadIcon, Loader2Icon, UploadIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { saveConfigs } from "@/utils/filesys";
 import Credits from "./Credits";
-import { getVersion } from '@tauri-apps/api/app';
-
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 let prev = 0;
 let counter = 3000;
@@ -26,11 +25,8 @@ function Updater() {
 	const [updaterOpen, setUpdaterOpen] = useAtom(UPDATER_OPEN);
 	const [settings, setSettings] = useAtom(SETTINGS);
 	const preReleases = settings.global.preReleases;
-	const [buildVersion, setBuildVersion] = useState("---");
+	const dataPath = useAtomValue(DATA_PATH);
 	useEffect(() => {
-		getVersion().then((version) => {
-			setBuildVersion(version);
-		});
 		let interval: ReturnType<typeof setInterval>;
 		if (update?.status === "ready" && counter == 3000)
 			interval = setInterval(() => {
@@ -41,11 +37,13 @@ function Updater() {
 					);
 				counter--;
 				if (counter < 0) {
-					update.raw?.install();
+					if (dataPath) confirm("Update complete. The app will close now. Please reopen it to complete the update.");
+					update.raw?.install().then(() => {
+						if (dataPath) getCurrentWindow().destroy();
+					});
 					clearInterval(interval);
 				}
 			}, 100);
-			
 	}, [update, ref3]);
 	let maj = [];
 	let min = [];
@@ -61,10 +59,7 @@ function Updater() {
 	return (
 		<Dialog open={updaterOpen} onOpenChange={setUpdaterOpen}>
 			<DialogTrigger asChild>
-				<Button
-					disabled={updaterOpen}
-					className="bg-sidebar flex h-6 p-0 overflow-hidden text-xs pointer-events-auto"
-				>
+				<Button disabled={updaterOpen} className="bg-sidebar flex h-6 p-0 overflow-hidden text-xs pointer-events-auto">
 					<img src="IMMDecor.png" className="h-6.5 shrink-0 object-contain p-2 pr-0" />
 					{update && update.status !== "ignored" ? (
 						{
@@ -132,9 +127,11 @@ function Updater() {
 			</DialogTrigger>
 			<DialogContent className="game-font">
 				<div className="min-h-fit text-accent mt-6 text-3xl">{textData._Main._components._Updater.Updater}</div>
-				<div className="min-h-fit text-muted-foreground -mt-4">v{VERSION} ({import.meta.env.VITE_BUILD_ID})</div>
 				<div className="min-h-fit text-muted-foreground -mt-4">
-					<Credits/>
+					v{VERSION} ({import.meta.env.VITE_BUILD_ID})
+				</div>
+				<div className="min-h-fit text-muted-foreground -mt-4">
+					<Credits />
 				</div>
 				<div className="flex flex-col items-center justify-center w-full -mt-4 mb-6">
 					<div className=" flex items-center gap-2">
@@ -270,7 +267,11 @@ function Updater() {
 										}
 									});
 								} else if (counter > 0) {
-									update.raw?.install();
+									if (dataPath)
+										confirm("Update complete. The app will close now. Please reopen it to complete the update.");
+									update.raw?.install().then(() => {
+										if (dataPath) getCurrentWindow().destroy();
+									});
 								}
 							}}
 						>

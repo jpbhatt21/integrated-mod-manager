@@ -1,6 +1,7 @@
 import {
 	CATEGORIES,
 	DATA,
+	DATA_PATH,
 	ERR,
 	FIRST_LOAD,
 	GAME,
@@ -13,7 +14,6 @@ import {
 	PRESETS,
 	resetAtoms,
 	SAVED_LANG,
-	SCALE,
 	SETTINGS,
 	SOURCE,
 	store,
@@ -30,7 +30,7 @@ import { path } from "@tauri-apps/api";
 import { invoke } from "@tauri-apps/api/core";
 // import { currentMonitor, PhysicalSize } from "@tauri-apps/api/window";
 import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
-import { exists, mkdir, readTextFile, remove, writeTextFile } from "./fs";
+import { atomicWriteTextFile, exists, mkdir, readTextFile, remove, writeTextFile } from "./fs";
 import defConfig from "../default.json";
 import defConfigXX from "../defaultXX.json";
 import { apiClient } from "./api";
@@ -43,11 +43,12 @@ import { toInternal, toFs } from "./pathsep";
 import { registerGlobalHotkeys } from "./hotkeyUtils";
 import TEXT from "@/textData.json";
 import { unregisterAll } from "@tauri-apps/plugin-global-shortcut";
-import { isOlderThanOneDay, safeLoadJson, setImageServer } from "./utils";
+import { isOlderThanOneDay, safeLoadJson, sanitizeFileName, setImageServer } from "./utils";
 import { addToast } from "@/_Toaster/ToastProvider";
 import { Category, Games, Preset, Settings } from "./types";
 import { resetPageCounts } from "@/_Main/MainOnline";
 import { info } from "@/lib/logger";
+import { isVersionAtLeast, isVersionOlderThan } from "./semver";
 // import { v2_0_4_migration } from "./filesys";
 let paths = {
 	"": "",
@@ -67,7 +68,8 @@ let isInPrePostLaunch = {
 	EF: false,
 	"": false,
 };
-
+let target = "unknown";
+let platform = "windows";
 export function getPaths() {
 	return paths;
 }
@@ -166,35 +168,59 @@ export const window = getCurrentWebviewWindow();
 export function changeWindowTitle(title: string) {
 	window.setTitle(title);
 }
+export async function focusWindow() {
+	try {
+		if (window) {
+			const isMinimized = await window.isMinimized();
+			const maximized = sessionStorage.getItem("isMaximized") === "true";
+			if (isMinimized) {
+				await window.maximize();
+				if (!maximized) await window.unmaximize();
+			}
+			await window.setAlwaysOnTop(true);
+			await window.setAlwaysOnTop(false);
+			await window.setFocus();
+		}
+	} catch (e) {
+		console.log("[IMM] Failed to focus window:", e);
+	}
+}
 export async function setWindowType(type: number) {
 	if (type == 0) {
-		// if (await window.isMaximized())
 		window.unmaximize();
-		// window.setFullscreen(false);
-		// window.setDecorations(true);
-		// currentMonitor().then((x) => {
-		// 	if (x?.size) window.setSize(new PhysicalSize(x.size.width * 0.8, x.size.height * 0.8));
-		// });
 	} else if (type == 1) {
 		window.unmaximize();
-		// window.setFullscreen(false);
-		// window.setDecorations(false);
-		// currentMonitor().then((x) => {
-		// 	if (x?.size) window.setSize(new PhysicalSize(x.size.width * 0.8, x.size.height * 0.8));
-		// });
 	} else if (type == 2) {
 		window.maximize();
-		// window.setFullscreen(true);
 	}
 }
 invoke<string>("get_image_server_url").then((url) => {
 	setImageServer(url + "/preview");
 });
+export async function setDataPath() {
+	try {
+		const res: string = await invoke("get_platform");
+		if (res == "linux") {
+			platform = "linux";
+			target = await invoke("get_target");
+			if(typeof target !== "string") target = "unknown";
+			else target = target.toLowerCase();
+			console.log("[IMM] Platform:", platform, "Target:", target);
+			const dataDir = await path.appDataDir();
+			if (!(await exists(dataDir))) {
+				await mkdir(dataDir, { recursive: true });
+			}
+			store.set(DATA_PATH, dataDir);
+		} else store.set(DATA_PATH, "");
+	} catch (e) {
+		store.set(DATA_PATH, "");
+	}
+}
 export async function updateConfig(oconfig = null as any) {
 	if (!oconfig) oconfig = JSON.parse(await readTextFile("config.json"));
 	info("[IMM] Updating config from:", oconfig);
-	if (oconfig.version >= "3.1.1") return oconfig;
-	else if (oconfig.version >= "2.1.0") {
+	if (isVersionAtLeast(oconfig.version, "3.1.1")) return oconfig;
+	else if (isVersionAtLeast(oconfig.version, "2.1.0")) {
 		let config = { ...oconfig, version: VERSION };
 		try {
 			config = {
@@ -330,7 +356,7 @@ export async function initGame(game: Games, status = true) {
 	const normalizedData = {} as any;
 	Object.keys(configXX.data || {}).forEach((key) => {
 		const normalizedKey = key.replace(/[/\\]+/g, "\\").replace(/^\\+/, "");
-		normalizedData[normalizedKey] = {...normalizedData[normalizedKey], ...(configXX.data as any)[key] };
+		normalizedData[normalizedKey] = { ...normalizedData[normalizedKey], ...(configXX.data as any)[key] };
 	});
 	configXX.data = normalizedData;
 
@@ -340,7 +366,7 @@ export async function initGame(game: Games, status = true) {
 	}));
 	configXX.presets = normalizedPresets;
 
-	writeTextFile(`config${game}.json`, JSON.stringify(configXX, null, 2));
+	await atomicWriteTextFile(`config${game}.json`, JSON.stringify(configXX, null, 2));
 	apiClient.setGame(game as any);
 	await setCategories(game, status);
 	invoke("set_window_icon", { game });
@@ -358,7 +384,7 @@ export async function initGame(game: Games, status = true) {
 	);
 	store.set(TYPES, apiClient.generic.types);
 	if (
-		(configXX.version && configXX.version < "3.1.0") ||
+		(configXX.version && isVersionOlderThan(configXX.version, "3.1.0")) ||
 		(configXX.updatedAt && configXX.updatedAt < "2026-02-24T13:30:00.000Z")
 	) {
 		Object.keys(configXX.data).forEach((key) => {
@@ -378,19 +404,6 @@ store.sub(SETTINGS, async () => {
 		configXX = { ...configXX, settings: { ...configXX.settings, ...settings.game } };
 	}
 	if (settings.global.game != store.get(GAME)) store.set(GAME, settings.global.game);
-	// const compare = {
-	// 	src: [settings.global.game, settings.global.lang],
-	// 	to: [GAME, LANG],
-	// 	names: ["game", "lang"],
-	// };
-	// for (let i = 0; i < compare.src.length; i++) {
-	// 	if (compare.src[i] !== store.get(compare.to[i])) {
-	// 		if (compare.names[i] === "lang" && compare.src[i])
-	// 			store.set(TEXT_DATA, TEXT[compare.src[i] as "en"] || TEXT["en"]);
-	// 		// else if (compare.names[i] === "game" && compare.src[i]) await initGame(compare.src[i]);
-	// 		store.set(compare.to[i] as any, compare.src[i]);
-	// 	}
-	// }
 });
 store.sub(SAVED_LANG, () => {
 	const lang = store.get(SAVED_LANG);
@@ -400,15 +413,17 @@ store.sub(SAVED_LANG, () => {
 	}
 });
 export async function setCategories(game = prevGame, status = true) {
+	console.log("[IMM] Waiting to setup data path");
+	while (store.get(DATA_PATH) == null) {
+		await new Promise((resolve) => setTimeout(resolve, 10));
+	}
 	info("[IMM] Setting categories...");
 
-	// await new Promise((resolve) => setTimeout(resolve, 10000));
 	if (!game) return;
 	prevGame = game;
 	try {
 		status && store.set(MAIN_FUNC_STATUS, "Fetching game categories from Gamebanana");
 		categories = await apiClient.categories();
-		//info("Fetched categories:", categories);
 		if (!categories || categories.length == 0) throw "No categories found, please verify the directories again";
 	} catch (e) {
 		status && store.set(MAIN_FUNC_STATUS, "Unable to reach Gamebanana");
@@ -418,9 +433,7 @@ export async function setCategories(game = prevGame, status = true) {
 				? configXX.categories
 				: [...apiClient.categoryList, ...apiClient.generic.categories];
 	} finally {
-		//info("Using categories:", categories,apiClient.categoryList,configXX.categories);
 		if (!categories || categories.length == 0) return;
-		// info("[IMM] Finalized categories:", categories);
 		const catObj: { [key: string]: Category } = {};
 		categories.forEach((cat) => {
 			catObj[cat._sName] = cat;
@@ -429,7 +442,11 @@ export async function setCategories(game = prevGame, status = true) {
 		for (let key of Object.keys(customCats)) {
 			catObj[key] = { ...catObj[key], _sName: key, ...customCats[key] };
 		}
-		categories = Object.values(catObj).map((cat) => ({ ...cat, _sIconUrl: cat._sIconUrl || "/who.jpg" }));
+		categories = Object.values(catObj).map((cat) => ({
+			...cat,
+			_sIconUrl: cat._sIconUrl || "/who.jpg",
+			_sName: sanitizeFileName(cat._sName),
+		}));
 		store.set(CATEGORIES, categories);
 	}
 }
@@ -468,12 +485,13 @@ export async function checkWWMM() {
 	}
 	return null;
 }
-export async function maintainBackups() {
+export async function maintainBackups(): Promise<boolean> {
 	info("[IMM] Maintaining backups...");
 	store.set(MAIN_FUNC_STATUS, "Maintaining backups");
 	const files = GAMES.map((g) => `config${g}.json`);
 	files.push("config.json");
-	mkdir("backups", { recursive: true });
+	await mkdir("backups", { recursive: true });
+	let recoverySucceeded = true;
 	const backupPath = "backups\\AUTO_";
 	for (const file of files) {
 		if (await exists(file)) {
@@ -489,7 +507,7 @@ export async function maintainBackups() {
 						) {
 							info(`[IMM] Creating backup for: ${file}...`);
 							try {
-								remove(backupPath + file + ".bak.bak");
+								await remove(backupPath + file + ".bak.bak");
 							} catch {}
 							await writeTextFile(backupPath + file + ".bak.bak", await readTextFile(backupPath + file + ".bak"));
 							await writeTextFile(backupPath + file + ".bak", JSON.stringify(data, null, 2));
@@ -503,6 +521,7 @@ export async function maintainBackups() {
 					await writeTextFile(backupPath + file + ".bak", JSON.stringify(data, null, 2));
 				}
 			} catch (e) {
+				console.log(e);
 				info(`[IMM] Detected corrupted config file: ${file}, restoring from backup...`);
 				store.set(MAIN_FUNC_STATUS, `Config file corrupted, restoring from backup`);
 				if (await exists(backupPath + file + ".bak")) {
@@ -527,6 +546,7 @@ export async function maintainBackups() {
 										backupPath + file + ".bak.bak"
 									}. Unable to proceed, please restore manually or press ESC x3 to reset IMM.`
 								);
+								recoverySucceeded = false;
 							}
 						} else {
 							store.set(
@@ -535,6 +555,7 @@ export async function maintainBackups() {
 									backupPath + file + ".bak"
 								}. Unable to proceed, please restore manually or press ESC x3 to reset IMM.`
 							);
+							recoverySucceeded = false;
 						}
 					}
 				} else {
@@ -543,10 +564,12 @@ export async function maintainBackups() {
 						ERR,
 						`Corrupted config file detected: ${file}. Unable to proceed, please restore manually or press ESC x3 to reset IMM.`
 					);
+					recoverySucceeded = false;
 				}
 			}
 		}
 	}
+	return recoverySucceeded;
 }
 let cwd = "";
 export function getCwd() {
@@ -556,20 +579,25 @@ export async function main(useGame = "" as Games) {
 	store.set(MAIN_FUNC_STATUS, "Initializing App");
 	isInitialized = false;
 	info("[IMM] Initializing application...");
-	invoke("get_username");
+	await invoke("get_username");
 	resetAtoms();
 	removeHelpers();
 	appData = toInternal(await path.dataDir());
-	cwd = join(await path.localDataDir(), "Integrated Mod Manager (IMM)");
+	if(store.get(DATA_PATH) && platform == "linux") 
+		cwd = store.get(DATA_PATH) || join(await path.localDataDir(), "Integrated Mod Manager (IMM)");
+	else
+		cwd = join(await path.localDataDir(), "Integrated Mod Manager (IMM)");
 	const XXMI = `${appData}\\XXMI Launcher`;
 	if (!(await exists("config.json"))) {
 		store.set(MAIN_FUNC_STATUS, "Creating default config.json");
 		info("[IMM] Creating default config.json...");
-		await writeTextFile("config.json", JSON.stringify(defConfig, null, 2));
+		await atomicWriteTextFile("config.json", JSON.stringify(defConfig, null, 2));
 	}
-	await maintainBackups();
+	if (!(await maintainBackups())) {
+		throw new Error("Configuration recovery failed. See the on-screen error for recovery instructions.");
+	}
 	config = safeLoadJson(defConfig, JSON.parse(await readTextFile("config.json")));
-	if (config.version < "2.2.0") {
+	if (isVersionOlderThan(config.version, "2.2.0")) {
 		config.chkModUpdates = true;
 		config.bgType = 1;
 	}
@@ -601,14 +629,14 @@ export async function main(useGame = "" as Games) {
 		sessionStorage.removeItem("imm-deep-link-game");
 	}
 	if (config.game) apiClient.setGame(config.game);
-	if (config.version < "2.1.0") {
+	if (isVersionOlderThan(config.version, "2.1.0")) {
 		config = await updateConfig();
 	}
-	if (config.version < "3.1.0") {
+	if (isVersionOlderThan(config.version, "3.1.0")) {
 		config = await updateConfig();
 	}
 	info("[IMM] Saving config...");
-	writeTextFile("config.json", JSON.stringify(config, null, 2));
+	await atomicWriteTextFile("config.json", JSON.stringify(config, null, 2));
 	await readXXMIConfig(config.XXMI || "");
 	store.set(MAIN_FUNC_STATUS, "Initializing game");
 	info("[IMM] Initializing game...");
@@ -625,13 +653,16 @@ export async function main(useGame = "" as Games) {
 		game: { ...prev.game, ...configXX.settings },
 	}));
 	initHelpers();
+	isInitialized = true;
+	store.set(MAIN_FUNC_STATUS, "fin");
 	let update: Update | null = null;
 	try {
 		const timeoutPromise = new Promise<never>((_, reject) =>
-			setTimeout(() => reject(new Error("Update check timeout")), 2000)
+			setTimeout(() => reject(new Error("Update check timeout")), 10000)
 		);
-		update = await Promise.race([check(), timeoutPromise]);
+		update = await Promise.race([check(platform == "linux" ? { target: platform + "-" + target } : {}), timeoutPromise]);
 	} catch (error) {
+		console.error("[IMM] Update check failed:", error);
 		update = null;
 	}
 	if (update) {
@@ -648,7 +679,10 @@ export async function main(useGame = "" as Games) {
 		const notice = parsedBody.notice || {};
 		const lastConfig = config.notice || 0;
 		let noticeOpen = false;
-		if (notice.id > 0 && notice.ver > VERSION) {
+		if (
+			(notice.id > 0 && notice.ver > VERSION) ||
+			((notice.id > lastConfig || notice.ignoreable === 0) && notice.ver == VERSION)
+		) {
 			store.set(NOTICE, (prev: any) => ({ ...prev, ...notice }));
 			if (notice.id !== lastConfig || notice.ignoreable == 0) {
 				noticeOpen = true;
@@ -676,6 +710,4 @@ export async function main(useGame = "" as Games) {
 			},
 		}));
 	}
-	isInitialized = true;
-	store.set(MAIN_FUNC_STATUS, "fin");
 }
