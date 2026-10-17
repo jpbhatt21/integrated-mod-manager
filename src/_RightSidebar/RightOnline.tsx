@@ -255,7 +255,7 @@ function RightOnline({ open }: { open: boolean }) {
 	}, [selected, loadingComments]);
 	const popoverContent = item?._aFiles?.map((file: any) => (
 		<Button
-			className="min-h-fit data-wuwa:p-2 flex items-center justify-center min-w-full gap-1 p-4 overflow-hidden"
+			className="h-auto min-h-fit data-wuwa:p-2 flex items-center justify-center min-w-full gap-1 p-4 overflow-hidden"
 			style={{
 				borderRadius: "0.25rem",
 			}}
