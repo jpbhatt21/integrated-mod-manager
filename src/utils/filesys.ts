@@ -1767,7 +1767,7 @@ export async function updateIniVars(relPath: string, keyVals: Record<string, { d
 	const [category, modName, ...rest] = relPath.split("\\");
 	const backupPath = join(modRoot, category, modName, INI_BACKUP, "default", ...rest);
 	if (!(await exists(backupPath))) {
-		await mkdir(join(...backupPath.split("\\").slice(0, -1)), { recursive: true });
+		await mkdir(parentDir(backupPath), { recursive: true });
 		await copyFile(path, backupPath);
 	}
 	const file = await readTextFile(path);
