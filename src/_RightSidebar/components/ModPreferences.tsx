@@ -235,7 +235,9 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 								const change = queuedIniChanges.find(
 									(queued) => updatedFiles.has(queued.file) && queued.file === k.file && queued.target === k.target
 								);
-								return change ? { ...k, default: change.value } : k;
+								if (!change) return k;
+								const { def, hk } = change.value;
+								return { ...k, default: def ?? k.default, key: hk ?? k.key };
 							}),
 						};
 					})
