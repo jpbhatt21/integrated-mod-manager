@@ -1165,17 +1165,17 @@ async function detectHotkeys(
 							[target, values] = line.split("=").map((part) => part.trim());
 							target = target?.slice(1) || "";
 							counter = 0;
-							if (!fileData.hasOwnProperty(target))
-								fileData[target] = {
-									...(globalVars[target] || {
-										target,
-										file: entry.path.split(/[/\\]/).slice(2).join("\\").toLowerCase(),
-										name: target,
-										namespace,
-										default: "",
-										pref: null,
-										reset: null,
-									}),
+							// [Constants] names were lowercased above, so look them up lowercased.
+							const id = target.toLowerCase();
+							if (!fileData.hasOwnProperty(id))
+								fileData[id] = {
+									target,
+									file: entry.path.split(/[/\\]/).slice(2).join("\\").toLowerCase(),
+									name: target,
+									namespace,
+									default: globalVars[id]?.default ?? "",
+									pref: null,
+									reset: null,
 									key,
 									type,
 									values:
@@ -1184,7 +1184,7 @@ async function detectHotkeys(
 											.map((v) => v.trim())
 											.filter((v) => v) || "",
 								};
-							delete globalVars[target];
+							delete globalVars[id];
 						}
 					}
 
@@ -1762,7 +1762,18 @@ async function updatePrefsIniFromData(modPath: string, oldPath = "") {
 	}
 }
 
+// Stored hotkey paths are lowercase, but Linux file names are case sensitive.
+async function realCasePath(relPath: string) {
+	if (await exists(join(modRoot, relPath))) return relPath;
+	const parts: string[] = [];
+	for (const part of relPath.split("\\")) {
+		const entries = await readDir(join(modRoot, ...parts)).catch(() => []);
+		parts.push(entries.find((e) => e.name.toLowerCase() === part.toLowerCase())?.name ?? part);
+	}
+	return parts.join("\\");
+}
 export async function updateIniVars(relPath: string, keyVals: Record<string, { def?: string; hk?: string }>) {
+	relPath = await realCasePath(relPath);
 	const path = join(modRoot, relPath);
 	console.log("Updating ini vars for:", relPath, "at", path, "with keyVals:", JSON.parse(JSON.stringify(keyVals)));
 	const [category, modName, ...rest] = relPath.split("\\");
@@ -1817,8 +1828,8 @@ export async function updateIniVars(relPath: string, keyVals: Record<string, { d
 	await writeTextFile(path, lines.join("\n"));
 	return true;
 }
-export function openFile(relPath: string) {
-	openPath(toFs(join(modRoot, relPath)));
+export async function openFile(relPath: string) {
+	openPath(toFs(join(modRoot, await realCasePath(relPath))));
 }
 export async function toggleMod(path: string, enabled: boolean, forced = false): Promise<boolean> {
 	info("[IMM] Togglingx mod:", path, "Enabled:", enabled);

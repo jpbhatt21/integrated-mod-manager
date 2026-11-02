@@ -101,7 +101,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 		const k = {} as any;
 		let keyListStr = [] as any;
 		source.forEach((keyConfig: ModHotKeys) => {
-			if (!keyConfig.default) return;
+			if (!keyConfig.default && !keyConfig.key) return;
 			if (!k[keyConfig.file]) {
 				k[keyConfig.file] = [];
 			}
@@ -235,7 +235,9 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 								const change = queuedIniChanges.find(
 									(queued) => updatedFiles.has(queued.file) && queued.file === k.file && queued.target === k.target
 								);
-								return change ? { ...k, default: change.value } : k;
+								if (!change) return k;
+								const { def, hk } = change.value;
+								return { ...k, default: def ?? k.default, key: hk ?? k.key };
 							}),
 						};
 					})
@@ -557,6 +559,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 											}}
 											key={displayDefault}
 											defaultValue={displayDefault}
+											readOnly={!keyConfig.default}
 											onBlur={(e) => {
 												const val = e.currentTarget.value;
 												if (!val) {
