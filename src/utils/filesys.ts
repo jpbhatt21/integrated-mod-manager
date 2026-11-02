@@ -1165,17 +1165,17 @@ async function detectHotkeys(
 							[target, values] = line.split("=").map((part) => part.trim());
 							target = target?.slice(1) || "";
 							counter = 0;
-							if (!fileData.hasOwnProperty(target))
-								fileData[target] = {
-									...(globalVars[target] || {
-										target,
-										file: entry.path.split(/[/\\]/).slice(2).join("\\").toLowerCase(),
-										name: target,
-										namespace,
-										default: "",
-										pref: null,
-										reset: null,
-									}),
+							// [Constants] names were lowercased above, so look them up lowercased.
+							const id = target.toLowerCase();
+							if (!fileData.hasOwnProperty(id))
+								fileData[id] = {
+									target,
+									file: entry.path.split(/[/\\]/).slice(2).join("\\").toLowerCase(),
+									name: target,
+									namespace,
+									default: globalVars[id]?.default ?? "",
+									pref: null,
+									reset: null,
 									key,
 									type,
 									values:
@@ -1184,7 +1184,7 @@ async function detectHotkeys(
 											.map((v) => v.trim())
 											.filter((v) => v) || "",
 								};
-							delete globalVars[target];
+							delete globalVars[id];
 						}
 					}
 
