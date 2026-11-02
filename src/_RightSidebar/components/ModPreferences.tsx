@@ -557,6 +557,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 											}}
 											key={displayDefault}
 											defaultValue={displayDefault}
+											readOnly={!keyConfig.default}
 											onBlur={(e) => {
 												const val = e.currentTarget.value;
 												if (!val) {
