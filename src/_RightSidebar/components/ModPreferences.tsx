@@ -101,7 +101,7 @@ function ModPreferences({ item, details }: { item: any; details: any }) {
 		const k = {} as any;
 		let keyListStr = [] as any;
 		source.forEach((keyConfig: ModHotKeys) => {
-			if (!keyConfig.default) return;
+			if (!keyConfig.default && !keyConfig.key) return;
 			if (!k[keyConfig.file]) {
 				k[keyConfig.file] = [];
 			}
