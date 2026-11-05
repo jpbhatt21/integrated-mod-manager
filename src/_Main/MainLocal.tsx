@@ -227,6 +227,7 @@ function MainLocal() {
 		if (category.size > 0) {
 			newList = newList.filter((mod) => category.has(mod.parent));
 		}
+		const date = (m: Mod) => m.installedAt ?? m.addedAt ?? 0;
 		switch (sort) {
 			case "fav-asc":
 				newList.sort((a, b) => {
@@ -240,6 +241,16 @@ function MainLocal() {
 					const aFav = a.tags?.includes("fav") ? 1 : 0;
 					const bFav = b.tags?.includes("fav") ? 1 : 0;
 					return aFav - bFav || a.name.localeCompare(b.name);
+				});
+				break;
+			case "inst-asc":
+				newList.sort((a, b) => {
+					return date(a) - date(b) || a.name.localeCompare(b.name);
+				});
+				break;
+			case "inst-desc":
+				newList.sort((a, b) => {
+					return date(b) - date(a) || a.name.localeCompare(b.name);
 				});
 				break;
 		}
