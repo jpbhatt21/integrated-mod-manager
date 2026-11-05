@@ -7,17 +7,9 @@ import { useEffect, useState } from "react";
 import type { EmblaCarouselType } from "embla-carousel";
 import Blur from "./Filter";
 import { OnlineMod } from "@/utils/types";
+import { useAtomValue } from "jotai";
+import { TEXT_DATA } from "@/utils/vars";
 
-let dict = {
-	today: "the Day",
-	yesterday: "Yesterday",
-	week: "the Week",
-	month: "the Month",
-	"3month": "the Quarter",
-	"6month": "the Year",
-	year: "the Year",
-	alltime: "All Time",
-};
 function Carousel({
 	data,
 	onModClick,
@@ -29,6 +21,7 @@ function Carousel({
 }) {
 	const [api, setApi] = useState<EmblaCarouselType | undefined>();
 	const [current, setCurrent] = useState(0);
+	const textData = useAtomValue(TEXT_DATA);
 	useEffect(() => {
 		if (!api) return;
 		const onSelect = () => {
@@ -68,7 +61,7 @@ function Carousel({
 							>
 								<div className="text-accent -mb-18 z-10 flex justify-between w-full h-16 overflow-hidden rounded-lg pointer-events-none">
 									<label className="bg-background/50 backdrop-blur-md h-fit brightness-100 px-4 py-2 text-lg font-bold rounded-tl-lg rounded-br-lg">
-										Best of {dict[(item._sPeriod || "alltime") as keyof typeof dict]}{" "}
+										 {textData.Others.bestOf.replaceAll("<date/>", textData.Others[(item._sPeriod || "alltime")])}
 									</label>
 									<label className="bg-background/50 py-2.5 px-4 rounded-bl-lg rounded-tr-lg backdrop-blur-md h-fit brightness-100 ">
 										by {item._aSubmitter._sName}
@@ -77,7 +70,7 @@ function Carousel({
 								<Blur blur={item._sInitialVisibility == "hide" && blur} />
 								<div className="h-14 bg-background/50 backdrop-blur-md -mt-14 flex items-center justify-between w-full px-2 overflow-hidden rounded-b-lg pointer-events-none">
 									<Input
-										className="w-full text-accent  border-0 rounded-none select-none focus-within:select-auto overflow-hidden max-h-14 focus-visible:ring-[0px] focus-within:border-0   text-ellipsis"
+										className="w-full text-accent  border-0 rounded-none select-none focus-within:select-auto overflow-hidden max-h-14 focus-visible:ring-0 focus-within:border-0   text-ellipsis"
 										value={item._sName}
 										style={{ backgroundColor: "#fff0", fontSize: "1.5rem" }}
 									/>

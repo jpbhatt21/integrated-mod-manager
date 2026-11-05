@@ -27,6 +27,8 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 	const textData = useAtomValue(TEXT_DATA);
 	const game = useAtomValue(GAME);
 	const setChanges = useSetAtom(CHANGES);
+	const extDriveText = textData.Others._ExtDrive;
+	const withGame = (text: string) => text.replace("<game/>", game);
 	return (
 		<div className="text-muted-foreground fixed flex flex-col items-center justify-center w-screen h-screen">
 			<div className="fixed z-20 flex flex-col items-center justify-center w-full duration-200">
@@ -92,7 +94,8 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 								onClick={async () => {
 									let path = ((await folderSelector(tgt)) as string) || "";
 									path =
-										(path.endsWith("MI") && GAMES.map((game) => game + "MI").includes(path.split(/[/\\]/).pop() ?? "")) ||
+										(path.endsWith("MI") &&
+											GAMES.map((game) => game + "MI").includes(path.split(/[/\\]/).pop() ?? "")) ||
 										path.endsWith("XXMI Launcher Config.json")
 											? path.split(/[/\\]/).slice(0, -1).join("/")
 											: path;
@@ -272,6 +275,65 @@ function Page4({ setPage }: { setPage: (page: number) => void }) {
 						</Button>
 					</div>
 				}
+			</div>
+			<div className="fixed bottom-2">
+				{extDriveText.Prompt}
+				<Dialog>
+					<DialogTrigger className="ml-1 text-destructive">{extDriveText.Here}</DialogTrigger>
+					<DialogContent>
+						<div className="min-h-fit text-accent my-6 text-3xl">{extDriveText.Title}</div>
+						<p className="text-foreground/80 text-sm">{extDriveText.Intro}</p>
+						<ul className="text-xs w-full pl-4 text-foreground/80 space-y-2">
+							<li>
+								<span>1 - </span>
+								{extDriveText.Step1Start}
+								<span className="text-warn">{withGame(extDriveText.GameModsContent)}</span>
+								{extDriveText.Step1Middle}
+								<span className="text-warn">{extDriveText.SeparateLocation}</span>
+								{extDriveText.Step1End}
+								<span className="text-warn">{extDriveText.ExternalDrive}</span>
+							</li>
+							<li>
+								<span>2 - </span>
+								{extDriveText.Step2Start}
+								<span className="text-warn">{withGame(extDriveText.GameLocation)}</span>
+								{extDriveText.Step2Middle}
+								<span className="text-warn">{extDriveText.XXMISettings}</span>
+								{extDriveText.Step2End}
+								<span className="text-warn">{extDriveText.InternalDrive}</span>
+							</li>
+						</ul>
+						<img src="/ExtDriveHelp.png" className="border-2 mb-1 w-4/5 rounded-md" />
+						<ul className="text-xs w-full pl-4 text-foreground/80 space-y-2">
+							<li>
+								<span>3 - </span>
+								<span className="text-destructive">{extDriveText.Uncheck}</span>
+								{extDriveText.Step3Start}
+								<span className="text-warn">{extDriveText.UsingXXMILauncher}</span>
+								{extDriveText.Step3Middle}
+								<span className="text-warn">{extDriveText.SameDirectory}</span>
+								{extDriveText.Step3End}
+							</li>
+							<li>
+								<span>4 - </span>
+								<span className="text-success">{extDriveText.TargetDir}</span>
+								{extDriveText.Step4Start}
+								<span className="text-warn">{withGame(extDriveText.GameModsDirectory)}</span>
+								{extDriveText.Step4End}
+								<span className="text-warn">{extDriveText.InternalDrive}</span>
+							</li>
+							<li>
+								<span>5 - </span>
+								<span className="text-success">{extDriveText.SourceDir}</span>
+								{extDriveText.Step5Start}
+								<span className="text-warn">{extDriveText.ModsFolder}</span>
+								{extDriveText.Step5End}
+								<span className="text-warn">{extDriveText.ExternalDrive}</span>
+							</li>
+						</ul>
+						<div className="text-xs text-success w-3/4 text-center">{extDriveText.Reassurance}</div>
+					</DialogContent>
+				</Dialog>
 			</div>
 		</div>
 	);

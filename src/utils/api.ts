@@ -3,6 +3,7 @@
 import { VERSION } from "./consts";
 import { saveConfigs } from "./filesys";
 import { Category } from "./types";
+import { sanitizeFileName } from "./utils";
 import { SETTINGS, store } from "./vars";
 import GAME_DATA from "@/gameData.json";
 
@@ -458,14 +459,11 @@ class ApiClient {
 			this.categoryList = [
 				...response
 					.filter((x: any) => x._idRow !== 31838)
-					.map((cat: any) =>
-						this.GAME == "GI"
-							? {
-									...cat,
-									_sIconUrl: cat._sIconUrl,
-							  }
-							: cat
-					),
+					.map((cat: any) => ({
+						...cat,
+						_sIconUrl: cat._sIconUrl || "/who.jpg",
+						_sName: sanitizeFileName(cat._sName),
+					})),
 				...this.generic.categories,
 			];
 			return this.categoryList;
@@ -510,23 +508,23 @@ class ApiClient {
 		}
 	}
 	async comments(mod = "Mod/0", page = 1, signal?: AbortSignal) {
-		try{
-			const response = await this.makeRequest(`${mod}/Posts?_nPage=${page}&_nPerpage=15&_sSort=popular`, signal && { signal });
+		try {
+			const response = await this.makeRequest(
+				`${mod}/Posts?_nPage=${page}&_nPerpage=15&_sSort=popular`,
+				signal && { signal }
+			);
 			return response;
-		}
-		catch (error) {
+		} catch (error) {
 			throw error;
 		}
 	}
 	async nestedcomments(postId = "0", signal?: AbortSignal) {
-		try{
+		try {
 			const response = await this.makeRequest(`Post/${postId}/Posts?_nPage=1&_nPerpage=15`, signal && { signal });
 			return response;
-		}
-		catch (error) {
+		} catch (error) {
 			throw error;
 		}
-
 	}
 	search({ term = "", page = 1, type = "" }) {
 		return `${API_BASE_URL}Util/Search/Results?_sModelName=${type}&_sOrder=best_match&_idGameRow=${
@@ -549,8 +547,7 @@ class ApiClient {
 						}
 					});
 			}
-		} catch (error) {
-		}
+		} catch (error) {}
 	}
 }
 export const apiClient = new ApiClient();

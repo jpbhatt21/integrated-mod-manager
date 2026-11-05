@@ -31,6 +31,7 @@ function TooltipContent({
   className,
   sideOffset = 0,
   children,
+  arrowClassName,
   hideArrow = false,
   ...props
 }:any) {
@@ -46,7 +47,7 @@ function TooltipContent({
         {...props}
       >
         {children}
-        {!hideArrow && <TooltipPrimitive.Arrow className="bg-accent fill-accent z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />}
+        {!hideArrow && <TooltipPrimitive.Arrow className={cn("bg-accent fill-accent z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] ", arrowClassName)} />}
       </TooltipPrimitive.Content>
     </TooltipPrimitive.Portal>
   )

@@ -113,24 +113,6 @@ store.sub(SETTINGS, () => {
 export function getImageUrl(path: string): string {
 	return HIDE_PREVIEWS?"":`${IMAGE_SERVER_URL}/${src}/${managedSRC}/${path}`;
 }
-const PRIORITY_KEYS = ["Alt", "Ctrl", "Shift", "Capslock", "Tab", "Up", "Down", "Left", "Right"];
-const PRIORITY_SET = new Set(PRIORITY_KEYS);
-export function keySort(keys: string[]): string[] {
-	const regularKeys = keys.filter((key) => !PRIORITY_SET.has(key));
-
-	regularKeys.sort((a, b) => {
-		if (a.length !== b.length) {
-			return a.length - b.length;
-		}
-
-		return a.localeCompare(b);
-	});
-
-	const inputKeysSet = new Set(keys);
-	const presentPriorityKeys = PRIORITY_KEYS.filter((pKey) => inputKeysSet.has(pKey));
-
-	return [...presentPriorityKeys, ...regularKeys];
-}
 export function getTimeDifference(startTimestamp: number, endTimestamp: number) {
 	const secInMinute = 60;
 	const secInHour = secInMinute * 60;
@@ -278,6 +260,7 @@ export function handleInAppLink(url: string) {
 			store.set(FILE_TO_DL, temp[1]);
 		}
 	}
+	console.log("[IMM] Handling in-app link:", url);
 	if (!url.startsWith("http")) return;
 	let mod = modRouteFromURL(url);
 	if (mod) {

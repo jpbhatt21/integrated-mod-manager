@@ -1,8 +1,11 @@
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { TEXT_DATA } from "@/utils/vars";
+import { useAtomValue } from "jotai";
 
 let timer: ReturnType<typeof setTimeout>;
 function Credits() {
+	const textData = useAtomValue(TEXT_DATA)
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger>
@@ -12,10 +15,10 @@ function Credits() {
 						if (timer) clearTimeout(timer);
 						timer = setTimeout(() => {
 							(document.getElementById("cancel-alert") as HTMLButtonElement)?.click();
-						}, 50000);
+						}, 55000);
 					}}
 				>
-					Credits
+					{textData.Credits.creds}
 				</Button>
 			</AlertDialogTrigger>
 			<AlertDialogContent
@@ -45,48 +48,52 @@ function Credits() {
 						<div className="text-foreground text-2xl">Integrated</div>
 						<div className=" text-accent textaccent text-lg">Mod Manager</div> */}
 
-						<div className="text-2xl mb-16 opacity-80">A long time ago in a codebase far, far away...</div>
+						<div className="text-2xl mb-16 opacity-80">{textData.Credits.long}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">CREATOR</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.creator}</div>
 						<div className="text-xl mb-6">YourBadLuck</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">CONTRIBUTORS</div>
-						<div className="text-xl mb-2">Antonzlo (Dev,TL-ru)</div>
-						<div className="text-xl mb-2">118ununoctium (TL-cn)</div>
-						<div className="text-xl mb-8">EgoMaw (Dev)</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.contri}</div>
+						<div className="text-xl mb-2">Antonzlo</div>
+						<div className="text-xl mb-2">EgoMaw</div>
+						<div className="text-xl mb-8">EvilNick2</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">EMERGENCY FOOD</div>
-						<div className="text-xl mb-8">Paimon (allegedly)</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.translation}</div>
+						<div className="text-xl mb-2">Antonzlo ( {textData.Languages.ru} )</div>
+						<div className="text-xl mb-8">118ununoctium ( {textData.Languages.cn} )</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">OSMANTHUS WINE TASTER</div>
-						<div className="text-xl mb-8">Zhongli</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.EMERG}</div>
+						<div className="text-xl mb-8">{textData.Credits.paimon}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">ARTIFACT RNG CONSULTANT</div>
-						<div className="text-xl mb-2">Flat DEF Enthusiast</div>
-						<div className="text-lg mb-8 opacity-70">Every. Single. Roll.</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.OSM}</div>
+						<div className="text-xl mb-8">{textData.Credits.zhongli}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">BANGBOO CARETAKER</div>
-						<div className="text-xl mb-8">Belle & Wise</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.ARTI}</div>
+						<div className="text-xl mb-2">{textData.Credits.flatDef}</div>
+						<div className="text-lg mb-8 opacity-70">{textData.Credits.roll}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">THE BEST COMMISION BROKER EVER</div>
-						<div className="text-xl mb-8">Venus</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.BGB}</div>
+						<div className="text-xl mb-8">{textData.Credits.proxy}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">ECHO FARMING VICTIM</div>
-						<div className="text-xl mb-2">Rover</div>
-						<div className="text-lg mb-8 opacity-70">2000 echoes, still no 5-cost drop</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.COMS}</div>
+						<div className="text-xl mb-8">{textData.Credits.venus}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">The Real MVPs</div>
-						<div className="text-xl mb-8">Modders who actually make the mods</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.ECHO}</div>
+						<div className="text-xl mb-2">{textData.Credits.rover}</div>
+						<div className="text-lg mb-8 opacity-70">{textData.Credits.no5cost}</div>
 
-						<div className="text-3xl font-bold textaccent text-accent mb-2">SPECIAL THANKS</div>
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.MVP}</div>
+						<div className="text-xl mb-8">{textData.Credits.modders}</div>
+
+						<div className="text-3xl font-bold textaccent text-accent mb-2">{textData.Credits.SPT}</div>
 						<div className="text-xl mb-2">XLXZ (XX Mod Manager)</div>
 						<div className="text-xl mb-2">Agulag (No Reload Mod Manager)</div>
-						<div className="text-xl mb-2">The Modding & AGMG Community</div>
-						<div className="text-xl mb-2">Testers & Bug Reporters at the Discord Server</div>
-						<div className="text-xl mb-2">And you, the User!</div>
+						<div className="text-xl mb-2">{textData.Credits.community}</div>
+						<div className="text-xl mb-2">{textData.Credits.testers}</div>
+						<div className="text-xl mb-2">{textData.Credits.user}</div>
 
-						<div className="text-4xl font-bold mt-16 textaccent text-accent mb-8">MAY THE MODS BE WITH YOU</div>
-						<div className="text-xl mt-12 mb-2">Thank you for using</div>
+						<div className="text-4xl font-bold mt-16 textaccent text-accent mb-8">{textData.Credits.may}</div>
+						<div className="text-xl mt-12 mb-2">{textData.Credits.thanks.replace("<imm/>","").trim()}</div>
 						<div className="text-foreground text-2xl">Integrated</div>
 						<div className=" text-accent textaccent text-lg">Mod Manager</div>
 

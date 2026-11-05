@@ -262,7 +262,7 @@ function Changes({ afterInit, animateProps }: { afterInit: () => Promise<void>; 
 							setAlertOpen(true);
 						}}
 					>
-						{loading ? "Processing..." : textData.Confirm}
+						{loading ? textData.Others.processing : textData.Confirm}
 					</Button>
 				</div>
 			</div>

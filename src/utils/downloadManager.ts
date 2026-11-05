@@ -1,5 +1,4 @@
 import { invoke } from "@tauri-apps/api/core";
-import { confirm } from "@tauri-apps/plugin-dialog";
 import { DOWNLOAD_LIST, store } from "./vars";
 import { DownloadItem, DownloadList } from "./types";
 import { cleanCancelledDownload } from "./filesys";
@@ -14,17 +13,22 @@ export async function confirmAndCancelDownloadsForGameSwitch() {
 	const active = activeDownloads(downloads);
 	if (!active.length) return true;
 
-	const list = active.map((item) => `- ${item.name || item.fname || item.key} (${item.status || "downloading"})`).join("\n");
+	const groups = new Map<string, string[]>();
+	for (const item of active) {
+		const rawStatus = String(item.status || "downloading").toLowerCase();
+		const status = rawStatus.includes("extract") ? "Extracting" : rawStatus.includes("pending") || rawStatus.includes("queue") ? "Pending" : "Downloading";
+		const items = groups.get(status) || [];
+		items.push(`- ${item.name || item.fname || item.key}`);
+		groups.set(status, items);
+	}
+	const list = ["Downloading", "Extracting", "Pending"]
+		.filter((status) => groups.has(status))
+		.map((status) => `${status}:\n${groups.get(status)!.join("\n")}`)
+		.join("\n\n");
 	const queued = downloads.queue?.length ? `\n\nQueued downloads: ${downloads.queue.length}` : "";
-	const ok = await confirm(
-		`Downloads are still running:\n\n${list}${queued}\n\nWait for them to complete, or continue and cancel all downloads.`,
-		{
-			title: "Cancel Downloads?",
-			kind: "warning",
-			okLabel: "Cancel Downloads",
-			cancelLabel: "Keep Downloading",
-		}
-	);
+	const ok = await new Promise<boolean>((resolve) => {
+		window.dispatchEvent(new CustomEvent("download-switch-confirm", { detail: { message: `Downloads are still running:\n\n${list}${queued}\n\nWait for them to complete, or continue and cancel all downloads.`, resolve } }));
+	});
 	if (!ok) return false;
 
 	await invoke("get_username").catch(() => {});

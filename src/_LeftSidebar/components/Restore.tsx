@@ -11,14 +11,13 @@ import {
 	restoreFromPoint,
 } from "@/utils/filesys";
 import { Mod } from "@/utils/types";
-import { GAME, REMOVE_OPEN, TEXT_DATA } from "@/utils/vars";
-import { useAtomValue, useSetAtom } from "jotai";
+import { GAME, TEXT_DATA } from "@/utils/vars";
+import { useAtomValue } from "jotai";
 import { FileIcon, FolderCogIcon, FolderIcon, PlusIcon, SaveAllIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 function Restore({ leftSidebarOpen, disabled = false }: { leftSidebarOpen: boolean; disabled?: boolean }) {
 	const textData = useAtomValue(TEXT_DATA);
 	const [dialogOpen, setDialogOpen] = useState(false);
-	const setRemoveOpen = useSetAtom(REMOVE_OPEN)
 	const [restorePoints, setRestorePoints] = useState<string[]>([]);
 	const [selectedRestorePoint, setSelectedRestorePoint] = useState<number>(-1);
 	const [alertOpen, setAlertOpen] = useState(false);

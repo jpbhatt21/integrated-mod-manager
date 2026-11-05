@@ -12,11 +12,12 @@ import { toFs } from "@/utils/pathsep";
 import {
 	cleanCancelledDownload,
 	createModDownloadDir,
+	getModDetails,
 	refreshModList,
 	saveConfigs,
 	validateModDownload,
 } from "@/utils/filesys";
-import { DownloadItem } from "@/utils/types";
+import { DownloadItem, ModData, ModDataObj } from "@/utils/types";
 import { UNCATEGORIZED } from "@/utils/consts";
 import { info } from "@/lib/logger";
 
@@ -73,8 +74,8 @@ function Downloads() {
 		if (speedRefs.current[key]) speedRefs.current[key].textContent = " • ";
 		if (rowRefs.current[key]) rowRefs.current[key].style.width = "0%";
 	};
-	const getProgress = (key?: string) => (key ? progressView[key] || { percent: 0, text: " • " } : { percent: 0, text: " • " });
-	
+	const getProgress = (key?: string) =>
+		key ? progressView[key] || { percent: 0, text: " • " } : { percent: 0, text: " • " };
 
 	const markDownloadFailed = (key: string, message: string, stage = "download") => {
 		const activeFailed = activeDownloadsRef.current[key] || null;
@@ -93,21 +94,24 @@ function Downloads() {
 			...prev,
 			downloading: (prev.downloading || []).filter((item) => item.key !== key),
 			extracting: prev.extracting?.filter((item) => item.key !== key) || [],
-			completed: [...(prev.completed || []), { ...failedItem, status: "failed", error: message || stage } as DownloadItem],
+			completed: [
+				...(prev.completed || []),
+				{ ...failedItem, status: "failed", error: message || stage } as DownloadItem,
+			],
 		}));
 	};
-	const resetAllProgress = () => {
-		progressRef.current = {};
-		lastSpeedUpdate.current = {};
-		setProgressView({});
-		Object.values(rowRefs.current).forEach((ref) => {
-			if (ref) ref.style.width = "0%";
-		});
-		if (headerRef.current) headerRef.current.style.width = "0%";
-		if (collapsedRef.current) {
-			collapsedRef.current.style.background = "conic-gradient( var(--accent) 0% 0%, var(--button) 0% 100%)";
-		}
-	};
+	// const resetAllProgress = () => {
+	// 	progressRef.current = {};
+	// 	lastSpeedUpdate.current = {};
+	// 	setProgressView({});
+	// 	Object.values(rowRefs.current).forEach((ref) => {
+	// 		if (ref) ref.style.width = "0%";
+	// 	});
+	// 	if (headerRef.current) headerRef.current.style.width = "0%";
+	// 	if (collapsedRef.current) {
+	// 		collapsedRef.current.style.background = "conic-gradient( var(--accent) 0% 0%, var(--button) 0% 100%)";
+	// 	}
+	// };
 
 	const prepareDownload = async (item: DownloadItem): Promise<DownloadQueueItem> => {
 		const category =
@@ -130,12 +134,14 @@ function Downloads() {
 		};
 	};
 
-	const startDownload = (item: DownloadQueueItem) => {
+	const startDownload = async (item: DownloadQueueItem) => {
 		if (!item.key || !item.dlPath) return;
 		currentPathRef.current[item.key] = item.dlPath;
 		activeDownloadsRef.current[item.key] = item;
+		let dataReq = {} as ModData;
 		setData((prevData) => {
 			if (!item.path) return prevData;
+			dataReq = prevData[item.path] || {};
 			return {
 				...prevData,
 				[item.path]: {
@@ -145,6 +151,24 @@ function Downloads() {
 				},
 			};
 		});
+		if (Object.keys(dataReq).length > 0 && item.path) {
+			const details = await getModDetails(item.path, dataReq as any as ModDataObj);
+			let modData = dataReq.vars || {};
+			const applyModData = (key: any) => {
+				const nextKey = { ...key };
+				nextKey.ns = nextKey.namespace || nextKey.file;
+				if (modData[nextKey.ns] && modData[nextKey.ns][nextKey.target]) {
+					nextKey.pref = modData[nextKey.ns][nextKey.target].pref;
+					nextKey.reset = modData[nextKey.ns][nextKey.target].reset;
+					nextKey.name = modData[nextKey.ns][nextKey.target].name || nextKey.target;
+					nextKey.state = modData[nextKey.ns][nextKey.target].state || null;
+					nextKey.keyReset = modData[nextKey.ns][nextKey.target].keyReset || null;
+				}
+				return nextKey;
+			};
+			const data = details.keys.map(applyModData).filter((key) => key.reset || key.keyReset);
+			sessionStorage.setItem("modData_" + item.path, JSON.stringify(data));
+		}
 		saveConfigs();
 		invoke("download_and_unzip", {
 			fileName: item.name,
@@ -163,7 +187,6 @@ function Downloads() {
 			}).catch(() => {});
 		}
 	};
-
 
 	useEffect(() => {
 		const unlisteners: Array<() => void> = [];
@@ -311,7 +334,10 @@ function Downloads() {
 		...(downloads.downloading || []).map((item) => ({ ...item, status: "downloading" as const })),
 		...(downloads.extracting || []).map((item) => ({ ...item, status: "extracting" as const })),
 		...(downloads.queue || []).map((item) => ({ ...item, status: "pending" as const })),
-		...(downloads.completed || []).map((item) => ({ ...item, status: (item.status || "completed") as DownloadItem["status"] })),
+		...(downloads.completed || []).map((item) => ({
+			...item,
+			status: (item.status || "completed") as DownloadItem["status"],
+		})),
 	];
 	const primaryDownload = downloadList.find((item) => item.status === "downloading") || downloadList[0];
 	const primaryProgress = getProgress(primaryDownload?.key);
@@ -340,7 +366,9 @@ function Downloads() {
 									style={{ width: primaryProgress.percent + "%" }}
 								>
 									<div className="min-w-79 fade-in flex items-center justify-center gap-1 pointer-events-none">
-										{Icons[primaryDownload.status as keyof typeof Icons] || <FileQuestionIcon className="min-h-4 min-w-4" />}
+										{Icons[primaryDownload.status as keyof typeof Icons] || (
+											<FileQuestionIcon className="min-h-4 min-w-4" />
+										)}
 										<Label className="min-w-2 max-w-71.5 w-fit py-2 pr-2" style={{ backgroundColor: "#fff0" }}>
 											{primaryDownload.status == "downloading"
 												? `${textData._LeftSideBar._components._Downloads.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
@@ -349,7 +377,9 @@ function Downloads() {
 									</div>
 								</div>
 								<div className="fade-in min-h-12 flex items-center justify-center w-full gap-1 pointer-events-none">
-									{Icons[primaryDownload.status as keyof typeof Icons] || <FileQuestionIcon className="min-h-4 min-w-4" />}
+									{Icons[primaryDownload.status as keyof typeof Icons] || (
+										<FileQuestionIcon className="min-h-4 min-w-4" />
+									)}
 									<Label className=" w-fit max-w-72 pr-2 pointer-events-none">
 										{primaryDownload.status == "downloading"
 											? `${textData._LeftSideBar._components._Downloads.Downloading} ${done + downloads.downloading.length}/${downloadList.length}`
@@ -442,12 +472,19 @@ function Downloads() {
 										</div>
 									</div>
 									<div className="flex items-center gap-2 z-20">
-										{item.status === "pending" || item.status === "completed" || item.status === "failed" || item.status === "downloading" ? (
+										{item.status === "pending" ||
+										item.status === "completed" ||
+										item.status === "failed" ||
+										item.status === "downloading" ? (
 											<Button
 												variant="ghost"
 												size="sm"
 												onClick={() => cancelDownload(index)}
-												className={item.status === "completed" || item.status === "failed" ? "hover:text-gray-300 data-zzz:border-0 text-gray-400" : "hover:text-destructive"}
+												className={
+													item.status === "completed" || item.status === "failed"
+														? "hover:text-gray-300 data-zzz:border-0 text-gray-400"
+														: "hover:text-destructive"
+												}
 											>
 												<X className="w-4 h-4" />
 											</Button>

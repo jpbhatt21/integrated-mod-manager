@@ -27,7 +27,7 @@ export const OLD_managedTGT = "Mods (Managed by IMM)";
 export const managedSRC = "DISABLED - ALL MODS ARE STORED HERE (Managed by IMM)";
 export const managedTGT = "DO NOT MODIFY (Managed by IMM)";
 export const INI_BACKUP = "DISABLED_IMM_INI_BACKUP"; //If changed, also update in src-tauri/src/lib.rs
-export const VERSION = "3.1.1";
+export const VERSION = "4.0.0";
 export const GAMES: Games[] = ["WW", "ZZ", "GI", "SR", "EF"];
 export const GAME_GB_IDS: { [key: number]: Games } = {
 	20357: "WW",
@@ -46,7 +46,7 @@ export const GAME_NAMES: { [key in Games]: string } = {
 	EF: "Endfield",
 };
 export const exts = ["png", "jpg", "jpeg", "webp", "gif"];
-export const PRIORITY_KEYS = ["Alt", "Ctrl", "Shift", "Capslock", "Tab", "Up", "Down", "Left", "Right"] as const;
+export const PRIORITY_KEYS = ["Alt", "Ctrl", "Shift", "Win", "Capslock", "Tab", "Up", "Down", "Left", "Right"] as const;
 export const LANG_LIST: { Name: string; Flag: string; Code: Language }[] = [
 	{
 		Name: TEXT.en.Current,

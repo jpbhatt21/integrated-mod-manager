@@ -53,7 +53,7 @@ import { Games, Mod, ModDataObj } from "@/utils/types";
 import ManageCategories from "./components/ManageCategories";
 import { Dialog } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatHotkeyDisplay, normalizeHotkey } from "@/utils/hotkeyUtils";
+import { vkToDisplay } from "@/utils/hotkeyUtils";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AnimatePresence, motion } from "motion/react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent } from "@/components/ui/alert-dialog";
@@ -64,6 +64,8 @@ import ModPreferences from "./components/ModPreferences";
 import { info } from "@/lib/logger";
 import ModPreviewCrop from "./components/ModPreviewCrop";
 import ModPreview from "./components/ModPreview";
+import { savePreviewImageFromData } from "@/utils/filesys";
+import { useDropzone } from "react-dropzone";
 
 let text = "";
 let curUrlIndex = 0;
@@ -110,6 +112,8 @@ function RightLocal() {
 				} else {
 					throw new Error("Invalid game in URL or same as current game.");
 				}
+			} else {
+				throw new Error("URL does not contain a game or mode parameter.");
 			}
 		},
 		[game]
@@ -194,10 +198,10 @@ function RightLocal() {
 	const [data, setData] = useAtom(DATA);
 	const [item, setItem] = useState<Mod | undefined>();
 
-		const [alertOpen, setAlertOpen] = useState(false);
-		const [popoverOpen, setPopoverOpen] = useState(false);
-		const [details, setDetails] = useState<any>({});
-		const detailsRequestRef = useRef(0);
+	const [alertOpen, setAlertOpen] = useState(false);
+	const [popoverOpen, setPopoverOpen] = useState(false);
+	const [details, setDetails] = useState<any>({});
+	const detailsRequestRef = useRef(0);
 	useEffect(() => {
 		if (!alertOpen) {
 			setDeleteItemData(null);
@@ -220,6 +224,29 @@ function RightLocal() {
 	}
 	const [category, setCategory] = useState({ name: "-1", icon: "" });
 	const lastUpdated = useAtomValue(LAST_UPDATED);
+	const [isPreviewDragActive, setIsPreviewDragActive] = useState(false);
+	const onPreviewDrop = useCallback(
+		async (acceptedFiles: File[]) => {
+			if (!item?.path || acceptedFiles.length === 0) return;
+			const file = acceptedFiles[0];
+			const extension = file.type.split("/").pop() || "png";
+			const data = new Uint8Array(await file.arrayBuffer());
+			await savePreviewImageFromData(item.path, extension, data);
+			setDialogType("preview-crop");
+			setDialogOpen(true);
+		},
+		[item?.path]
+	);
+	const { getRootProps: getPreviewRootProps, getInputProps: getPreviewInputProps } = useDropzone({
+		onDrop: onPreviewDrop,
+		multiple: false,
+		accept: { "image/png": [".png"], "image/jpeg": [".jpg", ".jpeg"], "image/gif": [".gif"], "image/webp": [".webp"] },
+		noClick: true,
+		onDragEnter: () => setIsPreviewDragActive(true),
+		onDragLeave: () => setIsPreviewDragActive(false),
+		onDropAccepted: () => setIsPreviewDragActive(false),
+		onDropRejected: () => setIsPreviewDragActive(false),
+	});
 	function renameMod(path: string, newPath: string) {
 		changeModName(path, newPath)
 			.then((newPath) => {
@@ -262,24 +289,20 @@ function RightLocal() {
 						files: mod.files || {},
 					});
 				}
-				getModDetails(mod.path,mod as any as ModDataObj).then((details) => {
+				getModDetails(mod.path, mod as any as ModDataObj).then((details) => {
 					if (detailsRequestRef.current !== requestId) return;
 					const modData = data[mod.path]?.vars;
 					if (modData) {
 						console.log("Mod data found for mod details:", modData, details);
 						const applyModData = (key: any) => {
 							const nextKey = { ...key };
-							if (nextKey.namespace && modData[nextKey.namespace] && modData[nextKey.namespace][nextKey.target]) {
-								nextKey.pref = modData[nextKey.namespace][nextKey.target].pref;
-								nextKey.reset = modData[nextKey.namespace][nextKey.target].reset;
-								nextKey.name = modData[nextKey.namespace][nextKey.target].name || nextKey.target;
-								nextKey.state = modData[nextKey.namespace][nextKey.target].state || null;
-							}
-							if (modData[nextKey.file] && modData[nextKey.file][nextKey.target]) {
-								nextKey.pref = modData[nextKey.file][nextKey.target].pref;
-								nextKey.reset = modData[nextKey.file][nextKey.target].reset;
-								nextKey.name = modData[nextKey.file][nextKey.target].name || nextKey.target;
-								nextKey.state = modData[nextKey.file][nextKey.target].state || null;
+							nextKey.ns = nextKey.namespace || nextKey.file;
+							if (modData[nextKey.ns] && modData[nextKey.ns][nextKey.target]) {
+								nextKey.pref = modData[nextKey.ns][nextKey.target].pref;
+								nextKey.reset = modData[nextKey.ns][nextKey.target].reset;
+								nextKey.name = modData[nextKey.ns][nextKey.target].name || nextKey.target;
+								nextKey.state = modData[nextKey.ns][nextKey.target].state || null;
+								nextKey.keyReset = modData[nextKey.ns][nextKey.target].keyReset || null;
 							}
 							return nextKey;
 						};
@@ -289,15 +312,12 @@ function RightLocal() {
 							files: Object.fromEntries(
 								Object.entries(details.files).map(([file, keys]) => [
 									file,
-									(keys as any[]).map((key: any) => applyModData({ ...key, file: key.file || file })),
+									(keys as any[]).map((key: any) => applyModData({ ...key, file: key.file || file })).sort((a: any, b: any) => a.target.localeCompare(b.target))
 								])
 							),
 						};
 					}
-					details.keys = details.keys
-						.map((key: any) => ({ ...key, key: formatHotkeyDisplay(normalizeHotkey(key.key)) }))
-						.sort((a: any, b: any) => a.key.localeCompare(b.key));
-
+					details.keys = details.keys.sort((a: any, b: any) => a.target.localeCompare(b.target));
 					setDetails(details);
 					cachcedDetails[cacheKey] = details;
 				});
@@ -414,7 +434,11 @@ function RightLocal() {
 							"---"
 						)}
 					</div>
-					<SidebarGroup className="min-h-48 max-h-48 overflow-hidden w-82 mt-1 data-zzz:rounded-[0.0625rem] border rounded-lg data-zzz:rounded-tr-2xl data-zzz:rounded-bl-2xl select-nzone">
+					<SidebarGroup
+						{...getPreviewRootProps()}
+						className={`min-h-48 max-h-48 overflow-hidden w-82 mt-1 data-zzz:rounded-[0.0625rem] border rounded-lg data-zzz:rounded-tr-2xl data-zzz:rounded-bl-2xl select-nzone relative ${isPreviewDragActive ? "border-accent" : ""}`}
+					>
+						<input {...getPreviewInputProps()} />
 						{/* <EditIcon
 							onClick={() => {
 								item && savePreviewImage(item.path);
@@ -429,7 +453,6 @@ function RightLocal() {
 						></img>
 						<img
 							id="preview"
-							
 							className="w-82 h-48 -mb-48 backdrop-blur-md bg-background/50 object-contain peer"
 							onError={(e) => {
 								handleImageError(e);
@@ -438,20 +461,23 @@ function RightLocal() {
 									next.style.opacity = "1";
 									let nextChild = next.firstElementChild as HTMLButtonElement;
 									if (nextChild) {
-										nextChild.innerText = "Set Preview Image";
+										nextChild.innerText = textData.Others.setPreview;
 									}
 								}
 							}}
 							src={`${getImageUrl(item?.path || "")}?${lastUpdated}`}
 						></img>
 						{item?.path && (
-							<div key={lastUpdated} className="w-82 h-48 flex items-center justify-center text-xs text-accent backdrop-blur-sm bg-background/20 opacity-0 pointer-events-none peer-hover:opacity-100 hover:opacity-100 duration-300">
+							<div
+								key={lastUpdated}
+								className="w-82 h-48 flex items-center justify-center text-xs text-accent backdrop-blur-sm bg-background/20 opacity-0 pointer-events-none peer-hover:opacity-100 hover:opacity-100 duration-300"
+							>
 								<Button
 									className="pointer-events-auto"
 									onClick={async (e) => {
 										const current = e.currentTarget;
 										// const parent = current.parentElement as HTMLDivElement;
-										if (current.innerText == "Set Preview Image") {
+										if (current.innerText == textData.Others.setPreview) {
 											setDialogType("preview-blank");
 											// const success = await savePreviewImage(item.path);
 											// if (!success) {
@@ -463,8 +489,13 @@ function RightLocal() {
 										setDialogOpen(true);
 									}}
 								>
-									Edit Preview Image
+									{textData.Others.editPreview}
 								</Button>
+							</div>
+						)}
+						{isPreviewDragActive && item?.path && (
+							<div className="absolute inset-0 z-20 flex items-center justify-center border-2 border-dashed border-accent bg-background/70 text-sm text-accent pointer-events-none">
+								{textData.Others.dropImage}
 							</div>
 						)}
 					</SidebarGroup>
@@ -794,16 +825,18 @@ function RightLocal() {
 															</label>
 															|
 															<div className=" flex items-center w-2/3 gap-1">
-																{(hotkey.key as string).split(" ﹢ ").map((key, i, arr) => (
-																	<span key={i} className="flex items-center">
-																		<kbd className="text-accent bg-sidebar border-border min-w-8 px-2 py-1 text-sm font-semibold text-center border rounded-md shadow-sm">
-																			{key}
-																		</kbd>
-																		{i < arr.length - 1 && (
-																			<span className="text-muted-foreground mx-1 text-xs">+</span>
-																		)}
-																	</span>
-																))}
+																{vkToDisplay(hotkey.key as string)
+																	.split(" ﹢ ")
+																	.map((key, i, arr) => (
+																		<span key={i} className="flex items-center">
+																			<kbd className="text-accent bg-sidebar border-border min-w-8 px-2 py-1 text-sm font-semibold text-center border rounded-md shadow-sm">
+																				{key}
+																			</kbd>
+																			{i < arr.length - 1 && (
+																				<span className="text-muted-foreground mx-1 text-xs">+</span>
+																			)}
+																		</span>
+																	))}
 															</div>
 														</div>
 													))}

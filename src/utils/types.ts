@@ -79,6 +79,7 @@ export interface ModData {
 export interface ModVarValue {
 	pref?: unknown;
 	reset?: unknown;
+	keyReset?: unknown;
 	name?: string;
 	state?: unknown;
 }

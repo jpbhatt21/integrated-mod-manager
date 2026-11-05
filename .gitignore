@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+bundle_*
+.bundle*
+
 # Flatpak local build output
 .flatpak-builder/
 flatpak-build-dir/
