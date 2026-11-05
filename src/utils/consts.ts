@@ -188,12 +188,20 @@ export const SORT_OPTIONS = Object.fromEntries(
 			value: "fav-desc",
 		},
 		{
-			label: "Install Date ↑",
+			label: "Installed ↑",
 			value: "inst-asc",
 		},
 		{
-			label: "Install Date ↓",
+			label: "Installed ↓",
 			value: "inst-desc",
+		},
+		{
+			label: "Updated ↑",
+			value: "upd-asc",
+		},
+		{
+			label: "Updated ↓",
+			value: "upd-desc",
 		},
 		// {
 		// 	label: "Source ↑",
