@@ -187,6 +187,22 @@ export const SORT_OPTIONS = Object.fromEntries(
 			label: "Favourite ↓",
 			value: "fav-desc",
 		},
+		{
+			label: "Installed ↑",
+			value: "inst-asc",
+		},
+		{
+			label: "Installed ↓",
+			value: "inst-desc",
+		},
+		{
+			label: "Updated ↑",
+			value: "upd-asc",
+		},
+		{
+			label: "Updated ↓",
+			value: "upd-desc",
+		},
 		// {
 		// 	label: "Source ↑",
 		// 	value: "src-asc",

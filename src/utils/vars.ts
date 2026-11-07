@@ -59,7 +59,7 @@ const CURRENT_PRESET = atom(DEFAULTS.CURRENT_PRESET);
 const MOD_LIST = atom<Mod[]>(DEFAULTS.MOD_LIST);
 const SELECTED = atom(DEFAULTS.SELECTED);
 const FILTER = atom(DEFAULTS.FILTER);
-const SORT = atom(DEFAULTS.SORT);
+const SORT = atomWithStorage("imm-sort", DEFAULTS.SORT);
 const CATEGORY = atom(DEFAULTS.CATEGORY);
 const SEARCH = atom(DEFAULTS.SEARCH);
 const INSTALLED_ITEMS = atom<InstalledItem[]>(DEFAULTS.INSTALLED_ITEMS);
@@ -129,7 +129,7 @@ export function resetAtoms() {
 		FILTER,
 		CATEGORY,
 		SEARCH,
-		SORT,
+		// SORT, // remember local sort config after a restart 
 		INSTALLED_ITEMS,
 		ONLINE_DATA,
 		ONLINE_TYPE,

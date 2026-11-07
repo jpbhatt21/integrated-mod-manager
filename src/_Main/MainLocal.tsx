@@ -227,6 +227,8 @@ function MainLocal() {
 		if (category.size > 0) {
 			newList = newList.filter((mod) => category.has(mod.parent));
 		}
+		const installed = (m: Mod) => m.installedAt ?? m.addedAt ?? 0;
+		const updated = (m: Mod) => Math.max(m.updatedAt ?? 0, 0);
 		switch (sort) {
 			case "fav-asc":
 				newList.sort((a, b) => {
@@ -242,8 +244,27 @@ function MainLocal() {
 					return aFav - bFav || a.name.localeCompare(b.name);
 				});
 				break;
+			case "inst-asc":
+				newList.sort((a, b) => {
+					return installed(a) - installed(b) || a.name.localeCompare(b.name);
+				});
+				break;
+			case "inst-desc":
+				newList.sort((a, b) => {
+					return installed(b) - installed(a) || a.name.localeCompare(b.name);
+				});
+				break;
+			case "upd-asc":
+				newList.sort((a, b) => {
+					return updated(a) - updated(b) || a.name.localeCompare(b.name);
+				});
+				break;
+			case "upd-desc":
+				newList.sort((a, b) => {
+					return updated(b) - updated(a) || a.name.localeCompare(b.name);
+				});
+				break;
 		}
-
 		setFilteredList(newList);
 	}, [modList, filter, category, search, sort]);
 
@@ -280,7 +301,7 @@ function MainLocal() {
 		if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
 		scrollTimeoutRef.current = setTimeout(() => {
 			if (containerRef.current) {
-				const scale = parseInt((document.documentElement.style.fontSize || "16px").replace("px", ""))/16;
+				const scale = parseInt((document.documentElement.style.fontSize || "16px").replace("px", "")) / 16;
 				const box = containerRef.current.getBoundingClientRect();
 				const scrollTop = containerRef.current.scrollTop;
 				const itemHeight = 304 * scale;

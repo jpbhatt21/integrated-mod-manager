@@ -165,7 +165,7 @@ function TopBar() {
 										}[onlineSort]
 									)
 								) : (
-									<>{SORT_OPTIONS[sort].replace("Default",textData._Main._components._TopBar.Default).replace("Favourite",textData._Tags.Favorite)}</>
+									<>{(SORT_OPTIONS[sort] ?? SORT_OPTIONS.default).replace("Default",textData._Main._components._TopBar.Default).replace("Favourite",textData._Tags.Favorite)}</>
 								)}
 							</div>
 						</PopoverTrigger>
